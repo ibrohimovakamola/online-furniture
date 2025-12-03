@@ -1,0 +1,101 @@
+.about-wrapper{
+    overflow: hidden;
+
+}
+.about{
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 42px 0 140px;
+    &-info{
+        // display: flex;
+        width: 50% !important;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+    &-title{
+        font-family: Inter;
+        font-weight: 600;
+        font-style: Semi Bold;
+        font-size: 54px;
+        line-height: 64px;
+        letter-spacing: 6%;
+        text-align: justify;
+        margin-bottom: 16px;
+
+    }
+    &-text{
+        font-family: Poppins;
+        font-weight: 400;
+        font-style: Regular;
+        font-size: 16px;
+        line-height: 26px;
+        letter-spacing: 0%;
+        max-width: 525px;
+
+    }
+    &-img{
+        position: relative;
+        height: 609px;
+        img{
+            width: 837px;
+            position: absolute;
+        }
+        
+    }
+    &-cards{
+        display: flex;
+        justify-content: space-between;
+    }
+    &-card{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px 50px;
+        border: 1px solid #c2bfbf;
+        border-radius: 4px;
+        transition: .3s linear;
+        
+        &:hover{
+            color: #FAFAFA;
+            background: #DB4444;
+            border: 1px solid #DB4444;
+            button{
+                background: #FAFAFA;
+                color: #000;
+                font-size: 40px;
+                padding: 9px 7px;
+                border-radius: 100%;
+                border: 11px solid #db444476;
+
+            }
+        }
+        button{
+            background: #000;
+            color: #FAFAFA;
+            font-size: 40px;
+            padding: 9px 7px;
+            border-radius: 100%;
+            border: 11px solid #9b9a9a;
+            transition: .3s linear;
+        }
+        h4{
+            font-family: Inter;
+            font-weight: 700;
+            font-size: 32px;
+            line-height: 30px;
+            letter-spacing: 4%;
+            margin: 20px 0 10px;
+        }
+        p{
+            font-family: Poppins;
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 24px;
+            letter-spacing: 0%;
+            text-align: center;
+
+        }
+    }
+}

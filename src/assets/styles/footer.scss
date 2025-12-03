@@ -1,0 +1,121 @@
+.footer-wrapper{
+    background: #000000;
+    color: #fff;
+    padding: 80px 0 120px;
+    margin-top: 140px;
+}
+.footer{
+    display: flex;
+    justify-content: space-between;
+    &-logo{
+        font-family: Inter;
+        font-weight: 700;
+        font-size: 24px;
+        line-height: 24px;
+        letter-spacing: 3%;
+        color: #FAFAFA;
+
+    }
+    &-column{
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    &-title{
+        font-family: Poppins;
+        font-weight: 500;
+        font-style: Medium;
+        font-size: 20px;
+        line-height: 28px;
+        letter-spacing: 0%;
+        color: #FAFAFA;
+        margin-bottom: 24px;
+    }
+    &-link{
+        font-family: Poppins;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 24px;
+        color: #FAFAFA;
+        text-decoration: none;
+        list-style: none;
+        max-width: 210px;
+
+    }
+    &-link--mini{
+        font-family: Poppins;
+        font-weight: 500;
+        font-style: Medium;
+        font-size: 12px;
+        line-height: 18px;
+        opacity: 70%;
+    }
+    &-form{
+        border: 1.5px solid #FAFAFA;
+        padding: 12px 12px 12px 16px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        input{
+            background: none;
+            border: none;
+            outline: none;
+            font-family: Poppins;
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 24px;
+            color: #FAFAFA;
+            width: 150px;
+
+        }
+        button{
+            color: #FAFAFA;
+            background: none;
+            border: none;
+            font-size: 20px;
+        }
+    }
+    &-qr--block{
+        display: flex;
+        align-items: center;
+        gap: 12px;
+       
+    }
+    &-img{
+        background: #fff;
+        padding: 4px;
+        img{
+            width: 80px;
+        }
+    }
+    &-btns{
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        button{
+            font-size: 16px;
+            color: #FAFAFA;
+            border-radius: 4px;
+            padding: 9px 8px;
+            background: none;
+            border: 1px solid #FAFAFA;
+            display: flex;
+            gap: 4px;
+            cursor: pointer;
+            i{
+                font-size: 20px;
+            }
+        }
+    }
+    &-socials{
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        margin-top: 20px;
+        i{
+            color: #FAFAFA;
+            font-size: 24px;
+        }
+    }
+}

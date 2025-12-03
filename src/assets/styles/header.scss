@@ -112,4 +112,13 @@
     opacity: 0.3;
     border-width: 0.5px;
     background: #000;
-  }
+}
+
+select{
+    background: none;
+    border: none;
+    background: #000;
+    outline: none;
+    text-decoration: none !important;
+    width: 100px;
+}

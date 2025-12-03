@@ -1,0 +1,97 @@
+.banner{
+    display: flex;
+    width: 100%;
+    &-links{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 16px;
+        width: 20%;
+        border-right: 1px solid rgb(185, 184, 184);
+        padding: 40px 16px 0 0;
+    }
+    &-link{
+        font-family: Poppins;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 24px;
+        color: #000000;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        i{
+            font-size: 14px;
+        }
+
+    }
+    &-wrapper{
+        width: 80%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #000000;
+        color: #fff;
+        margin: 40px 0 0 45px;
+        padding: 16px 0 0 64px;
+    }
+    &-info{
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    &-text{
+        font-family: Poppins;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 24px;
+        color: #FAFAFA;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        i{
+            font-size: 49px;
+        }
+        
+    }
+    &-title{
+        font-family: Inter;
+        font-weight: 600;
+        font-size: 48px;
+        line-height: 60px;
+        letter-spacing: 4%;
+        max-width: 274px;
+        
+    }
+    &-route{
+        font-family: Poppins;
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 24px;
+        text-align: center;
+        color: #FAFAFA;
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        text-decoration: none;
+        border-bottom: 1px solid #FAFAFA;
+        padding-bottom: 4px;
+        width: 118px;
+        transition: .3s linear;
+        &:hover{
+            i{
+                padding-left: 8px;
+            }
+        }
+        i{
+            font-size: 20px;
+            transition: .3s linear;
+        }
+
+    }
+    &-img{
+        img{
+            width: 500px;
+        }
+    }
+}
