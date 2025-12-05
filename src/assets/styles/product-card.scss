@@ -1,0 +1,118 @@
+.card{
+
+    &-img{
+        background: #F5F5F5;
+        border-radius: 4px;
+        width: 270px;
+        height: 250px;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: .3s linear !important;
+        &:hover{
+            transition: .3s linear !important;
+            .card-add--tocart{
+                display: block;
+                transition: .3s linear !important;
+            }
+        }
+        img{
+            width: 190px;
+            height: 180px;
+            object-fit: contain;
+        }
+    }
+    &-disc{
+        font-family: Poppins;
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 18px;
+        background: #DB4444;
+        color: #FAFAFA;
+        border-radius: 4px;
+        padding: 4px 12px;
+        border: none;
+        position: absolute;
+        left: 12px;
+        top: 12px;
+
+    }
+    &-actions{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        position: absolute;
+        right: 12px;
+        top: 12px;
+        button{
+            font-size: 16px;
+            padding: 10px 9px;
+            background: #FFFFFF;
+            border: none;
+            border-radius: 100%;
+
+        }
+    }
+    &-add--tocart{
+        width: 100%;
+        background: #000000;
+        font-family: Poppins;
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 24px;
+        color: #FFFFFF;
+        padding: 8px;
+        border: none;
+        display: none;
+        position: absolute;
+        bottom: 0;
+        transition: .3s linear !important;
+        cursor: pointer;
+
+    }
+    &-info{
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 16px;
+    }
+    &-title{
+        font-family: Poppins;
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 24px;
+        
+
+    }
+    &-price{
+        font-family: Poppins;
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 24px;
+        color: #DB4444;
+
+    }
+    &-rating{
+        display: flex;
+        align-items: center;
+        // gap: 8px;
+       
+        p{
+            font-family: Poppins;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 21px;
+            opacity: 50%;
+            margin-left: 8px;
+
+        }
+        i{
+            color: #FFAD33;
+            // font-size: 16px;
+        }
+    }
+}
+

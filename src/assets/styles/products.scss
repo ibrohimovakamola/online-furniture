@@ -1,0 +1,148 @@
+.product-cards{
+    display: flex;
+}
+.product-cards {
+    display: flex;
+    gap: 30px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 10px 0;
+    -webkit-overflow-scrolling: touch;
+  
+    > * {
+      scroll-snap-align: start;
+      flex: 0 0 260px; // card width
+    }
+  
+    &::-webkit-scrollbar {
+      display: none; // istasangiz ko’rsatishingiz mumkin
+    }
+  }
+  
+  .carousel-header {
+    // display: flex;
+    // justify-content: flex-end;
+    // gap: 10px;
+    // margin-bottom: 10px;
+  
+  
+  }
+
+
+
+.product{
+    &-head{
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+    &-subtitle{
+        
+        font-family: Poppins;
+        font-weight: 600;
+        font-size: 16px;
+        line-height: 20px;
+        letter-spacing: 0%;
+        color: #DB4444;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        p{
+            width: 20px;
+            height: 40px;
+            background: #DB4444;
+            border-radius: 4px;
+        }
+
+    }
+    &-row{
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+    &-left{
+        display: flex;
+        align-items: flex-end;
+        gap: 87px;
+    }
+    &-title{
+        font-family: Inter;
+        font-weight: 600;
+        font-size: 36px;
+        // line-height: 48px;
+        letter-spacing: 4%;
+
+    }
+    &-times{
+        
+        display: flex;
+        align-items: center;
+        gap: 17px;
+        span{
+            font-size: 30px;
+            color: #E07575;
+        }
+    }
+    &-time--box{
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+       
+        p{
+            font-family: Poppins;
+            font-weight: 500;
+            font-size: 12px;
+            line-height: 18px;
+            letter-spacing: 0%;
+        }
+        h2{
+            font-family: Inter;
+            font-weight: 700;
+            font-style: Bold;
+            font-size: 32px;
+            line-height: 30px;
+            letter-spacing: 4%;
+
+        }
+    }
+    &-roles{
+        display: flex;
+        gap: 8px;
+        button {
+            font-size: 16px;
+            background: #F5F5F5;
+            border: none;
+            padding: 16px;
+            border-radius: 100%;
+            cursor: pointer;
+            // i{}
+          }
+    }
+    &-view--all{
+        display: flex;
+        justify-content: center;
+        margin: 60px 0;
+        button{
+            font-family: Poppins;
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 24px;
+            padding: 16px 48px;
+            border: none;
+            border-radius: 4px;
+            color: #FAFAFA;
+            background: #DB4444;
+            cursor: pointer;
+
+        }
+    }
+    &-line{
+        height: 1px;
+        width: 100%;
+        background: #000;
+        opacity: 30%;
+    }
+}
+
+
