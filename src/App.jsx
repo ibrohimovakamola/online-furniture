@@ -9,6 +9,7 @@ import Contact from './pages/Contact'
 import About from './pages/About'
 import NotFound from './pages/NotFound'
 import SignUp from './pages/SignUp'
+import Cart from './pages/Cart'
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <Route path='contact' element={<Contact/>}/>
         <Route path='about' element={<About/>}/>
         <Route path='sign-up' element={<SignUp/>}/>
+        <Route path='cart' element={<Cart/>}/>
         <Route path='*' element={<NotFound/>}/>
 
       </Route>

@@ -26,7 +26,7 @@ const ProductCard = ({ product }) => {
             <i class="fa-regular fa-eye"></i>
           </button>
         </div>
-        <button className="card-add--tocart">Add to Card</button>
+        <button onClick={handleAddToCart} className="card-add--tocart">Add to Card</button>
       </div>
       <div className="card-info">
         <h4 className="card-title">{product.title}</h4>

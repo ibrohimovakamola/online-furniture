@@ -83,12 +83,12 @@ const Products = () => {
                 <span>:</span>
                 <div className="product-time--box">
                   <p>Hours</p>
-                  <h2>{format(time.getMinutes())}</h2>
+                  <h2>{format(time.getHours())}</h2>
                 </div>
                 <span>:</span>
                 <div className="product-time--box">
                   <p>Minutes</p>
-                  <h2>{format(time.getHours())}</h2>
+                  <h2>{format(time.getMinutes())}</h2>
                 </div>
                 <span>:</span>
                 <div className="product-time--box">

@@ -1,6 +1,6 @@
 import React from "react";
 import "../assets/styles/header.scss";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 const Header = () => {
 
@@ -45,9 +45,9 @@ const Header = () => {
           </form>
           <button className="header-wishlist"><i class="fa-regular fa-heart"></i>
           </button>
-          <button className="header-cart">
+          <Link to="/cart" className="header-cart">
             <i class="fa-solid fa-cart-shopping"></i>
-          </button>
+          </Link>
         </div>
       </div>
     </div>
