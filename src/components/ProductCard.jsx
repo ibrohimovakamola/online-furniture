@@ -2,6 +2,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../features/cart/cartSlice";
 import "../assets/styles/product-card.scss";
+import { Link } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
@@ -13,7 +14,7 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <div className="card">
+    <Link to={`/products/${product.id}`} className="card">
       <div className="card-img">
         <img src={product.thumbnail} alt="" />
 
@@ -42,7 +43,7 @@ const ProductCard = ({ product }) => {
         </div>
       </div>
       {/* <button onClick={handleAddToCart}>Add to cart</button> */}
-    </div>
+    </Link>
   );
 };
 

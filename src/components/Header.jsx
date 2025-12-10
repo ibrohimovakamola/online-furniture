@@ -21,6 +21,10 @@ const Header = () => {
       title: "Sign Up",
       path: "/sign-up"
     },
+    {
+      title: "Products",
+      path: "/products"
+    },
   ]
 
 
@@ -28,7 +32,7 @@ const Header = () => {
     <div>
  <div className="container">
       <div className="header">
-        <p className="header-logo">Exclusive</p>
+        <Link to='/' className="header-logo">Exclusive</Link>
         <ul className="header-menus">
           {
             menus.map(((menu, i)=>{
@@ -43,8 +47,8 @@ const Header = () => {
             <input className="header-form--input" placeholder="What are you looking for?" type="text" />
             <button className="header-form--btn"><i class="fa-solid fa-magnifying-glass"></i></button>
           </form>
-          <button className="header-wishlist"><i class="fa-regular fa-heart"></i>
-          </button>
+          <Link to='/favourites' className="header-wishlist"><i class="fa-regular fa-heart"></i>
+          </Link>
           <Link to="/cart" className="header-cart">
             <i class="fa-solid fa-cart-shopping"></i>
           </Link>

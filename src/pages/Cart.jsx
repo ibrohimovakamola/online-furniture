@@ -50,6 +50,32 @@ const Cart = () => {
             <button>Return To Shop</button>
             <button>Update Cart</button>
         </div>
+        <div className="cart-payment">
+            <div className="cart-payment--form">
+                <input placeholder="Coupon Code" type="text" />
+                <button>Apply Coupon</button>
+            </div>
+            <div className="cart-payment--card">
+                <h4>Cart Total</h4>
+                <div className="cart-payment--row">
+                    <p>Subtotal</p>
+                    <p>$1750</p>
+                </div>
+                <div className="cart-payment--line"></div>
+                <div className="cart-payment--row">
+                    <p>Subtotal</p>
+                    <p>$1750</p>
+                </div>
+                <div className="cart-payment--line"></div>
+                <div className="cart-payment--row">
+                    <p>Subtotal</p>
+                    <p>$1750</p>
+                </div>
+                <div className="cart-payment--btn">
+                  <button>Process to checkout</button>
+                </div>
+            </div>
+        </div>
       </div>
     </div>
   );

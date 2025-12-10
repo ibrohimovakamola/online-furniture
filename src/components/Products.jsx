@@ -32,6 +32,7 @@ import React, { useEffect, useRef, useState } from "react";
 import useFetch from "../hook/useFetch.js";
 import ProductCard from "./ProductCard";
 import "../assets/styles/products.scss";
+import { Link } from "react-router-dom";
 
 const Products = () => {
   const { state } = useFetch("products");
@@ -108,11 +109,12 @@ const Products = () => {
 
       <div className="product-cards" ref={carouselRef}>
         {state?.products?.map((item) => (
-          <ProductCard key={item.id} product={item} />
+           <ProductCard key={item.id} product={item} />
+         
         ))}
       </div>
       <div className="product-view--all">
-        <button>View All Products</button>
+        <Link to='/products' className="product-all--btn">View All Products</Link>
       </div>
       <div className="product-line"></div>
     </div>

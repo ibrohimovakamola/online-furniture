@@ -123,7 +123,7 @@
         display: flex;
         justify-content: center;
         margin: 60px 0;
-        button{
+        .product-all--btn{
             font-family: Poppins;
             font-weight: 500;
             font-size: 16px;
@@ -133,6 +133,7 @@
             border-radius: 4px;
             color: #FAFAFA;
             background: #DB4444;
+            text-decoration: none;
             cursor: pointer;
 
         }
