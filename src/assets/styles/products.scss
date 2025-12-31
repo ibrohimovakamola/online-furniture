@@ -1,6 +1,3 @@
-.product-cards{
-    display: flex;
-}
 .product-cards {
     display: flex;
     gap: 30px;
@@ -11,22 +8,14 @@
   
     > * {
       scroll-snap-align: start;
-      flex: 0 0 260px; // card width
+      flex: 0 0 260px; 
     }
   
     &::-webkit-scrollbar {
-      display: none; // istasangiz ko’rsatishingiz mumkin
+      display: none; 
     }
-  }
+}
   
-  .carousel-header {
-    // display: flex;
-    // justify-content: flex-end;
-    // gap: 10px;
-    // margin-bottom: 10px;
-  
-  
-  }
 
 
 
@@ -146,4 +135,9 @@
     }
 }
 
-
+.product-page--cards{
+    margin-top: 60px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 60px 30px;
+}

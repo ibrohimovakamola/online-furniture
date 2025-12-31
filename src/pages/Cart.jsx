@@ -5,7 +5,7 @@ import "../assets/styles/cart.scss";
 const Cart = () => {
   const cartItems = useSelector((state) => state.cart.items);
   console.log(cartItems);
-
+ 
   return (
     <div className="container">
       <div className="cart">
