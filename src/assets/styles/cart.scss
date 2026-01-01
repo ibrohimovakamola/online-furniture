@@ -40,6 +40,7 @@
         box-shadow: 0 0 12px rgb(236, 235, 235);
         padding: 24px 40px;
         transition: .3s linear;
+        
         &:hover{
             .cart-delete{
                 display: block;
@@ -69,6 +70,8 @@
         }
     }
     &-delete{
+        background: none;
+        border: none;
         position: absolute;
         color: #DB4444;
         top: 0;
@@ -219,4 +222,8 @@
         }
            
     }
+}
+
+.empty-card.extra{
+    padding: 60px 0 20px;
 }

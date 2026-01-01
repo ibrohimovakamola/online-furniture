@@ -12,3 +12,30 @@
   margin: 0 auto;
   padding: 0 12px;
 }
+
+.product-page--cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+}
+
+.skeleton-card {
+  background: #fff;
+  border-radius: 8px;
+}
+
+.skeleton-img {
+  height: 250px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.skeleton-line {
+  height: 20px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.skeleton-line.short {
+  width: 70%;
+}

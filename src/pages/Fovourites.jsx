@@ -2,8 +2,10 @@ import React from "react";
 import "../assets/styles/favourite.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../features/cart/cartSlice";
+import { removeFromFvourite } from "../features/favourite/favourite";
+import { Link } from "react-router-dom";
 
-const Fovourites = ({product}) => {
+const Fovourites = ({ product }) => {
   const dispatch = useDispatch();
   const favouriteItems = useSelector((state) => state.favourite.items);
   const favouriteItem = useSelector((state) => state.favourite.items);
@@ -12,11 +14,11 @@ const Fovourites = ({product}) => {
     0
   );
 
-  const handleAddToCart = (e)=>{
+  const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
     dispatch(addToCart({ ...product, quantity: 1 }));
-  }
+  };
 
   return (
     <div className="container">
@@ -32,11 +34,17 @@ const Fovourites = ({product}) => {
                 return (
                   <div className="favourite-card">
                     <div className="favourite-img">
-                      <button className="favourite-bin">
+                      <button
+                        onClick={() => dispatch(removeFromFvourite(item.id))}
+                        className="favourite-bin"
+                      >
                         <i class="fa-regular fa-trash-can"></i>
                       </button>
                       <img src={item.thumbnail} alt="" />
-                      <button onClick={handleAddToCart} className="favourite-add--cart">
+                      <button
+                        onClick={handleAddToCart}
+                        className="favourite-add--cart"
+                      >
                         <i className="fa-solid fa-cart-shopping"></i>Add To Cart
                       </button>
                     </div>
@@ -48,7 +56,12 @@ const Fovourites = ({product}) => {
             </div>
           </div>
         ) : (
-          <div>hello</div>
+          <div className="empty-card">
+              <i class="fa-regular fa-heart"></i>
+            {/* <p>The basket is empty</p> */}
+            <p className="empty-text">Favorite is empty</p>
+            <Link to='/products' className="empty-btn">Go to products</Link>
+          </div>
         )}
       </div>
     </div>

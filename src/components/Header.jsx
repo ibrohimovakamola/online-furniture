@@ -2,27 +2,29 @@ import React from "react";
 import "../assets/styles/header.scss";
 import { Link, NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 const Header = () => {
+  const {t} = useTranslation()
   const cartItem = useSelector((state) => state.cart.items);
   const cartCount = cartItem.reduce((total, item) => total + item.quantity, 0);
   const favouriteItem = useSelector((state) => state.favourite.items);
   const favouriteCount = favouriteItem.reduce((total, item) => total + item.quantity, 0);
   const menus = [
     {
-      title: "Home",
+      title: t("home"),
       path: "/",
     },
     {
-      title: "Contact",
+      title: t("contact"),
       path: "/contact",
     },
     {
-      title: "About",
+      title: t("about"),
       path: "/about",
     },
     {
-      title: "Sign Up",
+      title: t("sign"),
       path: "/sign-up",
     },
   ];

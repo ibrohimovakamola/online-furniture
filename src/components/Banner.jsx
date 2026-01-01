@@ -54,7 +54,7 @@ const Banner = () => {
                 <div className="banner-info">
                     <p className='banner-text'><i class="fa-brands fa-apple"></i>Iphone 14 Series<img src="" alt="" /></p>
                     <h2 className='banner-title'>Up to 10% off Voucher</h2>
-                    <Link className='banner-route'>Shop Now<i class="fa-solid fa-arrow-right"></i></Link>
+                    <Link to='/products' className='banner-route'>Shop Now<i class="fa-solid fa-arrow-right"></i></Link>
                 </div>
                 <div className="banner-img">
                     <img src={BannerImg} alt="" />

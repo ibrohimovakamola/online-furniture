@@ -2,6 +2,7 @@ import React from "react";
 import MainImg from "../assets/images/aboutMain.jpg";
 import "../assets/styles/about.scss";
 import Worker from "../assets/images/worker.png";
+import BreadCrumbs from "../components/BreadCrumbs";
 
 const About = () => {
   const aboutCard = [
@@ -65,6 +66,7 @@ const About = () => {
     <div className="about-wrapper">
       <div className="container">
         <div className="about-contain">
+          <BreadCrumbs/>
           <div className="about">
             <div className="about-info">
               <h2 className="about-title">Our story</h2>

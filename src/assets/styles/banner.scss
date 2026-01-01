@@ -103,7 +103,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 69px 44px 69px 56px;
-    button{
+    &-btn{
         font-family: Poppins;
         font-weight: 500;
         font-size: 16px;
@@ -113,7 +113,7 @@
         border: none;
         border-radius: 4px;
         color: #FAFAFA;
-
+        text-decoration: none;
     }
     &-info{
         display: flex;

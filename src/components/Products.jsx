@@ -33,6 +33,7 @@ import useFetch from "../hook/useFetch.js";
 import ProductCard from "./ProductCard";
 import "../assets/styles/products.scss";
 import { Link } from "react-router-dom";
+import Skeleton from "react-loading-skeleton";
 
 const Products = () => {
   const { state } = useFetch("products");
@@ -42,11 +43,18 @@ const Products = () => {
 
   const carouselRef = useRef(null);
 
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (state?.products?.length) {
+      setLoading(false);
+    }
+  }, [state]);
+
   const scrollLeft = () => {
     carouselRef.current.scrollBy({
       left: -300,
       behavior: "smooth",
-    });
+    }); 
   };
 
   const scrollRight = () => {
@@ -106,13 +114,44 @@ const Products = () => {
           </div>
         </div>
       </div>
-
-      <div className="product-cards" ref={carouselRef}>
+      {/* {
+        loading ? {
+          Array(12).fill(0).map((_, index) => (
+            <div key={index} className="skeleton-card">
+              <Skeleton className="skeleton-img" />
+              <Skeleton className="skeleton-line" />
+              <Skeleton className="skeleton-line short" />
+              <Skeleton className="skeleton-line" />
+            </div>
+          ))} : <div className="product-cards" ref={carouselRef}>
         {state?.products?.map((item) => (
            <ProductCard key={item.id} product={item} />
          
         ))}
       </div>
+      } */}
+      {loading ? (
+  <div className="product-cards">
+    {Array(4)
+      .fill(0)
+      .map((_, index) => (
+        <div key={index} className="skeleton-card">
+          <Skeleton className="skeleton-img" />
+          <Skeleton className="skeleton-line" />
+          <Skeleton className="skeleton-line short" />
+          <Skeleton className="skeleton-line" />
+        </div>
+      ))}
+  </div>
+) : (
+  <div className="product-cards" ref={carouselRef}>
+    {state?.products?.map((item) => (
+      <ProductCard key={item.id} product={item} />
+    ))}
+  </div>
+)}
+
+    
       <div className="product-view--all">
         <Link to='/products' className="product-all--btn">View All Products</Link>
       </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../assets/styles/banner.scss";
 import Sbanner from "../assets/images/sbanner.png";
+import { Link } from "react-router-dom";
 
 const SecondBanner = () => {
   const [time, setTime] = useState(new Date());
@@ -37,7 +38,7 @@ const SecondBanner = () => {
               <p>Seconds</p>
             </div>
           </div>
-          <button>Buy Now!</button>
+          <Link to="/products" className="sbanner-btn">Buy Now!</Link>
         </div>
         <div className="sbanner-img">
             <div className="sbanner-blur"></div>

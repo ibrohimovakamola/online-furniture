@@ -23,11 +23,23 @@ const favouriteSlice = createSlice({
                 })
             }
         },
+        removeFromFvourite: (state, action) => {
+            const itemIndex = state.items.findIndex(
+                item => item.id === action.payload
+            );
+            if (itemIndex >= 0) {
+                if (state.items[itemIndex].quantity > 1) {
+                    state.items[itemIndex].quantity -= 1;
+                } else {
+                    state.items.splice(itemIndex, 1);
+                }
+            }
+        }, 
         clearCart: (state)=>{
             state.items = []
         }
     }
 })
 
-export const {addToFavourite, clearCart} = favouriteSlice.actions
+export const {addToFavourite, removeFromFvourite, clearCart} = favouriteSlice.actions
 export default favouriteSlice.reducer
