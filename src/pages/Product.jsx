@@ -9,34 +9,17 @@ import BreadCrumbs from "../components/BreadCrumbs";
 const Product = () => {
   const { state } = useFetch("products");
   const [loading, setLoading] = useState(true);
+  
   useEffect(() => {
     if (state?.products?.length) {
       setLoading(false);
     }
   }, [state]);
-  
+
   return (
     <div className="container">
-      <div> 
-        <BreadCrumbs/>
-        {/* {loading ? (
-          Array(8)
-            .fill(0)
-            .map((_, index) => (
-              <div key={index} className="skeleton-product">
-                <Skeleton height={270} />
-                <Skeleton width={"100%"} height={25} />
-                <Skeleton width={"80%"} height={25} />
-                <Skeleton width={"100%"} height={25} />
-              </div>
-            ))
-        ) : (
-          <div className="product-page--cards">
-            {state?.products?.map((item) => (
-              <ProductCard key={item.id} product={item} />
-            ))}
-          </div>
-        )} */}
+      <div>
+        <BreadCrumbs />
         {loading ? (
           <div className="product-page--cards">
             {Array(12)

@@ -82,14 +82,14 @@ const Category = () => {
           </div>
         </div>
         <div className="category-row" ref={carouselRef}>
-            {
-                categoryList.map((category)=>{
-                    return <div className="category-card">
-                        <i className={category.img}/>
-                        <p>{category.name}</p>
-                    </div>
-                })
-            }
+          {categoryList.map((category) => {
+            return (
+              <div className="category-card">
+                <i className={category.img} />
+                <p>{category.name}</p>
+              </div>
+            );
+          })}
         </div>
         <div className="category-line"></div>
       </div>

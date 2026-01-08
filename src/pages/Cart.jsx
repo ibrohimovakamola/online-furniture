@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import "../assets/styles/cart.scss";
-import { removeFromCart } from "../features/cart/cartSlice";
+import { decrementQuantity, incrementQuantity, removeFromCart } from "../features/cart/cartSlice";
 import { Link } from "react-router-dom";
 import BreadCrumbs from "../components/BreadCrumbs";
 
@@ -10,6 +10,11 @@ const Cart = () => {
   const cartItems = useSelector((state) => state.cart.items);
   const cartItem = useSelector((state) => state.cart.items);
   const cartCount = cartItem.reduce((total, item) => total + item.quantity, 0);
+  const totalPrice = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
+  
   console.log(cartItems);
 
   return (
@@ -44,16 +49,16 @@ const Cart = () => {
                       <div className="cart-couter-wrapper">
                         <p>{item.quantity}</p>
                         <div className="cart-counter">
-                          <button>
+                          <button onClick={()=> dispatch(incrementQuantity(item.id))}>
                             <i class="fa-solid fa-angle-up"></i>
                           </button>
-                          <button>
+                          <button onClick={()=>dispatch(decrementQuantity(item.id))}>
                             <i class="fa-solid fa-angle-down"></i>
                           </button>
                         </div>
                       </div>
                     </div>
-                    <p className="cart-price--end">${item.price}</p>
+                    <p className="cart-price--end">$ {(item.price * item.quantity).toFixed(2)}</p>
                   </div>
                 );
               })}
@@ -71,17 +76,17 @@ const Cart = () => {
                 <h4>Cart Total</h4>
                 <div className="cart-payment--row">
                   <p>Subtotal</p>
-                  <p>$1750</p>
+                  <p>${totalPrice.toFixed(2)}</p>
                 </div>
                 <div className="cart-payment--line"></div>
                 <div className="cart-payment--row">
-                  <p>Subtotal</p>
-                  <p>$1750</p>
+                  <p>Shipping</p>
+                  <p>Free</p>
                 </div>
                 <div className="cart-payment--line"></div>
                 <div className="cart-payment--row">
-                  <p>Subtotal</p>
-                  <p>$1750</p>
+                  <p>Total</p>
+                  <p>${totalPrice.toFixed(2)}</p>
                 </div>
                 <div className="cart-payment--btn">
                   <button>Process to checkout</button>

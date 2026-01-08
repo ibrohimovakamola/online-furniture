@@ -36,14 +36,11 @@ import { Link } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 
 const Products = () => {
+  const carouselRef = useRef(null);
   const { state } = useFetch("products");
   const [time, setTime] = useState(new Date());
-  console.log(state);
-  
-
-  const carouselRef = useRef(null);
-
   const [loading, setLoading] = useState(true);
+  
   useEffect(() => {
     if (state?.products?.length) {
       setLoading(false);
@@ -114,22 +111,6 @@ const Products = () => {
           </div>
         </div>
       </div>
-      {/* {
-        loading ? {
-          Array(12).fill(0).map((_, index) => (
-            <div key={index} className="skeleton-card">
-              <Skeleton className="skeleton-img" />
-              <Skeleton className="skeleton-line" />
-              <Skeleton className="skeleton-line short" />
-              <Skeleton className="skeleton-line" />
-            </div>
-          ))} : <div className="product-cards" ref={carouselRef}>
-        {state?.products?.map((item) => (
-           <ProductCard key={item.id} product={item} />
-         
-        ))}
-      </div>
-      } */}
       {loading ? (
   <div className="product-cards">
     {Array(4)
@@ -151,7 +132,6 @@ const Products = () => {
   </div>
 )}
 
-    
       <div className="product-view--all">
         <Link to='/products' className="product-all--btn">View All Products</Link>
       </div>

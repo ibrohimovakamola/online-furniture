@@ -6,9 +6,11 @@ import { removeFromFvourite } from "../features/favourite/favourite";
 import { Link } from "react-router-dom";
 
 const Fovourites = ({ product }) => {
+
   const dispatch = useDispatch();
   const favouriteItems = useSelector((state) => state.favourite.items);
   const favouriteItem = useSelector((state) => state.favourite.items);
+  
   const favouriteCount = favouriteItem.reduce(
     (total, item) => total + item.quantity,
     0

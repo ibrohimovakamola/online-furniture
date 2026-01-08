@@ -1,20 +1,16 @@
 import React, { useState } from "react";
-import useFetch from "../hook/useFetch";
 import { useParams } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { FreeMode, Navigation, Thumbs } from "swiper/modules";
+import useFetch from "../hook/useFetch";
+import ProductCard from "../components/ProductCard";
+import BreadCrumbs from "../components/BreadCrumbs";
+import ProductDetailSkeleton from "./ProductDetailSkeleton";
 import "../assets/styles/product-detail.scss";
-
-// Import Swiper styles
 import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
-
-// Import required modules
-import { FreeMode, Navigation, Thumbs } from "swiper/modules";
-import ProductCard from "../components/ProductCard";
-import BreadCrumbs from "../components/BreadCrumbs";
-import ProductDetailSkeleton from "./ProductDetailSkeleton";
 
 const ProductDetail = () => {
   const [thumbsSwiper, setThumbsSwiper] = useState(undefined);
@@ -24,13 +20,6 @@ const ProductDetail = () => {
   const relatedProducts = state?.products?.filter(
     (item) => item.category === data?.category
   );
-
-  console.log(state?.category, "fkdjj");
-
-  // console.log(data?.category);
-  // console.log(state);
-
-  console.log(data);
 
   return (
     <div className="container">
@@ -42,10 +31,6 @@ const ProductDetail = () => {
           <div className="detail">
             <div className="wrapperr">
               <Swiper
-                style={{
-                  "--swiper-navigation-color": "#fff",
-                  "--swiper-pagination-color": "#fff",
-                }}
                 spaceBetween={8}
                 navigation
                 thumbs={{ swiper: thumbsSwiper }}

@@ -5,11 +5,14 @@ import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 const Header = () => {
-  const {t} = useTranslation()
-  const cartItem = useSelector((state) => state.cart.items);
-  const cartCount = cartItem.reduce((total, item) => total + item.quantity, 0);
+  const { t } = useTranslation();
+  const cartItems = useSelector((state) => state.cart.items);
+  const cartCount = cartItems.length;
   const favouriteItem = useSelector((state) => state.favourite.items);
-  const favouriteCount = favouriteItem.reduce((total, item) => total + item.quantity, 0);
+  const favouriteCount = favouriteItem.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
   const menus = [
     {
       title: t("home"),

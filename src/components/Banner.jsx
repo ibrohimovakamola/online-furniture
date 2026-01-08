@@ -11,32 +11,32 @@ const Banner = () => {
             arrow: "fa-solid fa-angle-right"
         },
         {
-            title: "Woman's Fashion",
+            title: "Men's Fashion",
             path: '',
             arrow: "fa-solid fa-angle-right"
         },
         {
-            title: "Woman's Fashion",
+            title: "Electronics",
             path: ''
         },
         {
-            title: "Woman's Fashion",
+            title: "Home & Lifestyle",
             path: ''
         },
         {
-            title: "Woman's Fashion",
+            title: "Medicine",
             path: ''
         },
         {
-            title: "Woman's Fashion",
+            title: "Sports & Outdoor",
             path: ''
         },
         {
-            title: "Woman's Fashion",
+            title: "Baby's & Toys",
             path: ''
         },
         {
-            title: "Woman's Fashion",
+            title: "Health & Beauty",
             path: ''
         },
     ]
