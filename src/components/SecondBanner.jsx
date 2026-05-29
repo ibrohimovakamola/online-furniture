@@ -15,10 +15,11 @@ const SecondBanner = () => {
     return () => clearInterval(interval);
   }, []);
   return (
-    <div className="container">
+    <div className="wrapper">
+  <div className="container">
       <div className="sbanner">
-        <div className="sbanner-info">
-          <span>Categories</span>
+        <div className="sbanner-info"> 
+          {/* <span>Categories</span> */}
           <h2 className="sbanner-title">Enhance Your Music Experience</h2>
           <div className="sbanner-times">
             <div className="sbanner-time--box">
@@ -42,10 +43,12 @@ const SecondBanner = () => {
         </div>
         <div className="sbanner-img">
             <div className="sbanner-blur"></div>
-          <img src={Sbanner} alt="" />
+          {/* <img src={Sbanner} alt="" /> */}
         </div>
       </div>
     </div>
+    </div>
+  
   );
 };
 

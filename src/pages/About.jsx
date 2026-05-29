@@ -1,5 +1,5 @@
 import React from "react";
-import MainImg from "../assets/images/aboutMain.jpg";
+import MainImg from "../assets/images/photo_2026-02-14_22-23-52.jpg";
 import "../assets/styles/about.scss";
 import Worker from "../assets/images/worker.png";
 import BreadCrumbs from "../components/BreadCrumbs";

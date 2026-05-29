@@ -3,6 +3,7 @@ import "../assets/styles/header.scss";
 import { Link, NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+import exclusiveLogo from "../assets/images/logo1.jpg";
 
 const Header = () => {
   const { t } = useTranslation();
@@ -36,8 +37,12 @@ const Header = () => {
     <div>
       <div className="container">
         <div className="header">
-          <Link to="/" className="header-logo">
-            Exclusive
+          <Link to="/" className="header-logo shrink-0">
+            <img
+              src={exclusiveLogo}
+              alt="Exclusive Logo"
+              className="h-20 w-auto object-contain"
+            />
           </Link>
           <ul className="header-menus">
             {menus.map((menu, i) => {

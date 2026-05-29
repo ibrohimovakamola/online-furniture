@@ -1,60 +1,37 @@
-import React, { useRef } from "react";
-import "../assets/styles/category.scss";
+import { useRef } from 'react'
+import { Link } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import Skeleton from 'react-loading-skeleton'
+import { selectCatalog, selectStoreCategories } from '../features/catalog/catalogSlice'
+import '../assets/styles/category.scss'
 
-const Category = () => {
-  const carouselRef = useRef(null);
+const CATEGORY_ICONS = {
+  sofas: 'fa-solid fa-couch',
+  sectionals: 'fa-solid fa-couch',
+  chairs: 'fa-solid fa-chair',
+  beds: 'fa-solid fa-bed',
+  dining: 'fa-solid fa-utensils',
+  office: 'fa-solid fa-briefcase',
+}
+
+function iconForCategory(category) {
+  const key = (category.slug || category.name || '').toLowerCase()
+  return CATEGORY_ICONS[key] || 'fa-solid fa-couch'
+}
+
+function Category() {
+  const carouselRef = useRef(null)
+  const { loading } = useSelector(selectCatalog)
+  const categories = useSelector(selectStoreCategories)
 
   const scrollLeft = () => {
-    carouselRef.current.scrollBy({
-      left: -300,
-      behavior: "smooth",
-    });
-  };
+    carouselRef.current?.scrollBy({ left: -300, behavior: 'smooth' })
+  }
 
   const scrollRight = () => {
-    carouselRef.current.scrollBy({
-      left: 300,
-      behavior: "smooth",
-    });
-  };
-  const categoryList = [
-    {
-      img: "fa-solid fa-mobile-screen-button",
-      name: "Phones",
-    },
-    {
-      img: "fa-solid fa-desktop",
-      name: "Computers",
-    },
-    {
-      img: "fa-regular fa-camera",
-      name: "Camera",
-    },
-    {
-      img: "fa-regular fa-camera",
-      name: "Camera",
-    },
-    {
-      img: "fa-regular fa-headphones",
-      name: "Headphones",
-    },
-    {
-      img: "fa-solid fa-gamepad",
-      name: "Gaming",
-    },
-    {
-      img: "fa-regular fa-camera",
-      name: "Camera",
-    },
-    {
-      img: "fa-regular fa-headphones",
-      name: "Headphones",
-    },
-    {
-      img: "fa-solid fa-gamepad",
-      name: "Gaming",
-    },
-  ];
+    carouselRef.current?.scrollBy({ left: 300, behavior: 'smooth' })
+  }
+
   return (
     <div className="container">
       <div className="category">
@@ -71,30 +48,44 @@ const Category = () => {
               </div>
 
               <div className="product-roles">
-                <button onClick={scrollLeft}>
-                  <i class="fa-solid fa-arrow-left"></i>
+                <button type="button" onClick={scrollLeft}>
+                  <i className="fa-solid fa-arrow-left" />
                 </button>
-                <button onClick={scrollRight}>
-                  <i class="fa-solid fa-arrow-right"></i>
+                <button type="button" onClick={scrollRight}>
+                  <i className="fa-solid fa-arrow-right" />
                 </button>
               </div>
             </div>
           </div>
         </div>
+
         <div className="category-row" ref={carouselRef}>
-          {categoryList.map((category) => {
-            return (
-              <div className="category-card">
-                <i className={category.img} />
-                <p>{category.name}</p>
+          {loading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="category-card">
+                <Skeleton circle width={48} height={48} />
+                <Skeleton width={80} />
               </div>
-            );
-          })}
+            ))
+          ) : categories.length === 0 ? (
+            <p className="text-sm text-[#545252] py-4">No categories available yet.</p>
+          ) : (
+            categories.map((category) => (
+              <Link
+                key={category.id || category.slug}
+                to={category.id ? `/category/${category.id}` : `/products?category=${category.slug}`}
+                className="category-card"
+              >
+                <i className={iconForCategory(category)} aria-hidden />
+                <p>{category.name}</p>
+              </Link>
+            ))
+          )}
         </div>
-        <div className="category-line"></div>
+        <div className="category-line" />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Category;
+export default Category

@@ -53,8 +53,10 @@ const ProductCard = ({ product }) => {
   return (
     <Link to={`/products/${product.id}`} className="card">
       <div className="card-img">
-        <img src={product.thumbnail} alt="" />
-        <button className="card-disc">-{product.discountPercentage}%</button>
+        <img src={product.thumbnail || product.mainImage || '/vite.svg'} alt={product.title || product.name} />
+        {product.discountPercentage > 0 && (
+          <button className="card-disc">-{product.discountPercentage}%</button>
+        )}
         <div className="card-actions">
           <button onClick={handleAddToFavourite}>
             <i
@@ -74,7 +76,7 @@ const ProductCard = ({ product }) => {
         </button>
       </div>
       <div className="card-info">
-        <h4 className="card-title">{product.title}</h4>
+        <h4 className="card-title">{product.title || product.name}</h4>
         <span className="card-price">${product.price}</span>
         <div className="card-rating">
           <i class="fa-solid fa-star"></i>
