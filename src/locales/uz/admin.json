@@ -1,0 +1,43 @@
+{
+  "brand": "Exclusive",
+  "panel": "Admin",
+  "signedInAs": "Siz kirgansiz:",
+  "dashboard": {
+    "title": "Boshqaruv paneli",
+    "welcome": "Admin panelga xush kelibsiz",
+    "overview": "Umumiy ko'rinish",
+    "stats": {
+      "totalProducts": "Jami mahsulotlar",
+      "totalOrders": "Jami buyurtmalar",
+      "totalRevenue": "Umumiy daromad",
+      "totalCustomers": "Jami mijozlar",
+      "pendingOrders": "Kutilayotgan buyurtmalar"
+    }
+  },
+  "sidebar": {
+    "dashboard": "Boshqaruv paneli",
+    "products": "Mahsulotlar",
+    "categories": "Kategoriyalar",
+    "orders": "Buyurtmalar",
+    "customers": "Mijozlar",
+    "flashSale": "Flash chegirma",
+    "gallery": "Galereya",
+    "b2bLeads": "B2B arizalar",
+    "faq": "FAQ",
+    "pages": "CMS sahifalar",
+    "blog": "Blog",
+    "blogAllPosts": "Barcha maqolalar",
+    "blogNewPost": "Yangi maqola qo'shish",
+    "blogCategories": "Kategoriyalar",
+    "blogAnalytics": "Analitika",
+    "analytics": "Analitika",
+    "settings": "Sozlamalar"
+  },
+  "topbar": {
+    "search": "Admin qidiruv…",
+    "theme": "Mavzuni almashtirish",
+    "menu": "Menyuni ochish"
+  },
+  "loading": "Yuklanmoqda…",
+  "noResults": "Natija topilmadi"
+}

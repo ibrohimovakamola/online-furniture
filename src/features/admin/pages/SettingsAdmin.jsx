@@ -14,12 +14,13 @@ import {
   selectSettingsLoading,
 } from '../../settings/settingsSlice'
 
-function SettingsCard({ icon: Icon, title, subtitle, children, onSave, saving }) {
+function SettingsCard({ icon, title, subtitle, children, onSave, saving }) {
+  const CardIcon = icon
   return (
     <section className="admin-card p-6 flex flex-col gap-5">
       <div className="flex items-start gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--admin-accent-soft)] text-[#5eead4]">
-          <Icon className="h-5 w-5" strokeWidth={1.75} />
+          <CardIcon className="h-5 w-5" strokeWidth={1.75} />
         </div>
         <div>
           <h2 className="text-lg font-semibold text-[var(--admin-text)]">{title}</h2>

@@ -24,17 +24,20 @@ function ProductDimensionsGrid({ dimensions }) {
         </p>
       ) : (
         <div className="product-dimensions__grid">
-          {specs.map(({ key, label, value, icon: Icon }) => (
-            <div key={key} className="product-dimensions__cell">
+          {specs.map((spec) => {
+            const DimensionIcon = spec.icon
+            return (
+            <div key={spec.key} className="product-dimensions__cell">
               <span className="product-dimensions__icon" aria-hidden>
-                <Icon size={18} strokeWidth={1.75} />
+                <DimensionIcon size={18} strokeWidth={1.75} />
               </span>
               <div>
-                <p className="product-dimensions__label">{label}</p>
-                <p className="product-dimensions__value">{formatDim(value, unit)}</p>
+                <p className="product-dimensions__label">{spec.label}</p>
+                <p className="product-dimensions__value">{formatDim(spec.value, unit)}</p>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

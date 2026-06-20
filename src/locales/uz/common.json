@@ -1,0 +1,65 @@
+{
+  "language": "Til",
+  "languages": {
+    "en": "English",
+    "ru": "Русский",
+    "uz": "O'zbek"
+  },
+  "brand": "KRESLA",
+  "buttons": {
+    "submit": "Yuborish",
+    "cancel": "Bekor qilish",
+    "save": "Saqlash",
+    "delete": "O'chirish",
+    "edit": "Tahrirlash",
+    "add": "Qo'shish",
+    "back": "Orqaga",
+    "next": "Keyingi",
+    "previous": "Oldingi",
+    "close": "Yopish",
+    "open": "Ochish",
+    "download": "Yuklab olish",
+    "upload": "Yuklash",
+    "search": "Qidirish",
+    "filter": "Filtr",
+    "sort": "Saralash",
+    "reset": "Tozalash",
+    "apply": "Qo'llash",
+    "confirm": "Tasdiqlash",
+    "logout": "Chiqish",
+    "login": "Kirish",
+    "signUp": "Ro'yxatdan o'tish",
+    "viewAll": "Hammasini ko'rish",
+    "learnMore": "Batafsil",
+    "shopNow": "Hozir xarid qiling",
+    "readMore": "Ko'proq o'qish"
+  },
+  "messages": {
+    "success": "Amal muvaffaqiyatli bajarildi",
+    "error": "Xatolik yuz berdi",
+    "warning": "Ogohlantirish",
+    "info": "Ma'lumot",
+    "loading": "Yuklanmoqda...",
+    "noData": "Ma'lumot mavjud emas",
+    "confirmDelete": "Haqiqatan ham o'chirmoqchimisiz?",
+    "deleteConfirmed": "Element muvaffaqiyatli o'chirildi",
+    "saved": "O'zgarishlar muvaffaqiyatli saqlandi",
+    "updated": "Muvaffaqiyatli yangilandi"
+  },
+  "pagination": {
+    "previous": "Oldingi",
+    "next": "Keyingi",
+    "page": "Sahifa",
+    "of": "dan",
+    "perPage": "sahifada"
+  },
+  "empty": {
+    "title": "Hozircha bu yer bo'sh",
+    "description": "Keyinroq qaytib keling yoki boshqa filtrni sinab ko'ring."
+  },
+  "table": {
+    "actions": "Amallar",
+    "status": "Holat",
+    "date": "Sana"
+  }
+}

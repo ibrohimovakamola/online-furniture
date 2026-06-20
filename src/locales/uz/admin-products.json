@@ -1,0 +1,26 @@
+{
+  "title": "Mahsulotlarni boshqarish",
+  "allProducts": "Barcha mahsulotlar",
+  "addNew": "Yangi mahsulot qo'shish",
+  "editProduct": "Mahsulotni tahrirlash",
+  "filters": "Filtrlar",
+  "table": {
+    "name": "Mahsulot nomi",
+    "category": "Kategoriya",
+    "price": "Narx",
+    "stock": "Ombor",
+    "status": "Holat",
+    "actions": "Amallar"
+  },
+  "form": {
+    "name": "Mahsulot nomi",
+    "description": "Tavsif",
+    "category": "Kategoriya",
+    "price": "Narx",
+    "cost": "Tannarx",
+    "stock": "Ombordagi miqdor",
+    "sku": "SKU",
+    "image": "Mahsulot rasmi",
+    "status": "Holat"
+  }
+}

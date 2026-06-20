@@ -7,6 +7,7 @@ export const ROLES = {
   SUPER_ADMIN: 'super_admin',
   MANAGER: 'manager',
   CUSTOMER: 'customer',
+  B2B_PARTNER: 'b2b_partner',
 }
 
 export const ADMIN_ROLES = [ROLES.SUPER_ADMIN, ROLES.MANAGER]
@@ -21,6 +22,9 @@ export const PERMISSIONS = {
   MANAGE_USERS: 'manage_users',
   MANAGE_MANAGERS: 'manage_managers',
   PLACE_ORDER: 'place_order',
+  ACCESS_B2B_PORTAL: 'access_b2b_portal',
+  MANAGE_B2B: 'manage_b2b',
+  MANAGE_BLOG: 'manage_blog',
 }
 
 export const ROLE_PERMISSIONS = {
@@ -30,8 +34,11 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.MANAGE_CATEGORIES,
     PERMISSIONS.VIEW_ORDERS,
     PERMISSIONS.UPDATE_ORDER_STATUS,
+    PERMISSIONS.MANAGE_B2B,
+    PERMISSIONS.MANAGE_BLOG,
   ],
   [ROLES.CUSTOMER]: [PERMISSIONS.PLACE_ORDER],
+  [ROLES.B2B_PARTNER]: [PERMISSIONS.PLACE_ORDER, PERMISSIONS.ACCESS_B2B_PORTAL],
 }
 
 /** Admin sidebar routes → required permission (null = any admin) */
@@ -42,6 +49,14 @@ export const ADMIN_ROUTE_PERMISSIONS = {
   '/admin/orders': PERMISSIONS.VIEW_ORDERS,
   '/admin/customers': PERMISSIONS.MANAGE_USERS,
   '/admin/flash-sale': PERMISSIONS.MANAGE_PRODUCTS,
+  '/admin/gallery': PERMISSIONS.MANAGE_PRODUCTS,
+  '/admin/b2b-leads': PERMISSIONS.MANAGE_B2B,
+  '/admin/faq': PERMISSIONS.MANAGE_USERS,
+  '/admin/blog': PERMISSIONS.MANAGE_BLOG,
+  '/admin/blog/new': PERMISSIONS.MANAGE_BLOG,
+  '/admin/blog/categories': PERMISSIONS.MANAGE_BLOG,
+  '/admin/blog/analytics': PERMISSIONS.MANAGE_BLOG,
+  '/admin/blog/edit': PERMISSIONS.MANAGE_BLOG,
   '/admin/analytics': PERMISSIONS.VIEW_ANALYTICS,
   '/admin/settings': PERMISSIONS.MANAGE_USERS,
 }

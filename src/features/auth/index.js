@@ -4,12 +4,15 @@ export {
   loginUser,
   registerUser,
   fetchCurrentUser,
+  rehydrateSession,
+  logoutUser,
   logout,
   clearAuthError,
   selectAuth,
   selectUser,
   selectIsAuthenticated,
   selectIsAdmin,
+  selectIsAuthReady,
 } from './authSlice'
 
 export { default as apiClient, authApi, attachTokenGetter } from './authApi'

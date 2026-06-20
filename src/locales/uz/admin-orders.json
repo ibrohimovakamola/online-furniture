@@ -1,0 +1,21 @@
+{
+  "title": "Buyurtmalarni boshqarish",
+  "allOrders": "Barcha buyurtmalar",
+  "detail": "Buyurtma tafsilotlari",
+  "table": {
+    "id": "Buyurtma ID",
+    "customer": "Mijoz",
+    "total": "Jami",
+    "status": "Holat",
+    "date": "Sana",
+    "actions": "Amallar"
+  },
+  "status": {
+    "pending": "Kutilmoqda",
+    "processing": "Jarayonda",
+    "shipped": "Yuborilgan",
+    "delivered": "Yetkazilgan",
+    "cancelled": "Bekor qilingan"
+  },
+  "updateStatus": "Holatni yangilash"
+}

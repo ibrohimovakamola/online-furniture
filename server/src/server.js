@@ -1,119 +1,167 @@
-import 'dotenv/config'
+import './utils/loadEnvBootstrap.js'
+import { validateEnv, logEnvConfig } from './utils/validateEnv.js'
+import { logAppError } from './utils/winstonLogger.js'
+import { logApp } from './utils/appLogger.js'
 import app from './app.js'
-import { connectDB, disconnectDB } from './config/db.js'
+import { connectDB, disconnectDB, getDbStatus, isDbConnected } from './config/db.js'
 import { runBootstrapSeeds } from './utils/bootstrapSeeds.js'
 import { ensureDefaultCategories } from './utils/seedCategories.js'
-import { isMemoryDbMode } from './config/db.js'
 
-const DEFAULT_PORT = Number(process.env.PORT) || 5000
-const MAX_PORT_ATTEMPTS = 6
+const PORT = Number(process.env.PORT) || 5000
+const HOST = process.env.HOST || (process.env.NODE_ENV === 'production' ? '127.0.0.1' : '0.0.0.0')
+const IS_PRODUCTION = process.env.NODE_ENV === 'production'
+const DB_RETRY_ATTEMPTS = Number(process.env.DB_RETRY_ATTEMPTS) || 3
+const DB_RETRY_DELAY_MS = Number(process.env.DB_RETRY_DELAY_MS) || 2000
 
-/** @type {import('http').Server | null} */
 let httpServer = null
 
-function listenOnPort(port) {
-  return new Promise((resolve, reject) => {
-    const server = app.listen(port, () => resolve({ server, port }))
+function applyDevEnvDefaults() {
+  try {
+    validateEnv()
+    logEnvConfig()
+  } catch (err) {
+    logApp('error', '[env] Validation failed', { message: err.message })
+    process.exit(1)
+  }
 
-    server.on('error', (err) => {
-      server.close(() => {})
+  if (IS_PRODUCTION) {
+    return
+  }
+
+  if (!process.env.MONGODB_URI) {
+    process.env.MONGODB_URI = 'memory'
+    logApp('warn', '[server] MONGODB_URI missing — using memory')
+  }
+  if (!process.env.JWT_SECRET) {
+    process.env.JWT_SECRET = 'dev-only-jwt-secret-replace-in-production'
+    logApp('warn', '[server] JWT_SECRET missing — using dev default')
+  }
+  if (!process.env.REFRESH_SECRET) {
+    process.env.REFRESH_SECRET =
+      process.env.JWT_SECRET.length >= 32
+        ? process.env.JWT_SECRET
+        : 'dev-only-refresh-secret-min-32-characters-long'
+    logApp('warn', '[server] REFRESH_SECRET missing — using dev default')
+  }
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function connectDatabase() {
+  const uri = process.env.MONGODB_URI
+  const label = uri === 'memory' ? 'in-memory (dev)' : uri.startsWith('mongodb+srv://') ? 'Atlas' : 'local/remote'
+  logApp('info', `[server] Connecting to MongoDB (${label})…`)
+
+  let lastError = null
+
+  for (let attempt = 1; attempt <= DB_RETRY_ATTEMPTS; attempt++) {
+    try {
+      if (attempt > 1) {
+        logApp('info', `[server] DB retry ${attempt}/${DB_RETRY_ATTEMPTS}…`)
+      }
+      await connectDB(uri)
+      await ensureDefaultCategories()
+      await runBootstrapSeeds()
+      logApp('info', '[server] MongoDB connected and seeded')
+      if (!IS_PRODUCTION) {
+        logApp('info', '[server] Dev admin: admin@exclusive.uz / ChangeMe123!')
+      } else if (process.env.SEED_SUPER_ADMIN === 'true') {
+        logApp('warn', '[server] Super admin seeded — change password after first login')
+      }
+      return
+    } catch (err) {
+      lastError = err
+      logApp('error', `[server] Database attempt ${attempt}/${DB_RETRY_ATTEMPTS} failed`, {
+        message: err.message,
+      })
+      if (attempt < DB_RETRY_ATTEMPTS) {
+        await sleep(DB_RETRY_DELAY_MS)
+      }
+    }
+  }
+
+  throw lastError || new Error('Database connection failed')
+}
+
+function printDbTroubleshooting() {
+  logApp('error', '[server] Could not connect to MongoDB — check MONGODB_URI in server/.env')
+}
+
+async function startHttpServer() {
+  await new Promise((resolve, reject) => {
+    httpServer = app.listen(PORT, HOST, () => {
+      const { connected, state } = getDbStatus()
+      logApp('info', `[server] HTTP listening on http://${HOST}:${PORT}`, {
+        database: connected ? 'connected' : state,
+      })
+      resolve()
+    })
+    httpServer.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        logApp('error', `[server] Port ${PORT} in use`)
+      }
       reject(err)
     })
   })
 }
 
-async function startHttpServer(preferredPort) {
-  let lastError = null
+async function start() {
+  applyDevEnvDefaults()
 
-  for (let offset = 0; offset < MAX_PORT_ATTEMPTS; offset += 1) {
-    const port = preferredPort + offset
-
-    try {
-      const result = await listenOnPort(port)
-      httpServer = result.server
-
-      if (port !== preferredPort) {
-        console.warn(
-          `[server] Port ${preferredPort} is in use — listening on ${port}. ` +
-            'Stop the old process (npm run kill-port) or update the Vite proxy target.'
-        )
-      }
-
-      return port
-    } catch (err) {
-      if (err.code === 'EADDRINUSE') {
-        lastError = err
-        continue
-      }
-      throw err
+  try {
+    await connectDatabase()
+  } catch (err) {
+    printDbTroubleshooting()
+    if (IS_PRODUCTION) {
+      logApp('error', '[server] Refusing to start without a database in production', { message: err.message })
+      process.exit(1)
     }
+    logApp('warn', '[server] Starting in degraded mode — API returns 503 until MongoDB connects')
   }
 
-  console.error(
-    `[server] Ports ${preferredPort}-${preferredPort + MAX_PORT_ATTEMPTS - 1} are in use. ` +
-      'Run: cd server && npm run kill-port'
-  )
-  throw lastError || new Error('No available port')
+  if (isDbConnected() === false && IS_PRODUCTION) {
+    logApp('error', '[server] Database disconnected after connect — aborting startup')
+    process.exit(1)
+  }
+
+  await startHttpServer()
 }
 
-async function shutdown(signal) {
-  console.log(`\n[server] ${signal} received — shutting down`)
-  if (httpServer) {
-    await new Promise((resolve) => httpServer.close(() => resolve()))
-  }
+async function shutdown() {
+  if (httpServer) await new Promise((r) => httpServer.close(() => r()))
   await disconnectDB()
   process.exit(0)
 }
 
-async function start() {
-  if (!process.env.MONGODB_URI) {
-    throw new Error('MONGODB_URI is not defined in environment')
-  }
-  if (!process.env.JWT_SECRET) {
-    throw new Error('JWT_SECRET is not defined in environment')
-  }
+process.on('SIGINT', () => shutdown())
+process.on('SIGTERM', () => shutdown())
 
-  try {
-    await connectDB(process.env.MONGODB_URI)
-  } catch (err) {
-    console.error('[server] Database connection failed:', err.message)
-    console.error(
-      '[server] For local dev use MONGODB_URI=memory in server/.env. ' +
-        'If memory DB fails, free disk space on C: or use a real MongoDB URI.'
-    )
-    process.exit(1)
-  }
+process.on('uncaughtException', (err) => {
+  logAppError({
+    errorId: 'ERR-UNCAUGHT',
+    statusCode: 500,
+    message: err?.message || 'Uncaught exception',
+    stack: err?.stack,
+    isOperational: false,
+  })
+  shutdown().catch(() => process.exit(1))
+})
 
-  // Force original 7 categories when collection is empty (memory DB resets on restart)
-  try {
-    const categoryResult = await ensureDefaultCategories()
-    if (categoryResult?.total === 0) {
-      console.error('[startup] WARNING: No categories in database after seed — check MongoDB connection')
-    }
-  } catch (err) {
-    console.error('[startup] Category seed failed:', err.message)
-  }
-
-  try {
-    await runBootstrapSeeds()
-  } catch (err) {
-    console.error('[server] Bootstrap seed failed (server will still start):', err.message)
-  }
-
-  if (isMemoryDbMode()) {
-    console.log(
-      '[server] Tip: use mongodb://127.0.0.1:27017/exclusive in .env for data that survives restarts'
-    )
-  }
-
-  const port = await startHttpServer(DEFAULT_PORT)
-  console.log(`Server listening on http://localhost:${port}`)
-}
-
-process.on('SIGINT', () => shutdown('SIGINT'))
-process.on('SIGTERM', () => shutdown('SIGTERM'))
+process.on('unhandledRejection', (reason) => {
+  const message = reason instanceof Error ? reason.message : String(reason)
+  const stack = reason instanceof Error ? reason.stack : undefined
+  logAppError({
+    errorId: 'ERR-UNHANDLED',
+    statusCode: 500,
+    message: `Unhandled rejection: ${message}`,
+    stack,
+    isOperational: false,
+  })
+})
 
 start().catch((err) => {
-  console.error('Failed to start server:', err.message)
+  logApp('error', '[server] Failed to start', { message: err.message })
   process.exit(1)
 })

@@ -1,6 +1,9 @@
 import Settings from '../models/Settings.js'
 import { buildImageUrl } from './helpers.js'
 
+const SETTINGS_CACHE_MS = Number(process.env.SETTINGS_CACHE_MS) || 60_000
+let settingsCache = { doc: null, expiresAt: 0 }
+
 export const DEFAULT_SETTINGS = {
   store: {
     supportPhone: '+998 94 043 16 84',
@@ -46,11 +49,23 @@ export function getFlashSaleTimeLeft(endsAt) {
 }
 
 export async function getOrCreateSettings() {
+  const now = Date.now()
+  if (settingsCache.doc && settingsCache.expiresAt > now) {
+    return settingsCache.doc
+  }
+
   let doc = await Settings.findOne({ key: 'global' })
   if (!doc) {
     doc = await Settings.create({ key: 'global', ...DEFAULT_SETTINGS })
   }
+
+  settingsCache = { doc, expiresAt: now + SETTINGS_CACHE_MS }
   return doc
+}
+
+/** Call after admin settings update to bust cache */
+export function clearSettingsCache() {
+  settingsCache = { doc: null, expiresAt: 0 }
 }
 
 export function formatSettings(doc, req) {

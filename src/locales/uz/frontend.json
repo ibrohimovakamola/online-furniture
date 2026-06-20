@@ -1,0 +1,138 @@
+{
+  "home": {
+    "title": "KRESLA ga xush kelibsiz",
+    "subtitle": "Uyingiz uchun premium mebel",
+    "heroButton": "Hozir xarid qiling",
+    "featured": "Tavsiya etilgan mahsulotlar",
+    "newArrivals": "Yangi kelganlar",
+    "trending": "Hozir mashhur",
+    "categories": "Kategoriyalar",
+    "flashSale": "Flash chegirma"
+  },
+  "products": {
+    "title": "Bizning mahsulotlar",
+    "price": "Narx",
+    "addToCart": "Savatga qo'shish",
+    "addToWishlist": "Sevimlilarga qo'shish",
+    "inStock": "Omborda bor",
+    "outOfStock": "Omborda yo'q",
+    "category": "Kategoriya",
+    "filter": "Filtr",
+    "sort": "Saralash",
+    "sortByPriceAsc": "Narx: arzonidan qimmatiga",
+    "sortByPriceDesc": "Narx: qimmatidan arzoniga",
+    "sortByNewest": "Avval yangilari",
+    "sortByPopular": "Eng mashhurlari",
+    "noProducts": "Mahsulotlar topilmadi",
+    "details": "Mahsulot tafsilotlari",
+    "dimensions": "O'lchamlar",
+    "colors": "Ranglar",
+    "quantity": "Miqdor"
+  },
+  "cart": {
+    "title": "Savat",
+    "empty": "Savatingiz bo'sh",
+    "subtotal": "Oraliq jami",
+    "total": "Jami",
+    "checkout": "Buyurtma berish",
+    "continueShopping": "Xaridni davom ettirish",
+    "remove": "O'chirish"
+  },
+  "checkout": {
+    "title": "Buyurtma rasmiylashtirish",
+    "shipping": "Yetkazib berish",
+    "payment": "To'lov",
+    "placeOrder": "Buyurtma berish",
+    "installment": "Muddatli to'lov"
+  },
+  "orders": {
+    "title": "Buyurtmalarim",
+    "empty": "Hozircha buyurtmalaringiz yo'q",
+    "status": "Holat",
+    "detail": "Buyurtma tafsilotlari",
+    "confirmation": "Buyurtma tasdiqlandi"
+  },
+  "wishlist": {
+    "title": "Sevimlilar",
+    "empty": "Sevimlilar ro'yxatingiz bo'sh"
+  },
+  "blog": {
+    "title": "Interyer dizayni blogi",
+    "subtitle": "Maslahatlar, trendlar va ilhom",
+    "readMore": "Ko'proq o'qish",
+    "by": "Muallif",
+    "published": "Nashr qilingan",
+    "views": "Ko'rishlar",
+    "category": "Kategoriya",
+    "relatedPosts": "O'xshash maqolalar",
+    "searchPlaceholder": "Maqolalarni qidirish...",
+    "allCategories": "Barcha kategoriyalar",
+    "newsletter": "Yangiliklarimizga obuna bo'ling",
+    "noPosts": "Maqolalar topilmadi"
+  },
+  "about": {
+    "title": "Biz haqimizda",
+    "team": "Bizning jamoa",
+    "philosophy": "Bizning falsafamiz"
+  },
+  "contact": {
+    "title": "Biz bilan bog'laning",
+    "form": {
+      "name": "Ismingiz",
+      "email": "Email manzil",
+      "phone": "Telefon raqami",
+      "subject": "Mavzu",
+      "message": "Xabar",
+      "send": "Xabar yuborish"
+    }
+  },
+  "faq": {
+    "title": "Ko'p beriladigan savollar"
+  },
+  "auth": {
+    "login": "Kirish",
+    "signUp": "Ro'yxatdan o'tish",
+    "email": "Email",
+    "password": "Parol",
+    "confirmPassword": "Parolni tasdiqlang",
+    "firstName": "Ism",
+    "lastName": "Familiya",
+    "forgotPassword": "Parolni unutdingizmi?",
+    "noAccount": "Hisobingiz yo'qmi?",
+    "hasAccount": "Allaqachon hisobingiz bormi?",
+    "resetPassword": "Parolni tiklash"
+  },
+  "search": {
+    "title": "Qidiruv natijalari",
+    "placeholder": "Mahsulotlarni qidirish...",
+    "noResults": "\"{{query}}\" bo'yicha natija topilmadi"
+  },
+  "gallery": {
+    "title": "Galereya",
+    "beforeAfter": "Oldin va keyin"
+  },
+  "showroom": {
+    "title": "Showroom"
+  },
+  "flashSale": {
+    "title": "Flash chegirma",
+    "endsIn": "Tugash vaqti"
+  },
+  "b2b": {
+    "title": "B2B portali",
+    "apply": "Hamkorlik uchun ariza berish"
+  },
+  "compare": {
+    "title": "Mahsulotlarni taqqoslash",
+    "empty": "Taqqoslash uchun mahsulot qo'shing"
+  },
+  "reviews": {
+    "title": "Mijozlar sharhlari"
+  },
+  "policies": {
+    "terms": "Foydalanish shartlari",
+    "privacy": "Maxfiylik siyosati",
+    "shipping": "Yetkazib berish siyosati",
+    "returns": "Qaytarish va pul qaytarish siyosati"
+  }
+}

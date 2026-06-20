@@ -5,10 +5,18 @@ const AdminSearchContext = createContext(null)
 
 const THEME_KEY = 'exclusive-admin-theme'
 
+export const EMPTY_PRODUCT_FILTERS = {
+  category: '',
+  stockStatus: 'all',
+  minPrice: '',
+  maxPrice: '',
+}
+
 export function AdminSearchProvider({ children }) {
   const location = useLocation()
   const [searchQuery, setSearchQuery] = useState('')
   const [dateRange, setDateRange] = useState('30days')
+  const [productFilters, setProductFilters] = useState(EMPTY_PRODUCT_FILTERS)
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0)
 
   useEffect(() => {
@@ -21,10 +29,12 @@ export function AdminSearchProvider({ children }) {
       setSearchQuery,
       dateRange,
       setDateRange,
+      productFilters,
+      setProductFilters,
       pendingOrdersCount,
       setPendingOrdersCount,
     }),
-    [searchQuery, dateRange, pendingOrdersCount]
+    [searchQuery, dateRange, productFilters, pendingOrdersCount]
   )
 
   return (

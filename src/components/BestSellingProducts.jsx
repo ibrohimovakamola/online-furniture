@@ -1,31 +1,55 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Skeleton from 'react-loading-skeleton'
 import useFetch from '../hook/useFetch'
 import PremiumProductCard from './PremiumProductCard'
+import Pagination from './Pagination'
 
-const DISPLAY_LIMIT = 8
+const PAGE_SIZE = 8
+const FETCH_LIMIT = 24
 
-function pickBestSelling(products) {
-  return [...products]
-    .sort((a, b) => {
-      const discountDiff = (b.discountPercentage || 0) - (a.discountPercentage || 0)
-      if (discountDiff !== 0) return discountDiff
-      return (b.basePrice || b.price || 0) - (a.basePrice || a.price || 0)
-    })
-    .slice(0, DISPLAY_LIMIT)
+function sortBestSelling(products) {
+  return [...products].sort((a, b) => {
+    const discountDiff = (b.discountPercentage || 0) - (a.discountPercentage || 0)
+    if (discountDiff !== 0) return discountDiff
+    return (b.basePrice || b.price || 0) - (a.basePrice || a.price || 0)
+  })
 }
 
 function BestSellingProducts() {
-  const { state, loading, error } = useFetch('products', { limit: 24 })
+  const sectionRef = useRef(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const { state, loading, error } = useFetch('products', { limit: FETCH_LIMIT })
 
-  const products = useMemo(() => {
+  const sortedProducts = useMemo(() => {
     const list = state?.products ?? []
-    return pickBestSelling(list)
+    return sortBestSelling(list)
   }, [state?.products])
 
+  const totalPages = Math.max(1, Math.ceil(sortedProducts.length / PAGE_SIZE))
+
+  const products = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE
+    return sortedProducts.slice(start, start + PAGE_SIZE)
+  }, [sortedProducts, currentPage])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [sortedProducts.length])
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page)
+    sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }
+
   return (
-    <section className="py-10 md:py-14">
+    <section ref={sectionRef} className="py-10 md:py-14">
       <div className="container mx-auto max-w-[1360px] px-3">
         <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col gap-4">
@@ -61,7 +85,7 @@ function BestSellingProducts() {
               </div>
             ))}
           </div>
-        ) : products.length === 0 ? (
+        ) : sortedProducts.length === 0 ? (
           <div className="rounded-xl border border-dashed border-[#0b3c3c]/30 bg-[#f8fafa] px-6 py-16 text-center">
             <p className="font-[Poppins] text-[#545252]">No products available yet. Check back soon.</p>
             <Link
@@ -72,11 +96,23 @@ function BestSellingProducts() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {products.map((product) => (
-              <PremiumProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {products.map((product) => (
+                <PremiumProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            <Pagination
+              className="mt-10"
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              prevLabel="Previous"
+              nextLabel="Next"
+              ariaLabel="Best selling products pagination"
+            />
+          </>
         )}
 
         <div className="mt-12 h-px w-full bg-[#0b3c3c]/15" />

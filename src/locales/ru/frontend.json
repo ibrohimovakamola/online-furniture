@@ -1,0 +1,138 @@
+{
+  "home": {
+    "title": "Добро пожаловать в KRESLA",
+    "subtitle": "Премиальная мебель для вашего дома",
+    "heroButton": "Купить сейчас",
+    "featured": "Рекомендуемые товары",
+    "newArrivals": "Новинки",
+    "trending": "Популярное сейчас",
+    "categories": "Категории",
+    "flashSale": "Распродажа"
+  },
+  "products": {
+    "title": "Наши товары",
+    "price": "Цена",
+    "addToCart": "В корзину",
+    "addToWishlist": "В избранное",
+    "inStock": "В наличии",
+    "outOfStock": "Нет в наличии",
+    "category": "Категория",
+    "filter": "Фильтр",
+    "sort": "Сортировать по",
+    "sortByPriceAsc": "Цена: по возрастанию",
+    "sortByPriceDesc": "Цена: по убыванию",
+    "sortByNewest": "Сначала новые",
+    "sortByPopular": "Самые популярные",
+    "noProducts": "Товары не найдены",
+    "details": "О товаре",
+    "dimensions": "Размеры",
+    "colors": "Цвета",
+    "quantity": "Количество"
+  },
+  "cart": {
+    "title": "Корзина",
+    "empty": "Ваша корзина пуста",
+    "subtotal": "Промежуточный итог",
+    "total": "Итого",
+    "checkout": "Оформить заказ",
+    "continueShopping": "Продолжить покупки",
+    "remove": "Удалить"
+  },
+  "checkout": {
+    "title": "Оформление заказа",
+    "shipping": "Доставка",
+    "payment": "Оплата",
+    "placeOrder": "Оформить заказ",
+    "installment": "Рассрочка"
+  },
+  "orders": {
+    "title": "Мои заказы",
+    "empty": "У вас пока нет заказов",
+    "status": "Статус",
+    "detail": "Детали заказа",
+    "confirmation": "Заказ подтверждён"
+  },
+  "wishlist": {
+    "title": "Избранное",
+    "empty": "Ваш список избранного пуст"
+  },
+  "blog": {
+    "title": "Блог об интерьере",
+    "subtitle": "Советы, тренды и вдохновение",
+    "readMore": "Читать далее",
+    "by": "Автор",
+    "published": "Опубликовано",
+    "views": "Просмотры",
+    "category": "Категория",
+    "relatedPosts": "Похожие статьи",
+    "searchPlaceholder": "Поиск статей...",
+    "allCategories": "Все категории",
+    "newsletter": "Подпишитесь на рассылку",
+    "noPosts": "Статьи не найдены"
+  },
+  "about": {
+    "title": "О нас",
+    "team": "Наша команда",
+    "philosophy": "Наша философия"
+  },
+  "contact": {
+    "title": "Связаться с нами",
+    "form": {
+      "name": "Ваше имя",
+      "email": "Email",
+      "phone": "Номер телефона",
+      "subject": "Тема",
+      "message": "Сообщение",
+      "send": "Отправить сообщение"
+    }
+  },
+  "faq": {
+    "title": "Часто задаваемые вопросы"
+  },
+  "auth": {
+    "login": "Вход",
+    "signUp": "Регистрация",
+    "email": "Email",
+    "password": "Пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "forgotPassword": "Забыли пароль?",
+    "noAccount": "Нет аккаунта?",
+    "hasAccount": "Уже есть аккаунт?",
+    "resetPassword": "Сбросить пароль"
+  },
+  "search": {
+    "title": "Результаты поиска",
+    "placeholder": "Поиск товаров...",
+    "noResults": "Ничего не найдено по запросу «{{query}}»"
+  },
+  "gallery": {
+    "title": "Галерея",
+    "beforeAfter": "До и после"
+  },
+  "showroom": {
+    "title": "Шоурум"
+  },
+  "flashSale": {
+    "title": "Распродажа",
+    "endsIn": "Заканчивается через"
+  },
+  "b2b": {
+    "title": "B2B-портал",
+    "apply": "Подать заявку на партнёрство"
+  },
+  "compare": {
+    "title": "Сравнение товаров",
+    "empty": "Добавьте товары для сравнения"
+  },
+  "reviews": {
+    "title": "Отзывы покупателей"
+  },
+  "policies": {
+    "terms": "Условия использования",
+    "privacy": "Политика конфиденциальности",
+    "shipping": "Политика доставки",
+    "returns": "Политика возврата и возмещения"
+  }
+}

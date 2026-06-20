@@ -1,11 +1,21 @@
-import jwt from 'jsonwebtoken'
+/**
+ * Backward-compatible JWT helpers — delegates to jwt.js
+ */
+export {
+  generateTokens,
+  verifyAccessToken as verifyToken,
+  issueAuthSession,
+  rotateAuthSession,
+  setRefreshCookie,
+  clearRefreshCookie,
+  REFRESH_COOKIE_NAME,
+} from './jwt.js'
 
+import { generateTokens } from './jwt.js'
+
+/** @deprecated Use issueAuthSession for login flows */
 export function signToken(payload) {
-  return jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-  })
+  return generateTokens({ _id: payload.id, id: payload.id, role: payload.role }).accessToken
 }
 
-export function verifyToken(token) {
-  return jwt.verify(token, process.env.JWT_SECRET)
-}
+export const REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || '30d'

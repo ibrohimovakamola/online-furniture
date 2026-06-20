@@ -7,6 +7,7 @@ export const ROLES = {
   SUPER_ADMIN: 'super_admin',
   MANAGER: 'manager',
   CUSTOMER: 'customer',
+  B2B_PARTNER: 'b2b_partner',
 }
 
 /** Admin-panel roles only (Customer is blocked from /admin entirely) */
@@ -35,6 +36,9 @@ export const PERMISSIONS = {
 
   // Storefront
   PLACE_ORDER: 'place_order',
+  ACCESS_B2B_PORTAL: 'access_b2b_portal',
+  MANAGE_B2B: 'manage_b2b',
+  MANAGE_BLOG: 'manage_blog',
 }
 
 /** Role → allowed permissions matrix */
@@ -46,9 +50,13 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.MANAGE_CATEGORIES,
     PERMISSIONS.VIEW_ORDERS,
     PERMISSIONS.UPDATE_ORDER_STATUS,
+    PERMISSIONS.MANAGE_B2B,
+    PERMISSIONS.MANAGE_BLOG,
   ],
 
   [ROLES.CUSTOMER]: [PERMISSIONS.PLACE_ORDER],
+
+  [ROLES.B2B_PARTNER]: [PERMISSIONS.PLACE_ORDER, PERMISSIONS.ACCESS_B2B_PORTAL],
 }
 
 export function roleHasPermission(role, permission) {

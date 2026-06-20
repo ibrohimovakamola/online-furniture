@@ -1,6 +1,7 @@
 import Contact from '../models/Contact.js'
 import { AppError, asyncHandler } from '../utils/asyncHandler.js'
 import { sanitizeContactBody, validateContactFields } from '../utils/sanitizeContact.js'
+import { sendContactFormReply } from './emailController.js'
 
 export const submitContact = asyncHandler(async (req, res) => {
   const sanitized = sanitizeContactBody(req.body)
@@ -11,6 +12,8 @@ export const submitContact = asyncHandler(async (req, res) => {
   }
 
   const submission = await Contact.create(sanitized)
+
+  sendContactFormReply(submission.email, submission.message, { name: submission.name })
 
   res.status(201).json({
     success: true,

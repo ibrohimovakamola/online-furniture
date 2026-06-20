@@ -1,0 +1,65 @@
+{
+  "title": "Blog boshqaruvi",
+  "subtitle": "Maqolalar, qoralamalar va rejalashtirilgan kontentni boshqarish",
+  "allPosts": "Barcha maqolalar",
+  "addNew": "Yangi maqola",
+  "editPost": "Maqolani tahrirlash",
+  "newPost": "Yangi maqola",
+  "categories": "Kategoriyalar",
+  "categoriesSubtitle": "Maqolalarni yorliqlar va belgi ranglari bilan tartibga soling",
+  "analytics": "Analitika",
+  "analyticsSubtitle": "Ko'rishlar va nashr qilish bo'yicha umumiy ko'rinish",
+  "table": {
+    "title": "Sarlavha",
+    "category": "Kategoriya",
+    "author": "Muallif",
+    "published": "Nashr qilingan",
+    "status": "Holat",
+    "views": "Ko'rishlar"
+  },
+  "form": {
+    "title": "Sarlavha",
+    "slug": "Slug / URL",
+    "category": "Kategoriya",
+    "content": "Kontent",
+    "image": "Asosiy rasm",
+    "metaDescription": "Meta tavsif",
+    "keywords": "Kalit so'zlar",
+    "author": "Muallif",
+    "status": "Holat",
+    "publicationDate": "Nashr sanasi",
+    "readingTime": "O'qish vaqti",
+    "seo": "SEO",
+    "seoScore": "SEO balli"
+  },
+  "status": {
+    "draft": "Qoralama",
+    "published": "Nashr qilingan",
+    "scheduled": "Rejalashtirilgan",
+    "all": "Barcha holatlar"
+  },
+  "filters": {
+    "search": "Sarlavha bo'yicha qidirish…",
+    "allCategories": "Barcha kategoriyalar",
+    "sortNewest": "Avval yangilari",
+    "sortOldest": "Avval eskilari",
+    "sortTitle": "Sarlavha A–Z",
+    "sortViews": "Eng ko'p ko'rishlar"
+  },
+  "stats": {
+    "totalPosts": "Jami maqolalar",
+    "published": "Nashr qilingan",
+    "drafts": "Qoralamalar",
+    "totalViews": "Jami ko'rishlar",
+    "scheduled": "Rejalashtirilgan maqolalar",
+    "topPosts": "Ko'rishlar bo'yicha top maqolalar"
+  },
+  "categoryForm": {
+    "name": "Nomi",
+    "slug": "Slug",
+    "description": "Tavsif",
+    "color": "Belgi rangi",
+    "icon": "Ikonka (emoji yoki nom)",
+    "image": "Kategoriya rasmi"
+  }
+}

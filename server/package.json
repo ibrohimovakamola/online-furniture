@@ -6,16 +6,41 @@
     "kill-port": "powershell -ExecutionPolicy Bypass -File ./scripts/kill-port.ps1 -Port 5000",
     "predev": "npm run kill-port",
     "dev": "node --watch-path=src src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "preflight": "node scripts/preflight.js",
+    "ensure-indexes": "node scripts/ensureIndexes.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.10.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.5.2",
+    "express-validator": "^7.3.2",
+    "handlebars": "^4.7.9",
+    "helmet": "^8.2.0",
+    "joi": "^18.2.1",
     "jsonwebtoken": "^9.0.2",
-    "mongodb-memory-server": "^11.1.0",
     "mongoose": "^8.15.1",
-    "multer": "^2.1.1"
+    "morgan": "^1.11.0",
+    "multer": "^2.1.1",
+    "nodemailer": "^6.10.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0",
+    "xss-clean": "^0.1.4",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^11.1.0",
+    "supertest": "^7.1.0"
   }
 }

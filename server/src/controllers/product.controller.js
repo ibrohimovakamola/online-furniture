@@ -6,6 +6,10 @@ import { slugify } from '../utils/helpers.js'
 import { formatAdminProduct } from '../utils/productFormatter.js'
 import { normalizeHexColor, sanitizeColors } from '../utils/sanitizeColors.js'
 import { buildCreatedAtFilter, parseDateRangeQuery } from '../utils/dateRange.js'
+import { applyProductListFilters, parseProductPagination, parseProductSort } from '../utils/productListFilter.js'
+import { logControllerError } from '../utils/controllerLogger.js'
+import { buildPaginatedResponse } from '../utils/pagination.js'
+import { logAdminAction } from '../utils/adminActionLog.js'
 
 /** Parse filters from multipart JSON string or flat form fields */
 function parseFilters(body) {
@@ -117,23 +121,38 @@ function buildImagesFromFiles(files, existingImages = []) {
 }
 
 export const listProducts = asyncHandler(async (req, res) => {
-  const { search = '' } = req.query
-  const dateFilter = buildCreatedAtFilter(parseDateRangeQuery(req.query))
+  const q = req.validated || req.query
+  const dateFilter = buildCreatedAtFilter(parseDateRangeQuery(q))
   const filter = { ...dateFilter }
 
-  if (search.trim()) {
-    const regex = new RegExp(search.trim(), 'i')
-    filter.$or = [{ name: regex }, { sku: regex }, { description: regex }]
+  const listResult = await applyProductListFilters(filter, q)
+  if (listResult.empty) {
+    return res.json(buildPaginatedResponse([], { total: 0, page: 1, limit: 20 }))
   }
 
-  const products = await Product.find(filter)
-    .populate('category', 'name slug')
-    .sort({ createdAt: -1 })
+  if (q.stockStatus === 'lowStock') {
+    const threshold = Number(process.env.LOW_STOCK_THRESHOLD) || 5
+    filter.stock = { $gt: 0, $lte: threshold }
+  }
 
-  res.json({
-    success: true,
-    products: products.map((p) => formatAdminProduct(p, req)),
-  })
+  const { limit, page, skip } = parseProductPagination(q)
+  const sort = parseProductSort(q)
+
+  const [products, total] = await Promise.all([
+    Product.find(filter)
+      .populate('category', 'name slug')
+      .sort(sort)
+      .skip(skip)
+      .limit(limit),
+    Product.countDocuments(filter),
+  ])
+
+  res.json(
+    buildPaginatedResponse(
+      products.map((p) => formatAdminProduct(p, req)),
+      { total, page, limit }
+    )
+  )
 })
 
 export const getProduct = asyncHandler(async (req, res) => {
@@ -143,30 +162,64 @@ export const getProduct = asyncHandler(async (req, res) => {
 })
 
 export const createProduct = asyncHandler(async (req, res) => {
-  const data = parseProductBody(req.body)
+  try {
+    if (!req.user?._id) {
+      throw new AppError('Authenticated user is required to create products', 401)
+    }
 
-  if (!data.name || Number.isNaN(data.basePrice) || data.basePrice < 0) {
-    throw new AppError('Name and valid price are required', 400)
+    const data = parseProductBody(req.body)
+
+    if (!data.name?.trim()) {
+      throw new AppError('Product name is required', 400)
+    }
+    if (Number.isNaN(data.basePrice) || data.basePrice < 0) {
+      throw new AppError('A valid base price is required', 400)
+    }
+    if (!data.category) {
+      throw new AppError('Category is required', 400)
+    }
+
+    await assertValidCategory(data.category)
+
+    const { images, mainImage, gallery } = buildImagesFromFiles(req.files || {})
+    if (!images.some((i) => i.type === 'main')) {
+      throw new AppError('Main product image is required', 400)
+    }
+
+    const slugBase = slugify(data.name) || `product-${Date.now()}`
+    const materials = data.filters?.material ? [data.filters.material] : []
+
+    const product = await Product.create({
+      ...data,
+      materials,
+      slug: slugBase,
+      sku: data.sku || `SKU-${Date.now()}`,
+      images,
+      mainImage,
+      gallery,
+      createdBy: req.user._id,
+    })
+
+    await product.populate('category', 'name slug')
+    res.status(201).json({ success: true, product: formatAdminProduct(product, req) })
+  } catch (err) {
+    logControllerError('createProduct', err, {
+      bodyKeys: Object.keys(req.body || {}),
+      fileFields: req.files ? Object.keys(req.files) : [],
+      userId: req.user?._id,
+    })
+    if (err.isOperational) throw err
+    if (err.name === 'ValidationError') {
+      const details = Object.values(err.errors || {})
+        .map((e) => e.message)
+        .join('; ')
+      throw new AppError(details || 'Product validation failed', 400)
+    }
+    if (err.code === 11000) {
+      throw new AppError('SKU or slug already exists — use a unique name or SKU', 409)
+    }
+    throw new AppError(err.message || 'Failed to create product', 500)
   }
-  await assertValidCategory(data.category)
-
-  const { images, mainImage, gallery } = buildImagesFromFiles(req.files)
-  if (!images.some((i) => i.type === 'main')) {
-    throw new AppError('Main product image is required', 400)
-  }
-
-  const product = await Product.create({
-    ...data,
-    slug: slugify(data.name),
-    sku: data.sku || `SKU-${Date.now()}`,
-    images,
-    mainImage,
-    gallery,
-    createdBy: req.user._id,
-  })
-
-  await product.populate('category', 'name slug')
-  res.status(201).json({ success: true, product: formatAdminProduct(product, req) })
 })
 
 export const updateProduct = asyncHandler(async (req, res) => {
@@ -222,5 +275,69 @@ export const updateProduct = asyncHandler(async (req, res) => {
 export const deleteProduct = asyncHandler(async (req, res) => {
   const product = await Product.findByIdAndDelete(req.params.id)
   if (!product) throw new AppError('Product not found', 404)
+  logAdminAction(req, 'product.delete', { productId: String(req.params.id) })
   res.json({ success: true, message: 'Product deleted' })
+})
+
+/** PUT /api/admin/products/:productId/stock */
+export const updateProductStock = asyncHandler(async (req, res) => {
+  const body = req.validated || req.body
+  const product = await Product.findById(req.params.productId || req.params.id)
+  if (!product) throw new AppError('Product not found', 404)
+
+  const previousStock = product.stock
+  product.stock = body.stock
+  product.updatedBy = req.user._id
+  await product.save()
+  await product.populate('category', 'name slug')
+
+  logAdminAction(req, 'product.stock_update', {
+    productId: String(product._id),
+    previousStock,
+    stock: body.stock,
+    note: body.note || '',
+  })
+
+  res.json({
+    success: true,
+    message: 'Stock updated',
+    data: { product: formatAdminProduct(product, req) },
+  })
+})
+
+/** POST /api/admin/products/:productId/bulk-update */
+export const bulkUpdateProduct = asyncHandler(async (req, res) => {
+  const body = req.validated || req.body
+  const product = await Product.findById(req.params.productId || req.params.id)
+  if (!product) throw new AppError('Product not found', 404)
+
+  const fields = body.fields || body
+
+  if (fields.name_uz) {
+    product.name_uz = fields.name_uz
+    product.name = fields.name_uz
+  }
+  if (fields.name !== undefined) product.name = fields.name
+  if (fields.name_ru !== undefined) product.name_ru = fields.name_ru
+  if (fields.name_en !== undefined) product.name_en = fields.name_en
+  if (fields.description !== undefined) product.description = fields.description
+  if (fields.basePrice !== undefined) product.basePrice = fields.basePrice
+  if (fields.discountedPrice !== undefined) product.discountedPrice = fields.discountedPrice
+  if (fields.stock !== undefined) product.stock = fields.stock
+  if (fields.isPublished !== undefined) product.isPublished = fields.isPublished
+
+  product.updatedBy = req.user._id
+  await product.save()
+  await product.populate('category', 'name slug')
+
+  logAdminAction(req, 'product.bulk_update', {
+    productId: String(product._id),
+    fields: Object.keys(fields),
+  })
+
+  res.json({
+    success: true,
+    message: 'Product updated',
+    data: { product: formatAdminProduct(product, req) },
+  })
 })

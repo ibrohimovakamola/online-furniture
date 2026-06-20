@@ -5,6 +5,8 @@ import "../assets/styles/product-card.scss";
 import { Link } from "react-router-dom";
 import { addToFavourite } from "../features/favourite/favourite";
 import Modal from "./Modal";
+import LiveViewerBadge from "../features/kresla/components/LiveViewerBadge";
+import CompareToggle from "../features/kresla/components/CompareToggle";
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
@@ -78,6 +80,8 @@ const ProductCard = ({ product }) => {
       <div className="card-info">
         <h4 className="card-title">{product.title || product.name}</h4>
         <span className="card-price">${product.price}</span>
+        <LiveViewerBadge productId={product.id} className="mb-1 block" />
+        <CompareToggle product={product} className="mb-2" />
         <div className="card-rating">
           <i class="fa-solid fa-star"></i>
           <i class="fa-solid fa-star"></i>

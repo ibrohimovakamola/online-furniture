@@ -12,6 +12,11 @@ import ProductColorSwatches from '../components/product/ProductColorSwatches'
 import ProductMaterialSelector from '../components/product/ProductMaterialSelector'
 import ProductDimensionsGrid from '../components/product/ProductDimensionsGrid'
 import { addToCart } from '../features/cart/cartSlice'
+import { useRecentlyViewed } from '../features/kresla/hooks/useRecentlyViewed'
+import StockCountdown from '../features/kresla/components/product/StockCountdown'
+import DeliveryCalculator from '../features/kresla/components/product/DeliveryCalculator'
+import BundleDeals from '../features/kresla/components/product/BundleDeals'
+import CompareToggle from '../features/kresla/components/CompareToggle'
 import { DEFAULT_MATERIAL_OPTIONS } from '../constants/premiumServices'
 import { getProductImageSource } from '../features/admin/utils/imageUrl'
 import '../assets/styles/product-detail.scss'
@@ -39,21 +44,31 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState('')
   const [selectedMaterial, setSelectedMaterial] = useState('')
   const { id } = useParams()
+  const { addProduct } = useRecentlyViewed()
   const { state: data, loading } = useFetch(`products/${id}`)
   const { state } = useFetch('products')
 
   const colors = useMemo(
     () => (data?.colors?.length ? data.colors : data?.filters?.color ? [data.filters.color] : []),
-    [data]
+    [data?.id, data?.colors, data?.filters?.color]
   )
 
-  const materialOptions = useMemo(() => (data ? buildMaterialOptions(data) : []), [data])
+  const materialOptions = useMemo(
+    () => (data ? buildMaterialOptions(data) : []),
+    [data?.id, data?.materials, data?.filters?.material]
+  )
 
   useEffect(() => {
-    if (!data) return
-    setSelectedColor(colors[0] || '')
-    setSelectedMaterial(materialOptions[0] || '')
-  }, [data?.id, colors, materialOptions])
+    if (!data?.id) return
+    const nextColor = data.colors?.[0] || data.filters?.color || ''
+    const nextMaterial = buildMaterialOptions(data)[0] || ''
+    setSelectedColor((prev) => (prev === nextColor ? prev : nextColor))
+    setSelectedMaterial((prev) => (prev === nextMaterial ? prev : nextMaterial))
+  }, [data?.id])
+
+  useEffect(() => {
+    if (data?.id) addProduct(data.id)
+  }, [data?.id, addProduct])
 
   const activeColor = selectedColor || colors[0] || ''
 
@@ -168,6 +183,14 @@ const ProductDetail = () => {
               <button type="button" className="detail-wishlist" onClick={handleAddToCart}>
                 <i className="fa-solid fa-cart-shopping" />
               </button>
+            </div>
+            <StockCountdown productId={data.id} />
+            <div className="mt-4">
+              <CompareToggle product={data} />
+            </div>
+            <div className="mt-6 grid gap-6 md:grid-cols-2">
+              <DeliveryCalculator />
+              <BundleDeals product={data} related={relatedProducts || []} />
             </div>
           </div>
         </div>

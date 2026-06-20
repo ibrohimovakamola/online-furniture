@@ -1,0 +1,299 @@
+{
+  "info": {
+    "name": "Mebel Sotish API",
+    "description": "REST API collection for mebelsotish.uz backend.\n\nImport `mebelsotish.uz.postman_environment.json` and set `baseUrl` to http://localhost:5000 for local dev.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "mebel-api-collection"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshCookie", "value": "" },
+    { "key": "productId", "value": "" },
+    { "key": "orderId", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (pm.collectionVariables.get('accessToken')) {",
+          "  pm.request.headers.upsert({ key: 'Authorization', value: 'Bearer ' + pm.collectionVariables.get('accessToken') });",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Response time under 5s', function () { pm.expect(pm.response.responseTime).to.be.below(5000); });"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET Health",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/health"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "pm.test('success true', () => pm.expect(pm.response.json().success).to.eql(true));"] }
+          }]
+        },
+        {
+          "name": "GET API Docs JSON",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": "{{baseUrl}}/api-docs.json"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.test('OpenAPI spec', () => pm.expect(pm.response.json().openapi).to.eql('3.0.3'));"] }
+          }]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Signup",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"postman-{{$timestamp}}@test.com\",\n  \"password\": \"SecurePass1!\",\n  \"name\": \"Postman User\",\n  \"phone\": \"+998901234567\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/signup"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                "const json = pm.response.json();",
+                "if (json.token) pm.collectionVariables.set('accessToken', json.token);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@exclusive.uz\",\n  \"password\": \"ChangeMe123!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                "const json = pm.response.json();",
+                "pm.test('Has token', () => pm.expect(json.token).to.be.a('string'));",
+                "pm.collectionVariables.set('accessToken', json.token);",
+                "const cookies = pm.response.headers.get('Set-Cookie');",
+                "if (cookies) pm.collectionVariables.set('refreshCookie', cookies);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Cookie", "value": "{{refreshCookie}}" }],
+            "url": "{{baseUrl}}/api/auth/refresh"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));", "const t = pm.response.json().token; if (t) pm.collectionVariables.set('accessToken', t);"] }
+          }]
+        },
+        {
+          "name": "Get Me",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/auth/me" },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] }
+          }]
+        },
+        {
+          "name": "Logout",
+          "request": { "method": "POST", "url": "{{baseUrl}}/api/auth/logout" },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] }
+          }]
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/products?page=1&limit=10&lang=uz", "host": ["{{baseUrl}}"], "path": ["api", "products"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "10" }, { "key": "lang", "value": "uz" }] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                "const json = pm.response.json();",
+                "const items = json.data?.products || json.products || json.data || [];",
+                "if (items[0]?._id) pm.collectionVariables.set('productId', items[0]._id);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/products/search?q=divan", "host": ["{{baseUrl}}"], "path": ["api", "products", "search"], "query": [{ "key": "q", "value": "divan" }] }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/products/{{productId}}"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["if (pm.collectionVariables.get('productId')) pm.test('Status 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "List Categories",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/api/categories" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }]
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Get Cart",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/cart" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "Add to Cart",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 1\n}" },
+            "url": "{{baseUrl}}/api/cart"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200 or 422', () => pm.expect([200, 422]).to.include(pm.response.code));"] } }]
+        },
+        {
+          "name": "Create Order from Cart",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shippingAddress\": {\n    \"fullName\": \"Ali Valiyev\",\n    \"phone\": \"+998901234567\",\n    \"email\": \"customer@test.com\",\n    \"street\": \"Amir Temur 1\",\n    \"city\": \"Tashkent\"\n  },\n  \"paymentMethod\": \"cash\",\n  \"notes\": \"Postman test order\"\n}"
+            },
+            "url": "{{baseUrl}}/api/orders"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('Status 201 or 422', () => pm.expect([201, 422]).to.include(pm.response.code));",
+                "const order = pm.response.json().data?.order || pm.response.json().order;",
+                "if (order?._id) pm.collectionVariables.set('orderId', order._id);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "List My Orders",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/orders" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "Installment Plans",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/orders/installment-plans?total=1500000", "host": ["{{baseUrl}}"], "path": ["api", "orders", "installment-plans"], "query": [{ "key": "total", "value": "1500000" }] }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] } }]
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Dashboard Stats",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/dashboard/stats" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200 or 403', () => pm.expect([200, 403]).to.include(pm.response.code));"] } }]
+        },
+        {
+          "name": "List Admin Products",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/products" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200 or 403', () => pm.expect([200, 403]).to.include(pm.response.code));"] } }]
+        },
+        {
+          "name": "List Admin Orders",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/orders" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200 or 403', () => pm.expect([200, 403]).to.include(pm.response.code));"] } }]
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"confirmed\",\n  \"note\": \"Confirmed via Postman\"\n}" },
+            "url": "{{baseUrl}}/api/admin/orders/{{orderId}}/status"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["if (pm.collectionVariables.get('orderId')) pm.test('Status 200 or 403', () => pm.expect([200, 403, 404]).to.include(pm.response.code));"] } }]
+        },
+        {
+          "name": "Analytics Overview",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/analytics/overview" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200 or 403', () => pm.expect([200, 403]).to.include(pm.response.code));"] } }]
+        },
+        {
+          "name": "Admin Ping",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/auth/admin/ping" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 200 or 403', () => pm.expect([200, 403]).to.include(pm.response.code));"] } }]
+        }
+      ]
+    }
+  ]
+}

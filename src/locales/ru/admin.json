@@ -1,0 +1,43 @@
+{
+  "brand": "Exclusive",
+  "panel": "Админ",
+  "signedInAs": "Вы вошли как",
+  "dashboard": {
+    "title": "Панель управления",
+    "welcome": "Добро пожаловать в панель администратора",
+    "overview": "Обзор",
+    "stats": {
+      "totalProducts": "Всего товаров",
+      "totalOrders": "Всего заказов",
+      "totalRevenue": "Общая выручка",
+      "totalCustomers": "Всего клиентов",
+      "pendingOrders": "Ожидающие заказы"
+    }
+  },
+  "sidebar": {
+    "dashboard": "Панель управления",
+    "products": "Товары",
+    "categories": "Категории",
+    "orders": "Заказы",
+    "customers": "Клиенты",
+    "flashSale": "Распродажа",
+    "gallery": "Галерея",
+    "b2bLeads": "B2B-заявки",
+    "faq": "FAQ",
+    "pages": "CMS-страницы",
+    "blog": "Блог",
+    "blogAllPosts": "Все статьи",
+    "blogNewPost": "Добавить статью",
+    "blogCategories": "Категории",
+    "blogAnalytics": "Аналитика",
+    "analytics": "Аналитика",
+    "settings": "Настройки"
+  },
+  "topbar": {
+    "search": "Поиск в админке…",
+    "theme": "Сменить тему",
+    "menu": "Открыть меню"
+  },
+  "loading": "Загрузка…",
+  "noResults": "Ничего не найдено"
+}

@@ -13,6 +13,7 @@ import {
   FileText,
 } from 'lucide-react'
 import DateRangeFilter from './DateRangeFilter'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { selectUser } from '@/features/auth'
 import { useAdminSearch } from '../context/AdminSearchContext'
 import { selectAdmin } from '../store/adminSlice'
@@ -203,6 +204,8 @@ function AdminTopbar({ theme, onToggleTheme, onMenuClick }) {
           <FileText className="h-4 w-4" />
           Generate Report
         </button>
+
+        <LanguageSwitcher className="admin-lang-select hidden sm:block text-sm rounded-lg border border-[var(--admin-border)] bg-[var(--admin-bg)] px-2 py-1.5" />
 
         <button
           type="button"

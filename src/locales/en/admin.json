@@ -1,0 +1,43 @@
+{
+  "brand": "Exclusive",
+  "panel": "Admin",
+  "signedInAs": "Signed in as",
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome to admin panel",
+    "overview": "Overview",
+    "stats": {
+      "totalProducts": "Total products",
+      "totalOrders": "Total orders",
+      "totalRevenue": "Total revenue",
+      "totalCustomers": "Total customers",
+      "pendingOrders": "Pending orders"
+    }
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "categories": "Categories",
+    "orders": "Orders",
+    "customers": "Customers",
+    "flashSale": "Flash sale",
+    "gallery": "Gallery",
+    "b2bLeads": "B2B applications",
+    "faq": "FAQ",
+    "pages": "CMS pages",
+    "blog": "Blog",
+    "blogAllPosts": "All posts",
+    "blogNewPost": "Add new post",
+    "blogCategories": "Categories",
+    "blogAnalytics": "Analytics",
+    "analytics": "Analytics",
+    "settings": "Settings"
+  },
+  "topbar": {
+    "search": "Search admin…",
+    "theme": "Toggle theme",
+    "menu": "Open menu"
+  },
+  "loading": "Loading…",
+  "noResults": "No results found"
+}

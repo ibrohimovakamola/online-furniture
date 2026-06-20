@@ -1,0 +1,11 @@
+{
+  "saved": "Saved successfully",
+  "created": "Created successfully",
+  "updated": "Updated successfully",
+  "deleted": "Deleted successfully",
+  "sent": "Message sent successfully",
+  "orderPlaced": "Order placed successfully",
+  "login": "Welcome back!",
+  "logout": "You have been logged out",
+  "registered": "Registration successful"
+}

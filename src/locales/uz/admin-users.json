@@ -1,0 +1,13 @@
+{
+  "title": "Foydalanuvchilarni boshqarish",
+  "allUsers": "Barcha foydalanuvchilar",
+  "addNew": "Yangi foydalanuvchi qo'shish",
+  "roles": "Rollar va ruxsatlar",
+  "table": {
+    "name": "Ism",
+    "email": "Email",
+    "role": "Rol",
+    "status": "Holat",
+    "actions": "Amallar"
+  }
+}

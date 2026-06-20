@@ -1,0 +1,138 @@
+{
+  "home": {
+    "title": "Welcome to KRESLA",
+    "subtitle": "Premium furniture for your home",
+    "heroButton": "Shop now",
+    "featured": "Featured products",
+    "newArrivals": "New arrivals",
+    "trending": "Trending now",
+    "categories": "Categories",
+    "flashSale": "Flash sale"
+  },
+  "products": {
+    "title": "Our products",
+    "price": "Price",
+    "addToCart": "Add to cart",
+    "addToWishlist": "Add to wishlist",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "category": "Category",
+    "filter": "Filter",
+    "sort": "Sort by",
+    "sortByPriceAsc": "Price: low to high",
+    "sortByPriceDesc": "Price: high to low",
+    "sortByNewest": "Newest first",
+    "sortByPopular": "Most popular",
+    "noProducts": "No products found",
+    "details": "Product details",
+    "dimensions": "Dimensions",
+    "colors": "Colors",
+    "quantity": "Quantity"
+  },
+  "cart": {
+    "title": "Shopping cart",
+    "empty": "Your cart is empty",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "checkout": "Checkout",
+    "continueShopping": "Continue shopping",
+    "remove": "Remove"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "shipping": "Shipping",
+    "payment": "Payment",
+    "placeOrder": "Place order",
+    "installment": "Installment plan"
+  },
+  "orders": {
+    "title": "My orders",
+    "empty": "You have no orders yet",
+    "status": "Status",
+    "detail": "Order details",
+    "confirmation": "Order confirmed"
+  },
+  "wishlist": {
+    "title": "Wishlist",
+    "empty": "Your wishlist is empty"
+  },
+  "blog": {
+    "title": "Interior design blog",
+    "subtitle": "Tips, trends, and inspiration",
+    "readMore": "Read more",
+    "by": "By",
+    "published": "Published",
+    "views": "Views",
+    "category": "Category",
+    "relatedPosts": "Related posts",
+    "searchPlaceholder": "Search articles...",
+    "allCategories": "All categories",
+    "newsletter": "Subscribe to our newsletter",
+    "noPosts": "No posts found"
+  },
+  "about": {
+    "title": "About us",
+    "team": "Our team",
+    "philosophy": "Our philosophy"
+  },
+  "contact": {
+    "title": "Contact us",
+    "form": {
+      "name": "Your name",
+      "email": "Email address",
+      "phone": "Phone number",
+      "subject": "Subject",
+      "message": "Message",
+      "send": "Send message"
+    }
+  },
+  "faq": {
+    "title": "Frequently asked questions"
+  },
+  "auth": {
+    "login": "Login",
+    "signUp": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "resetPassword": "Reset password"
+  },
+  "search": {
+    "title": "Search results",
+    "placeholder": "Search products...",
+    "noResults": "No results for \"{{query}}\""
+  },
+  "gallery": {
+    "title": "Gallery",
+    "beforeAfter": "Before & after"
+  },
+  "showroom": {
+    "title": "Showroom"
+  },
+  "flashSale": {
+    "title": "Flash sale",
+    "endsIn": "Ends in"
+  },
+  "b2b": {
+    "title": "B2B portal",
+    "apply": "Apply for partnership"
+  },
+  "compare": {
+    "title": "Compare products",
+    "empty": "Add products to compare"
+  },
+  "reviews": {
+    "title": "Customer reviews"
+  },
+  "policies": {
+    "terms": "Terms & conditions",
+    "privacy": "Privacy policy",
+    "shipping": "Shipping policy",
+    "returns": "Return & refund policy"
+  }
+}

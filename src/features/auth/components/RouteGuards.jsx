@@ -1,50 +1,26 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import { selectAuth, selectIsAdmin } from '../authSlice'
-import { canAccessAdminRoute } from '../permissions'
+import { useAuth } from '../AuthContext'
+import AuthLoadingScreen from './AuthLoadingScreen'
+import ProtectedRoute from './ProtectedRoute'
+
+export { default as ProtectedRoute } from './ProtectedRoute'
 
 export function AdminRouteGuard() {
-  const location = useLocation()
-  const { user, initialized, token } = useSelector(selectAuth)
-  const isAdmin = useSelector(selectIsAdmin)
-
-  if (!initialized && token) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F8F8F8] text-[#0b3c3c]">
-        Verifying session…
-      </div>
-    )
-  }
-
-  if (!user || !token || !isAdmin) {
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />
-  }
-
-  if (!canAccessAdminRoute(user.role, location.pathname)) {
-    return <Navigate to="/admin" replace />
-  }
-
-  return <Outlet />
-}
-
-export function ProtectedRoute({ redirectTo = '/login' }) {
-  const location = useLocation()
-  const { user, token, initialized } = useSelector(selectAuth)
-
-  if (!initialized) return null
-
-  if (!user || !token) {
-    return <Navigate to={redirectTo} state={{ from: location.pathname }} replace />
-  }
-
-  return <Outlet />
+  return <ProtectedRoute requiredRole="admin" />
 }
 
 export function GuestRoute() {
-  const { user, token } = useSelector(selectAuth)
-  const isAdmin = useSelector(selectIsAdmin)
+  const location = useLocation()
+  const { user, token, isAdmin, isAuthReady } = useAuth()
+
+  if (!isAuthReady) {
+    return <AuthLoadingScreen />
+  }
 
   if (user && token) {
+    if (location.state?.adminDenied) {
+      return <Outlet />
+    }
     return <Navigate to={isAdmin ? '/admin' : '/'} replace />
   }
 

@@ -1,0 +1,9 @@
+{
+  "title": "Settings",
+  "general": "General settings",
+  "email": "Email settings",
+  "payment": "Payment settings",
+  "shipping": "Shipping settings",
+  "store": "Store information",
+  "save": "Save settings"
+}

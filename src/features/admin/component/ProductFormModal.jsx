@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { X, Upload } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { getApiBaseUrl } from '@/config/apiBase'
 import { fetchCategories, selectAdmin } from '../store/adminSlice'
 import { buildColorsPayload, normalizeHexColor } from '../utils/colorUtils'
 
@@ -19,15 +18,23 @@ const emptyForm = {
   productType: '',
 }
 
-function ProductFormModal({ open, onClose, onSubmit, categories: categoriesProp, initialData, loading }) {
+function ProductFormModal({
+  open,
+  onClose,
+  onSubmit,
+  categories: categoriesProp = [],
+  initialData,
+  loading,
+}) {
   const dispatch = useDispatch()
   const { categories: categoriesFromStore, loading: storeLoading } = useSelector(selectAdmin)
-  const categoriesLoading = storeLoading?.categories
+  const categoriesLoading = Boolean(storeLoading?.categories)
 
-  const categories = useMemo(() => {
+  const safeCategories = useMemo(() => {
     const fromStore = Array.isArray(categoriesFromStore) ? categoriesFromStore : []
     const fromProp = Array.isArray(categoriesProp) ? categoriesProp : []
-    return fromStore.length >= fromProp.length ? fromStore : fromProp
+    const merged = fromStore.length >= fromProp.length ? fromStore : fromProp
+    return merged.filter((cat) => cat && (cat.id || cat._id))
   }, [categoriesFromStore, categoriesProp])
 
   const [form, setForm] = useState(emptyForm)
@@ -36,39 +43,48 @@ function ProductFormModal({ open, onClose, onSubmit, categories: categoriesProp,
   const [galleryImages, setGalleryImages] = useState([])
   const [galleryPreviews, setGalleryPreviews] = useState([])
   const mainInputRef = useRef(null)
+  const previewUrlsRef = useRef([])
 
   const isEdit = Boolean(initialData)
 
+  const trackPreviewUrl = useCallback((url) => {
+    if (url?.startsWith('blob:')) previewUrlsRef.current.push(url)
+  }, [])
+
+  const revokePreviewUrls = useCallback(() => {
+    previewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url))
+    previewUrlsRef.current = []
+  }, [])
+
+  const resetFormState = useCallback(() => {
+    revokePreviewUrls()
+    setForm(emptyForm)
+    setMainImage(null)
+    setMainPreview(null)
+    setGalleryImages([])
+    setGalleryPreviews([])
+    if (mainInputRef.current) mainInputRef.current.value = ''
+  }, [revokePreviewUrls])
+
   useEffect(() => {
     if (!open) return
-    const url = `${getApiBaseUrl()}/admin/categories`
-    if (import.meta.env.DEV) console.log('[ProductFormModal] fetching categories:', url)
 
     dispatch(fetchCategories('')).then((result) => {
-      if (fetchCategories.fulfilled.match(result)) {
-        if (import.meta.env.DEV) {
-          console.log('[ProductFormModal] categories response:', result.payload)
-        }
-      } else if (fetchCategories.rejected.match(result)) {
-        console.error('[ProductFormModal] categories failed:', result.payload)
-        toast.error(result.payload || 'Could not load categories')
+      if (fetchCategories.rejected.match(result)) {
+        const message = result.payload || 'Could not load categories'
+        console.error('[ProductFormModal] categories failed:', message)
+        toast.error(message)
       }
     })
   }, [open, dispatch])
 
   useEffect(() => {
-    if (!open) return
-    if (import.meta.env.DEV) {
-      console.log('[ProductFormModal] categories state:', {
-        count: categories?.length ?? 0,
-        loading: categoriesLoading,
-        categories,
-      })
+    if (!open) {
+      resetFormState()
+      return
     }
-  }, [open, categories, categoriesLoading])
 
-  useEffect(() => {
-    if (!open) return
+    revokePreviewUrls()
 
     if (initialData) {
       setForm({
@@ -101,7 +117,13 @@ function ProductFormModal({ open, onClose, onSubmit, categories: categoriesProp,
 
     setMainImage(null)
     setGalleryImages([])
-  }, [open, initialData])
+    if (mainInputRef.current) mainInputRef.current.value = ''
+  }, [open, initialData, resetFormState, revokePreviewUrls])
+
+  const handleClose = () => {
+    resetFormState()
+    onClose()
+  }
 
   if (!open) return null
 
@@ -120,6 +142,11 @@ function ProductFormModal({ open, onClose, onSubmit, categories: categoriesProp,
 
   const handleSubmit = (e) => {
     e.preventDefault()
+
+    if (!form.category) {
+      toast.error('Please select a category')
+      return
+    }
 
     const hasExistingMain = isEdit && initialData?.images?.some((i) => i.type === 'main')
     if (!isEdit && !(mainImage instanceof File)) {
@@ -169,19 +196,27 @@ function ProductFormModal({ open, onClose, onSubmit, categories: categoriesProp,
 
     onSubmit({
       payload,
-      files: { mainImage, galleryImages },
+      files: {
+        mainImage: mainImage instanceof File ? mainImage : null,
+        galleryImages: galleryImages.filter((f) => f instanceof File),
+      },
     })
   }
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <button type="button" className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} aria-label="Close" />
+      <button
+        type="button"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={handleClose}
+        aria-label="Close"
+      />
       <div className="admin-card relative w-full max-w-2xl max-h-[90vh] overflow-y-auto z-10 p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-[var(--admin-text)]">
             {isEdit ? 'Edit Product' : 'Add New Product'}
           </h2>
-          <button type="button" className="admin-btn admin-btn--ghost admin-btn--icon" onClick={onClose}>
+          <button type="button" className="admin-btn admin-btn--ghost admin-btn--icon" onClick={handleClose}>
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -229,7 +264,7 @@ function ProductFormModal({ open, onClose, onSubmit, categories: categoriesProp,
               <span className="text-[var(--admin-text-muted)]">Category *</span>
               <select
                 name="category"
-                value={form.category}
+                value={form.category ?? ''}
                 onChange={handleChange}
                 required
                 disabled={categoriesLoading}
@@ -238,16 +273,15 @@ function ProductFormModal({ open, onClose, onSubmit, categories: categoriesProp,
                 <option value="">
                   {categoriesLoading
                     ? 'Loading categories…'
-                    : (categories?.length ?? 0) === 0
+                    : safeCategories.length === 0
                       ? 'No categories — create one in Categories'
                       : 'Select category'}
                 </option>
-                {categories?.map((cat) => {
-                  const id = cat?.id ?? cat?._id
-                  if (!id) return null
+                {safeCategories.map((cat) => {
+                  const id = String(cat.id ?? cat._id)
                   return (
-                    <option key={String(id)} value={String(id)}>
-                      {cat.name}
+                    <option key={id} value={id}>
+                      {cat.name || 'Unnamed'}
                     </option>
                   )
                 })}
@@ -309,7 +343,9 @@ function ProductFormModal({ open, onClose, onSubmit, categories: categoriesProp,
                     const file = e.target.files?.[0]
                     if (!file) return
                     setMainImage(file)
-                    setMainPreview(URL.createObjectURL(file))
+                    const url = URL.createObjectURL(file)
+                    trackPreviewUrl(url)
+                    setMainPreview(url)
                   }}
                 />
                 <button
@@ -329,7 +365,7 @@ function ProductFormModal({ open, onClose, onSubmit, categories: categoriesProp,
                 {galleryPreviews.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-2">
                     {galleryPreviews.map((src, i) => (
-                      <div key={i} className="admin-image-slot h-16 w-16">
+                      <div key={`${src}-${i}`} className="admin-image-slot h-16 w-16">
                         <img src={src} alt={`Gallery ${i + 1}`} />
                       </div>
                     ))}
@@ -344,12 +380,18 @@ function ProductFormModal({ open, onClose, onSubmit, categories: categoriesProp,
                     multiple
                     className="hidden"
                     onChange={(e) => {
-                      const files = Array.from(e.target.files || [])
-                      setGalleryImages(files)
-                      setGalleryPreviews((prev) => [
-                        ...prev,
-                        ...files.map((f) => URL.createObjectURL(f)),
-                      ])
+                      const files = Array.from(e.target.files || []).filter(
+                        (f) => f instanceof File
+                      )
+                      if (!files.length) return
+                      setGalleryImages((prev) => [...prev, ...files])
+                      const newUrls = files.map((f) => {
+                        const url = URL.createObjectURL(f)
+                        trackPreviewUrl(url)
+                        return url
+                      })
+                      setGalleryPreviews((prev) => [...prev, ...newUrls])
+                      e.target.value = ''
                     }}
                   />
                 </label>
@@ -358,7 +400,9 @@ function ProductFormModal({ open, onClose, onSubmit, categories: categoriesProp,
           </div>
 
           <div className="flex justify-end gap-2 pt-4 border-t border-[var(--admin-border)]">
-            <button type="button" className="admin-btn admin-btn--ghost" onClick={onClose}>Cancel</button>
+            <button type="button" className="admin-btn admin-btn--ghost" onClick={handleClose}>
+              Cancel
+            </button>
             <button type="submit" className="admin-btn admin-btn--primary" disabled={loading}>
               {loading ? 'Saving…' : isEdit ? 'Update Product' : 'Create Product'}
             </button>

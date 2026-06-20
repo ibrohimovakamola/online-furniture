@@ -1,97 +1,109 @@
-import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
-import "../assets/styles/footer.scss";
-import QrCode from "../assets/images/qr.jpg";
-import { selectSettings } from "../features/settings/settingsSlice";
+import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
+import '../assets/styles/footer.scss'
+import QrCode from '../assets/images/qr.jpg'
+import { selectSettings } from '../features/settings/settingsSlice'
 
 const Footer = () => {
-  const settings = useSelector(selectSettings);
-  const store = settings?.store;
+  const { t } = useTranslation(['navigation', 'common'])
+  const settings = useSelector(selectSettings)
+  const store = settings?.store
+  const year = new Date().getFullYear()
 
   const supports = [
-    { title: store?.address || "Tashkent, Uzbekistan" },
-    { title: store?.storeEmail || "exclusive@gmail.com" },
-    { title: store?.supportPhone || "+998 94 043 16 84" },
-  ];
+    { title: store?.address || 'Tashkent, Uzbekistan' },
+    { title: store?.storeEmail || 'exclusive@gmail.com' },
+    { title: store?.supportPhone || '+998 94 043 16 84' },
+  ]
 
   const accounts = [
-    { title: "My account", path: "/sign-up" },
-    { title: "Login / Register", path: "/login" },
-    { title: "Cart", path: "/cart" },
-    { title: "Wishlist", path: "/favourites" },
-    { title: "Shop", path: "/products" },
-  ];
+    { title: t('navigation:footer.myAccount'), path: '/sign-up' },
+    { title: t('navigation:footer.loginRegister'), path: '/login' },
+    { title: t('navigation:footer.cart'), path: '/cart' },
+    { title: t('navigation:footer.wishlist'), path: '/favourites' },
+    { title: t('navigation:footer.shop'), path: '/products' },
+  ]
 
   const quickLinks = [
-    { title: "Privacy Policy", path: "/about" },
-    { title: "Terms of use", path: "/about" },
-    { title: "FAQ", path: "/contact" },
-    { title: "Contact", path: "/contact" },
-  ];
+    { title: t('navigation:footer.privacy'), path: '/privacy-policy' },
+    { title: t('navigation:footer.terms'), path: '/terms-of-service' },
+    { title: t('navigation:footer.faq'), path: '/faq' },
+    { title: t('navigation:footer.contact'), path: '/contact' },
+  ]
 
   return (
     <div className="footer-wrapper">
       <div className="container">
         <div className="footer">
           <div className="footer-column">
-            <h4 className="footer-logo">Exclusive</h4>
-            <p className="footer-link">Subscribe</p>
-            <p className="footer-link">Get 10% off your first order</p>
+            <h4 className="footer-logo">{t('common:brand')}</h4>
+            <p className="footer-link">{t('navigation:footer.subscribe')}</p>
+            <p className="footer-link">{t('navigation:footer.subscribeHint')}</p>
             <div className="footer-form">
-              <input placeholder="Enter your email" type="text" />
-              <button type="button">
+              <input placeholder={t('navigation:footer.emailPlaceholder')} type="email" />
+              <button type="button" aria-label={t('navigation:footer.subscribe')}>
                 <i className="fa-regular fa-paper-plane" />
               </button>
             </div>
           </div>
           <ul className="footer-column">
-            <h4 className="footer-title">Support</h4>
+            <h4 className="footer-title">{t('navigation:footer.support')}</h4>
             {supports.map((support, i) => (
-              <li key={i} className="footer-link">{support.title}</li>
+              <li key={i} className="footer-link">
+                {support.title}
+              </li>
             ))}
           </ul>
           <ul className="footer-column">
-            <h4 className="footer-title">Account</h4>
+            <h4 className="footer-title">{t('navigation:footer.account')}</h4>
             {accounts.map((account) => (
-              <Link key={account.title} to={account.path} className="footer-link">{account.title}</Link>
+              <Link key={account.path} to={account.path} className="footer-link">
+                {account.title}
+              </Link>
             ))}
           </ul>
           <ul className="footer-column">
-            <h4 className="footer-title">Quick Link</h4>
+            <h4 className="footer-title">{t('navigation:footer.links')}</h4>
             {quickLinks.map((link) => (
-              <Link key={link.title} to={link.path} className="footer-link">{link.title}</Link>
+              <Link key={link.path} to={link.path} className="footer-link">
+                {link.title}
+              </Link>
             ))}
           </ul>
           <div className="footer-column">
-            <h4 className="footer-title">Download App</h4>
-            <p className="footer-link--mini">Save 3% with App New User Only</p>
-            <div className="footer-qr--block">
-              <div className="footer-img">
-                <img src={QrCode} alt="QR code" />
-              </div>
-              <div className="footer-btns">
-                <button type="button"><i className="fa-brands fa-google-play" />Google Play</button>
-                <button type="button"><i className="fa-brands fa-apple" />App Store</button>
-              </div>
-            </div>
+            <h4 className="footer-title">{t('navigation:footer.follow')}</h4>
             <div className="footer-socials">
               {store?.instagram ? (
-                <a href={store.instagram} target="_blank" rel="noreferrer"><i className="fa-brands fa-instagram" /></a>
+                <a href={store.instagram} target="_blank" rel="noreferrer">
+                  <i className="fa-brands fa-instagram" />
+                </a>
               ) : (
-                <a href="/"><i className="fa-brands fa-instagram" /></a>
+                <a href="/">
+                  <i className="fa-brands fa-instagram" />
+                </a>
               )}
               {store?.telegram ? (
-                <a href={store.telegram} target="_blank" rel="noreferrer"><i className="fa-brands fa-telegram" /></a>
+                <a href={store.telegram} target="_blank" rel="noreferrer">
+                  <i className="fa-brands fa-telegram" />
+                </a>
               ) : (
-                <a href="/"><i className="fa-brands fa-telegram" /></a>
+                <a href="/">
+                  <i className="fa-brands fa-telegram" />
+                </a>
               )}
-              <a href="/"><i className="fa-brands fa-facebook-f" /></a>
+              <a href="/">
+                <i className="fa-brands fa-facebook-f" />
+              </a>
             </div>
+            <p className="footer-link footer-link--mini mt-4">
+              {t('navigation:footer.copyright', { year })}
+            </p>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Footer;
+export default Footer

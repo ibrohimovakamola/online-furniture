@@ -1,0 +1,13 @@
+{
+  "title": "Customers management",
+  "allCustomers": "All customers",
+  "detail": "Customer details",
+  "table": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "orders": "Orders",
+    "joined": "Joined",
+    "actions": "Actions"
+  }
+}

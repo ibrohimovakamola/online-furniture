@@ -21,7 +21,7 @@ import '../../../assets/styles/admin.scss'
 
 function AdminLayoutInner() {
   const dispatch = useDispatch()
-  const { dateRange, searchQuery, setPendingOrdersCount } = useAdminSearch()
+  const { dateRange, searchQuery, productFilters, setPendingOrdersCount } = useAdminSearch()
   const debouncedSearch = useDebouncedValue(searchQuery)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [theme, setTheme] = useState(loadAdminTheme)
@@ -35,8 +35,17 @@ function AdminLayoutInner() {
   }, [dispatch, dateRange])
 
   useEffect(() => {
-    dispatch(fetchProducts({ search: debouncedSearch, dateRange }))
-  }, [dispatch, debouncedSearch, dateRange])
+    dispatch(
+      fetchProducts({
+        search: debouncedSearch,
+        dateRange,
+        category: productFilters.category,
+        stockStatus: productFilters.stockStatus,
+        minPrice: productFilters.minPrice,
+        maxPrice: productFilters.maxPrice,
+      })
+    )
+  }, [dispatch, debouncedSearch, dateRange, productFilters])
 
   useEffect(() => {
     dispatch(fetchOrders({ search: debouncedSearch, dateRange })).then((result) => {

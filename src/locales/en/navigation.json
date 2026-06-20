@@ -1,0 +1,61 @@
+{
+  "promo": "Free delivery and installation within Tashkent!",
+  "promoLink": "Shop now",
+  "header": {
+    "searchPlaceholder": "What are you looking for?",
+    "account": "Account",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "myOrders": "My orders",
+    "admin": "Admin",
+    "b2b": "B2B",
+    "pages": "Pages",
+    "menu": {
+      "home": "Home",
+      "products": "Products",
+      "about": "About Us",
+      "blog": "Blog",
+      "contact": "Contact",
+      "b2b": "B2B",
+      "admin": "Admin",
+      "showroom": "Showroom",
+      "gallery": "Gallery",
+      "faq": "FAQ",
+      "flashSale": "Flash Sale",
+      "compare": "Compare",
+      "reviews": "Reviews"
+    }
+  },
+  "footer": {
+    "subscribe": "Subscribe",
+    "subscribeHint": "Get 10% off your first order",
+    "emailPlaceholder": "Enter your email",
+    "company": "Company",
+    "about": "About Us",
+    "contact": "Contact",
+    "careers": "Careers",
+    "blog": "Blog",
+    "links": "Quick Links",
+    "products": "Products",
+    "categories": "Categories",
+    "support": "Support",
+    "faq": "FAQ",
+    "shipping": "Shipping Info",
+    "returns": "Returns",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms & Conditions",
+    "refund": "Refund Policy",
+    "follow": "Follow Us",
+    "copyright": "© {{year}} KRESLA. All rights reserved.",
+    "account": "Account",
+    "myAccount": "My account",
+    "loginRegister": "Login / Register",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "shop": "Shop"
+  },
+  "breadcrumb": {
+    "home": "Home"
+  }
+}

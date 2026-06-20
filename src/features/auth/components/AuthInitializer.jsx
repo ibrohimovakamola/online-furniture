@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { bootstrapAuth, fetchCurrentUser, selectAuth } from '../authSlice'
+import { fetchCurrentUser, rehydrateSession, selectAuth } from '../authSlice'
 
 export default function AuthInitializer({ children }) {
   const dispatch = useDispatch()
@@ -12,7 +12,7 @@ export default function AuthInitializer({ children }) {
     if (token) {
       dispatch(fetchCurrentUser())
     } else {
-      dispatch(bootstrapAuth())
+      dispatch(rehydrateSession())
     }
   }, [dispatch, token, initialized])
 

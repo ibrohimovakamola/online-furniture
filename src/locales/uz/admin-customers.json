@@ -1,0 +1,13 @@
+{
+  "title": "Mijozlarni boshqarish",
+  "allCustomers": "Barcha mijozlar",
+  "detail": "Mijoz tafsilotlari",
+  "table": {
+    "name": "Ism",
+    "email": "Email",
+    "phone": "Telefon",
+    "orders": "Buyurtmalar",
+    "joined": "Qo'shilgan sana",
+    "actions": "Amallar"
+  }
+}

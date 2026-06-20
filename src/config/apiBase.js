@@ -1,14 +1,21 @@
 /**
  * API base URL for Axios/fetch.
  *
- * - Production (Vercel): set VITE_API_BASE_URL to your backend API root, e.g.
- *   https://your-api.onrender.com/api
- * - Local dev: defaults to http://localhost:5000/api (Express on PORT=5000)
- * - Legacy: VITE_API_URL is still supported
+ * Local dev (recommended):
+ *   - Axios baseURL = `/api`
+ *   - Vite proxies `/api` → http://localhost:5000 (see vite.config.js)
+ *   - No CORS issues because the browser talks to the same origin (5173)
+ *
+ * Direct backend (optional):
+ *   - Set VITE_API_BASE_URL=http://localhost:5000/api in `.env`
+ *   - Requires CORS on the backend (already configured in server/src/app.js)
  */
 
 const LOCAL_SERVER = 'http://localhost:5000'
 const API_SUFFIX = '/api'
+
+/** Full backend API root for direct calls (bypasses Vite proxy). */
+export const DEV_API_ROOT = `${LOCAL_SERVER}${API_SUFFIX}`
 
 function trimTrailingSlash(value) {
   return String(value || '').trim().replace(/\/$/, '')
@@ -32,8 +39,9 @@ export function getApiBaseUrl() {
 
   if (fromEnv) return ensureApiSuffix(fromEnv)
 
+  // Same-origin proxy — Vite forwards /api → http://localhost:5000/api
   if (import.meta.env.DEV) {
-    return `${LOCAL_SERVER}${API_SUFFIX}`
+    return API_SUFFIX
   }
 
   return API_SUFFIX

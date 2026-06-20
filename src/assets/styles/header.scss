@@ -64,6 +64,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px 0 16px;
+    gap: 50px;
     @include breakpoint(lg){
         // background: red;
     }
@@ -80,7 +81,7 @@
     &-menus{
         display: flex;
         align-items: center;
-        gap: 48px;
+        gap: 38px;
     }
     &-menu{
         font-family: Poppins;
@@ -103,6 +104,7 @@
         display: flex;
         align-items: center;
         gap: 24px;
+        min-width: 0;
     }
     &-form{
         // background: #F5F5F5; 
@@ -167,7 +169,6 @@ select{
     text-decoration: none !important;
     width: 100px;
 }
-
 // .header-menus .active{
 //     border-bottom: 1px solid #000;
 // }

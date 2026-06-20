@@ -1,0 +1,15 @@
+{
+  "orderConfirmation": {
+    "subject": "Your order confirmation",
+    "greeting": "Hello {{name}},",
+    "body": "Thank you for your order. We will notify you when it ships."
+  },
+  "passwordReset": {
+    "subject": "Reset your password",
+    "body": "Click the link below to reset your password."
+  },
+  "welcome": {
+    "subject": "Welcome to KRESLA",
+    "body": "Thank you for registering with us."
+  }
+}

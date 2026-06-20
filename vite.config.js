@@ -1,5 +1,5 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -12,26 +12,14 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    port: 5173,
     watch: {
-      ignored: [
-        "**/server/**",
-        "**/server/uploads/**",
-        "**/.mongo-memory/**",
-        "**/*.log",
-      ],
+      ignored: ['**/server/**', '**/server/uploads/**', '**/.mongo-memory/**'],
     },
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
-        configure: (proxy) => {
-          proxy.on('proxyReq', (proxyReq, req) => {
-            const auth = req.headers.authorization
-            if (auth) {
-              proxyReq.setHeader('Authorization', auth)
-            }
-          })
-        },
       },
       '/uploads': {
         target: 'http://localhost:5000',
@@ -51,4 +39,4 @@ export default defineConfig({
       },
     },
   },
-});
+})

@@ -1,0 +1,65 @@
+{
+  "title": "Blog management",
+  "subtitle": "Manage articles, drafts, and scheduled content",
+  "allPosts": "All posts",
+  "addNew": "New post",
+  "editPost": "Edit post",
+  "newPost": "New post",
+  "categories": "Categories",
+  "categoriesSubtitle": "Organize posts with labels and badge colors",
+  "analytics": "Analytics",
+  "analyticsSubtitle": "Views and publishing overview",
+  "table": {
+    "title": "Title",
+    "category": "Category",
+    "author": "Author",
+    "published": "Published",
+    "status": "Status",
+    "views": "Views"
+  },
+  "form": {
+    "title": "Title",
+    "slug": "Slug / URL",
+    "category": "Category",
+    "content": "Content",
+    "image": "Featured image",
+    "metaDescription": "Meta description",
+    "keywords": "Keywords",
+    "author": "Author",
+    "status": "Status",
+    "publicationDate": "Publication date",
+    "readingTime": "Reading time",
+    "seo": "SEO",
+    "seoScore": "SEO score"
+  },
+  "status": {
+    "draft": "Draft",
+    "published": "Published",
+    "scheduled": "Scheduled",
+    "all": "All statuses"
+  },
+  "filters": {
+    "search": "Search by title…",
+    "allCategories": "All categories",
+    "sortNewest": "Newest first",
+    "sortOldest": "Oldest first",
+    "sortTitle": "Title A–Z",
+    "sortViews": "Most views"
+  },
+  "stats": {
+    "totalPosts": "Total posts",
+    "published": "Published",
+    "drafts": "Drafts",
+    "totalViews": "Total views",
+    "scheduled": "Scheduled posts",
+    "topPosts": "Top posts by views"
+  },
+  "categoryForm": {
+    "name": "Name",
+    "slug": "Slug",
+    "description": "Description",
+    "color": "Badge color",
+    "icon": "Icon (emoji or name)",
+    "image": "Category image"
+  }
+}

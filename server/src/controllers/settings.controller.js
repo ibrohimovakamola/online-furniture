@@ -1,7 +1,8 @@
-import { AppError, asyncHandler } from '../utils/asyncHandler.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
 import {
   getOrCreateSettings,
   formatSettings,
+  clearSettingsCache,
   DEFAULT_SETTINGS,
 } from '../utils/settingsHelper.js'
 
@@ -56,6 +57,7 @@ export const updateAdminSettings = asyncHandler(async (req, res) => {
   settings.markModified('banner')
   settings.markModified('shipping')
   await settings.save()
+  clearSettingsCache()
 
   res.json({
     success: true,

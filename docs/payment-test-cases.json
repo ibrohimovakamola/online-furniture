@@ -1,0 +1,135 @@
+{
+  "suite": "Payme & Click Multi-Payment",
+  "version": "1.0",
+  "cases": [
+    {
+      "id": "PAY-001",
+      "category": "successful_flow",
+      "title": "Payme successful payment end-to-end",
+      "steps": [
+        "Add product to cart",
+        "Login and proceed to checkout",
+        "Select Payme payment method",
+        "Submit order and complete Payme test card payment",
+        "Land on /payment/result with paid status"
+      ],
+      "expected": {
+        "order.paymentStatus": "paid",
+        "order.status": "processing",
+        "stockReduced": true,
+        "emailSent": true
+      }
+    },
+    {
+      "id": "PAY-002",
+      "category": "successful_flow",
+      "title": "Click successful payment end-to-end",
+      "steps": [
+        "Add product to cart",
+        "Select Click at checkout",
+        "Complete Click payment",
+        "Verify callback logged in paymentlogs"
+      ],
+      "expected": {
+        "order.paymentStatus": "paid",
+        "payment.gateway": "click"
+      }
+    },
+    {
+      "id": "PAY-003",
+      "category": "failed_payment",
+      "title": "Declined card — order not fulfilled",
+      "steps": [
+        "Start Payme checkout",
+        "Cancel or fail payment on gateway"
+      ],
+      "expected": {
+        "order.paymentStatus": "pending",
+        "stockReduced": false
+      }
+    },
+    {
+      "id": "PAY-004",
+      "category": "pending_payment",
+      "title": "Payment timeout with retry",
+      "steps": [
+        "Create Payme order without completing payment",
+        "Open payment result page",
+        "Call POST /api/payments/init to retry"
+      ],
+      "expected": {
+        "order.paymentStatus": "pending",
+        "retryReturnsPaymentUrl": true
+      }
+    },
+    {
+      "id": "PAY-005",
+      "category": "refund",
+      "title": "Admin refund recorded",
+      "steps": [
+        "Complete payment",
+        "POST /api/payments/:id/refund as admin"
+      ],
+      "expected": {
+        "payment.status": "refunded",
+        "order.paymentStatus": "refunded"
+      }
+    },
+    {
+      "id": "PAY-006",
+      "category": "security",
+      "title": "Invalid Payme signature rejected",
+      "steps": [
+        "POST webhook with wrong Basic auth password"
+      ],
+      "expected": {
+        "error.code": -32504
+      }
+    },
+    {
+      "id": "PAY-007",
+      "category": "security",
+      "title": "Amount tampering blocked",
+      "steps": [
+        "POST CheckPerformTransaction with amount != order.total * 100"
+      ],
+      "expected": {
+        "error.code": -31001
+      }
+    },
+    {
+      "id": "PAY-008",
+      "category": "edge_case",
+      "title": "Duplicate PerformTransaction is idempotent",
+      "steps": [
+        "PerformTransaction twice with same transaction id"
+      ],
+      "expected": {
+        "secondResponse.state": 2,
+        "stockReducedOnce": true
+      }
+    },
+    {
+      "id": "PAY-009",
+      "category": "edge_case",
+      "title": "Concurrent CreateTransaction same id",
+      "steps": [
+        "Send two CreateTransaction with identical id"
+      ],
+      "expected": {
+        "onePaymentRecord": true
+      }
+    },
+    {
+      "id": "PAY-010",
+      "category": "click_security",
+      "title": "Click invalid sign_string",
+      "steps": [
+        "GET callback with sign_string=invalid"
+      ],
+      "expected": {
+        "error": -1
+      }
+    }
+  ]
+}

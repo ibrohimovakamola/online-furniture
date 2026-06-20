@@ -10,8 +10,11 @@ build/
 # Environment & secrets (never commit)
 .env
 .env.*
+.env.production
+.env.local
 !.env.example
 !server/.env.example
+!server/.env.production.example
 *.local
 
 # Backend uploads & local DB
@@ -44,3 +47,12 @@ Thumbs.db
 
 # Test / coverage
 coverage/
+
+# PHP scaffold (php-app)
+php-app/vendor/
+php-app/.env
+php-app/logs/*.log
+php-app/cache/*
+!php-app/cache/.gitkeep
+php-app/uploads/temp/*
+!php-app/uploads/temp/.gitkeep

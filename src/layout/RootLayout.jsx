@@ -5,6 +5,9 @@ import { Outlet } from 'react-router-dom'
 import Footer from '../components/Footer'
 import Nav from '../components/Nav'
 import TelegramSupportWidget from '../components/TelegramSupportWidget'
+import { ToastProvider } from '../features/kresla/context/ToastContext'
+import ScrollToTop from '../features/kresla/components/ScrollToTop'
+import CompareBar from '../features/kresla/components/CompareBar'
 import { fetchStoreCategories } from '../features/catalog/catalogSlice'
 import { fetchStoreSettings } from '../features/settings/settingsSlice'
 
@@ -17,13 +20,17 @@ const RootLayout = () => {
   }, [dispatch])
 
   return (
-    <div>
-        <Nav/>
-        <Header/>
-        <Outlet/>
-        <Footer/>
+    <ToastProvider>
+      <div>
+        <Nav />
+        <Header />
+        <Outlet />
+        <Footer />
         <TelegramSupportWidget />
-    </div>
+        <ScrollToTop />
+        <CompareBar />
+      </div>
+    </ToastProvider>
   )
 }
 

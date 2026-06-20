@@ -1,4 +1,5 @@
 import { buildImageUrl } from '../utils/helpers.js'
+import { pickLocalized, pickLocalizedField } from './localize.js'
 
 export function resolveAssetUrl(url, req) {
   if (!url) return null
@@ -7,8 +8,13 @@ export function resolveAssetUrl(url, req) {
   return buildImageUrl(filename, req)
 }
 
-export function formatStoreProduct(product, req) {
+export function formatStoreProduct(product, req, lang = 'uz') {
   const doc = product.toObject ? product.toObject() : product
+  const name = pickLocalizedField(doc, 'name', lang)
+  const description = pickLocalizedField(doc, 'description', lang)
+  const categoryName = doc.category
+    ? pickLocalizedField(doc.category, 'name', lang)
+    : pickLocalizedField(doc.category?.name ?? doc.category, lang)
   const images = doc.images || []
   const mainFromImages = images.find((i) => i.type === 'main') || images[0]
   const mainUrl = resolveAssetUrl(doc.mainImage || mainFromImages?.url, req)
@@ -40,10 +46,10 @@ export function formatStoreProduct(product, req) {
   return {
     id: String(doc._id),
     _id: doc._id,
-    title: doc.name,
-    name: doc.name,
+    title: name,
+    name,
     sku: doc.sku,
-    description: doc.description,
+    description,
     price,
     basePrice: doc.basePrice,
     discountedPrice: doc.discountedPrice,
@@ -62,15 +68,15 @@ export function formatStoreProduct(product, req) {
       size: doc.filters?.size || '',
       productType: doc.filters?.productType || '',
     },
-    category: doc.category?.name || doc.category,
+    category: categoryName,
     categoryId: doc.category?._id || doc.category,
-    categoryName: doc.category?.name,
+    categoryName,
     isPublished: doc.isPublished,
   }
 }
 
-export function formatAdminProduct(product, req) {
-  const store = formatStoreProduct(product, req)
+export function formatAdminProduct(product, req, lang = 'uz') {
+  const store = formatStoreProduct(product, req, lang)
   const doc = product.toObject ? product.toObject() : product
   return {
     ...store,
@@ -81,7 +87,7 @@ export function formatAdminProduct(product, req) {
       url: resolveAssetUrl(img.url, req),
     })),
     category: doc.category?._id
-      ? { id: doc.category._id, name: doc.category.name }
+      ? { id: doc.category._id, name: pickLocalized(doc.category.name, lang) }
       : doc.category,
   }
 }

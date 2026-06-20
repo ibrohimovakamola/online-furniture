@@ -1,16 +1,61 @@
-# React + Vite
+# Exclusive — O'zbek mebel e-commerce
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite storefront, Express API, MongoDB.
 
-Currently, two official plugins are available:
+## Local development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+npm install          # installs root + server deps
+cp server/.env.example server/.env
+npm run dev          # Vite :5173 + API :5000
+```
 
-## React Compiler
+- Storefront: http://localhost:5173
+- API health: http://localhost:5000/api/health
+- Admin: `admin@exclusive.uz` / `ChangeMe123!` (dev seed)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Production deploy
 
-## Expanding the ESLint configuration
+See **[deploy/mebelsotish.uz/DEPLOY.md](deploy/mebelsotish.uz/DEPLOY.md)** for the full runbook.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Quick steps:
+
+```bash
+npm run build                              # → dist/
+# Upload dist/ + .htaccess to public_html
+# server/.env from server/.env.production.example
+npm install -g pm2
+mkdir -p logs
+pm2 start pm2.config.cjs --env production
+pm2 save && pm2 startup   # auto-start on reboot (run printed sudo command once)
+```
+
+## Project structure
+
+| Path | Purpose |
+|------|---------|
+| `src/` | React storefront + admin panel |
+| `server/` | Express API — see [server/BACKEND.md](server/BACKEND.md) |
+| `dist/` | Production frontend build output |
+| `pm2.config.cjs` | PM2 cluster config (auto-restart, 2 workers) |
+| `deploy/` | Apache `.htaccess`, SSL guide |
+| `docs/` | Payment testing guide |
+| `php-app/` | Optional PHP scaffold (not used by main app) |
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Frontend + backend concurrently |
+| `npm run build` | Production frontend build |
+| `npm run start:server` | API only (production, no PM2) |
+| `npm run pm2:start` | Start API with PM2 (cluster, auto-restart) |
+| `npm run pm2:logs` | Tail PM2 logs for `mebel-api` |
+| `npm test` | Lint (CI gate before deploy) |
+| `npm run lint` | ESLint |
+| `./deploy.sh` | Server-side pull, build, PM2 restart |
+
+## Environment
+
+- Frontend: `.env.example` → `.env.production` (build-time)
+- Backend: `server/.env.production.example` → `server/.env` (runtime)

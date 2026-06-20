@@ -4,11 +4,21 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -n vite,api -c cyan,green \"vite\" \"npm run dev --prefix server\"",
+    "dev:client": "vite",
     "dev:server": "npm run dev --prefix server",
     "build": "vite build",
+    "build:prod": "vite build --mode production",
+    "test": "npm run lint",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start:server": "npm run start --prefix server",
+    "pm2:start": "pm2 start pm2.config.cjs --env production",
+    "pm2:stop": "pm2 stop mebel-api",
+    "pm2:restart": "pm2 restart mebel-api",
+    "pm2:logs": "pm2 logs mebel-api",
+    "pm2:monit": "pm2 monit",
+    "postinstall": "npm install --prefix server"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.1.0",
@@ -37,6 +47,7 @@
     "@vitejs/plugin-react": "^5.1.1",
     "autoprefixer": "^10.5.0",
     "baseline-browser-mapping": "^2.10.11",
+    "concurrently": "^10.0.0",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",

@@ -14,7 +14,8 @@ export async function fetchCategoriesList(search = '', { useAdmin = true } = {})
   const url = `${API_BASE}${path}${search ? `?search=${encodeURIComponent(search)}` : ''}`
 
   const { data } = await api.get(path, { params: search ? { search } : {} })
-  const categories = Array.isArray(data?.categories) ? data.categories : []
+  const categories =
+    Array.isArray(data?.data?.items) ? data.data.items : Array.isArray(data?.categories) ? data.categories : []
 
   if (import.meta.env.DEV) {
     console.log(`[categoriesApi] GET ${url} → ${categories.length}`, categories)

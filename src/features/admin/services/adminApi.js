@@ -88,6 +88,12 @@ export const adminApi = {
   dashboard: {
     stats: (dateRange) => api.get('/admin/dashboard/stats', { params: withDateRange({}, dateRange) }),
   },
+  statistics: {
+    overview: () => api.get('/admin/statistics'),
+    daily: () => api.get('/admin/statistics/daily'),
+    products: () => api.get('/admin/statistics/products'),
+    users: () => api.get('/admin/statistics/users'),
+  },
   analytics: {
     overview: (dateRange) =>
       api.get('/admin/analytics/overview', { params: withDateRange({}, dateRange) }),
@@ -95,8 +101,25 @@ export const adminApi = {
       api.get('/admin/analytics/revenue', { params: withDateRange({}, dateRange) }),
   },
   products: {
-    list: (search = '', dateRange) =>
-      api.get('/admin/products', { params: withDateRange({ search }, dateRange) }),
+    list: (params = {}) => {
+      const {
+        search = '',
+        dateRange,
+        category,
+        stockStatus,
+        minPrice,
+        maxPrice,
+      } = typeof params === 'string' ? { search: params } : params
+
+      const query = {}
+      if (search) query.search = search
+      if (category) query.category = category
+      if (stockStatus && stockStatus !== 'all') query.stockStatus = stockStatus
+      if (minPrice !== '' && minPrice != null) query.minPrice = minPrice
+      if (maxPrice !== '' && maxPrice != null) query.maxPrice = maxPrice
+
+      return api.get('/admin/products', { params: withDateRange(query, dateRange) })
+    },
     get: (id) => api.get(`/admin/products/${id}`),
     create: (payload, files) => {
       const form = toProductFormData(payload, files)
@@ -107,6 +130,10 @@ export const adminApi = {
       return api.put(`/admin/products/${id}`, form, multipartRequest(form))
     },
     remove: (id) => api.delete(`/admin/products/${id}`),
+    updateStock: (id, stock, note) =>
+      api.put(`/admin/products/${id}/stock`, { stock, note }),
+    bulkUpdate: (id, fields) =>
+      api.post(`/admin/products/${id}/bulk-update`, { fields }),
   },
   categories: {
     list: (search = '') => api.get('/admin/categories', { params: { search } }),
@@ -123,7 +150,23 @@ export const adminApi = {
   orders: {
     list: (search = '', dateRange) =>
       api.get('/admin/orders', { params: withDateRange({ search }, dateRange) }),
-    updateStatus: (id, status) => api.patch(`/admin/orders/${id}/status`, { status }),
+    get: (id) => api.get(`/admin/orders/${id}`),
+    exportCsv: (params = {}) =>
+      api.get('/admin/orders/export', { params, responseType: 'blob' }),
+    updateStatus: (id, status, note) =>
+      api.put(`/admin/orders/${id}/status`, { status, note }),
+    updatePaymentStatus: (id, paymentStatus, note) =>
+      api.put(`/admin/orders/${id}/payment-status`, { paymentStatus, note }),
+    remove: (id) => api.delete(`/admin/orders/${id}`),
+    recordInstallmentPayment: (id, note) =>
+      api.patch(`/admin/orders/${id}/installment-payment`, note ? { note } : {}),
+  },
+  users: {
+    list: (params = {}) => api.get('/admin/users', { params }),
+    get: (id) => api.get(`/admin/users/${id}`),
+    updateRole: (id, role) => api.put(`/admin/users/${id}/role`, { role }),
+    deactivate: (id) => api.delete(`/admin/users/${id}`),
+    orders: (id, params = {}) => api.get(`/admin/users/${id}/orders`, { params }),
   },
   customers: {
     list: (search = '') => api.get('/admin/customers', { params: { search } }),
@@ -145,6 +188,27 @@ export const adminApi = {
       if (bannerFile instanceof File) form.append('bannerImage', bannerFile, bannerFile.name)
       return api.put('/admin/settings', form, multipartRequest(form))
     },
+  },
+  faq: {
+    list: () => api.get('/admin/faq'),
+    create: (payload) => api.post('/admin/faq', payload),
+    update: (id, payload) => api.put(`/admin/faq/${id}`, payload),
+    remove: (id) => api.delete(`/admin/faq/${id}`),
+  },
+  pages: {
+    list: () => api.get('/admin/pages'),
+    get: (pageName) => api.get(`/admin/pages/${pageName}`),
+    create: (payload) => api.post('/admin/pages', payload),
+    update: (slug, payload) => api.put(`/admin/pages/${slug}`, payload),
+    remove: (slug) => api.delete(`/admin/pages/${slug}`),
+  },
+  gallery: {
+    list: () => api.get('/admin/gallery'),
+    upload: (formData) => api.post('/admin/gallery/upload', formData, multipartRequest(formData)),
+    update: (id, payload) => api.put(`/admin/gallery/${id}`, payload),
+    replaceImage: (id, formData) =>
+      api.put(`/admin/gallery/${id}/image`, formData, multipartRequest(formData)),
+    remove: (id) => api.delete(`/admin/gallery/${id}`),
   },
 }
 

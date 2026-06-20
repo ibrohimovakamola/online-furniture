@@ -49,13 +49,28 @@ export default function FlashSaleSection() {
     config?.showOnHomepage !== false &&
     products.length > 0
 
+  const endsAt = config?.endsAt
+
   useEffect(() => {
-    if (!config?.endsAt || !visible) return undefined
-    const tick = () => setCountdown(formatCountdown(config.endsAt))
+    if (!endsAt || !visible) return undefined
+    const tick = () => {
+      setCountdown((prev) => {
+        const next = formatCountdown(endsAt)
+        if (
+          prev.days === next.days &&
+          prev.hours === next.hours &&
+          prev.minutes === next.minutes &&
+          prev.seconds === next.seconds
+        ) {
+          return prev
+        }
+        return next
+      })
+    }
     tick()
     const interval = setInterval(tick, 1000)
     return () => clearInterval(interval)
-  }, [config?.endsAt, visible])
+  }, [endsAt, visible])
 
   if (!loading && !visible) return null
 

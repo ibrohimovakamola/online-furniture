@@ -1,0 +1,15 @@
+{
+  "orderConfirmation": {
+    "subject": "Buyurtmangiz tasdiqlandi",
+    "greeting": "Salom, {{name}},",
+    "body": "Buyurtmangiz uchun rahmat. Yuborilganda sizga xabar beramiz."
+  },
+  "passwordReset": {
+    "subject": "Parolni tiklash",
+    "body": "Parolni tiklash uchun quyidagi havolani bosing."
+  },
+  "welcome": {
+    "subject": "KRESLA ga xush kelibsiz",
+    "body": "Ro'yxatdan o'tganingiz uchun rahmat."
+  }
+}

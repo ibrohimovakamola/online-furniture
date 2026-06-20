@@ -1,0 +1,26 @@
+{
+  "title": "Products management",
+  "allProducts": "All products",
+  "addNew": "Add new product",
+  "editProduct": "Edit product",
+  "filters": "Filters",
+  "table": {
+    "name": "Product name",
+    "category": "Category",
+    "price": "Price",
+    "stock": "Stock",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "form": {
+    "name": "Product name",
+    "description": "Description",
+    "category": "Category",
+    "price": "Price",
+    "cost": "Cost price",
+    "stock": "Stock quantity",
+    "sku": "SKU",
+    "image": "Product image",
+    "status": "Status"
+  }
+}

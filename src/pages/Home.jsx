@@ -5,6 +5,9 @@ import Category from '../components/Category'
 import BestSellingProducts from '../components/BestSellingProducts'
 import SecondBanner from '../components/SecondBanner'
 import Features from '../components/Features'
+import RecentlyViewedSection from '../features/kresla/components/home/RecentlyViewedSection'
+import VideoTestimonials from '../features/kresla/components/home/VideoTestimonials'
+import InstagramFeed from '../features/kresla/components/home/InstagramFeed'
 
 const Home = () => {
   return (
@@ -12,8 +15,11 @@ const Home = () => {
       <Banner />
       <FlashSaleSection />
       <Category />
+      <RecentlyViewedSection />
       <BestSellingProducts />
+      <VideoTestimonials />
       <SecondBanner />
+      <InstagramFeed />
       <Features />
     </div>
   )

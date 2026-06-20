@@ -1,0 +1,21 @@
+{
+  "title": "Orders management",
+  "allOrders": "All orders",
+  "detail": "Order details",
+  "table": {
+    "id": "Order ID",
+    "customer": "Customer",
+    "total": "Total",
+    "status": "Status",
+    "date": "Date",
+    "actions": "Actions"
+  },
+  "status": {
+    "pending": "Pending",
+    "processing": "Processing",
+    "shipped": "Shipped",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled"
+  },
+  "updateStatus": "Update status"
+}

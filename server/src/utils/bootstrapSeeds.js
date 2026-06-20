@@ -3,6 +3,10 @@ import { seedSuperAdmin } from './seed.js'
 import { seedSettings } from './seedSettings.js'
 import { seedCategories } from './seedCategories.js'
 import { seedAdminData } from './seedAdminData.js'
+import { seedBlogsIfEmpty } from './seedBlogs.js'
+import { seedBlogCategoriesIfEmpty } from './seedBlogCategories.js'
+import { seedFaqIfEmpty } from './seedFaq.js'
+import { seedPagesIfEmpty } from './seedPages.js'
 
 /**
  * Ordered bootstrap — categories always run before products/orders demo data.
@@ -17,4 +21,8 @@ export async function runBootstrapSeeds() {
   await seedSettings()
   await seedCategories()
   await seedAdminData()
+  await seedBlogCategoriesIfEmpty()
+  await seedBlogsIfEmpty()
+  await seedFaqIfEmpty()
+  await seedPagesIfEmpty()
 }

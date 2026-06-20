@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { adminApi } from '../services/adminApi'
 import { fetchCategoriesList } from '../services/categoriesApi'
+import { unwrapListItems } from '../utils/listResponse.js'
 
 const getError = (err) => err.response?.data?.message || err.message || 'Request failed'
 
@@ -23,11 +24,10 @@ function normalizeCategories(list) {
 export const fetchProducts = createAsyncThunk(
   'admin/fetchProducts',
   async (arg, { rejectWithValue }) => {
-    const { search = '', dateRange } =
-      typeof arg === 'string' ? { search: arg } : arg || {}
+    const params = typeof arg === 'string' ? { search: arg } : arg || {}
     try {
-      const { data } = await adminApi.products.list(search, dateRange)
-      return data.products
+      const { data } = await adminApi.products.list(params)
+      return unwrapListItems(data, 'products')
     } catch (err) {
       return rejectWithValue(getError(err))
     }
@@ -126,7 +126,7 @@ export const fetchOrders = createAsyncThunk(
   async (search, { rejectWithValue }) => {
     try {
       const { data } = await adminApi.orders.list(search)
-      return data.orders
+      return unwrapListItems(data, 'orders')
     } catch (err) {
       return rejectWithValue(getError(err))
     }
@@ -138,6 +138,18 @@ export const updateOrderStatus = createAsyncThunk(
   async ({ id, status }, { rejectWithValue }) => {
     try {
       const { data } = await adminApi.orders.updateStatus(id, status)
+      return data.order
+    } catch (err) {
+      return rejectWithValue(getError(err))
+    }
+  }
+)
+
+export const recordInstallmentPayment = createAsyncThunk(
+  'admin/recordInstallmentPayment',
+  async ({ id, note }, { rejectWithValue }) => {
+    try {
+      const { data } = await adminApi.orders.recordInstallmentPayment(id, note)
       return data.order
     } catch (err) {
       return rejectWithValue(getError(err))
@@ -400,6 +412,11 @@ const adminSlice = createSlice({
       })
 
       .addCase(updateOrderStatus.fulfilled, (state, action) => {
+        const idx = state.orders.findIndex((o) => o.id === action.payload.id)
+        if (idx >= 0) state.orders[idx] = action.payload
+      })
+
+      .addCase(recordInstallmentPayment.fulfilled, (state, action) => {
         const idx = state.orders.findIndex((o) => o.id === action.payload.id)
         if (idx >= 0) state.orders[idx] = action.payload
       })

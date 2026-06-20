@@ -6,6 +6,8 @@ import { addToCart } from '../features/cart/cartSlice'
 import { addToFavourite } from '../features/favourite/favourite'
 import { getProductImageSource } from '../utils/productImage'
 import Modal from './Modal'
+import LiveViewerBadge from '../features/kresla/components/LiveViewerBadge'
+import CompareToggle from '../features/kresla/components/CompareToggle'
 
 function getDisplayRating(product) {
   const seed = String(product?.id || product?.name || '')
@@ -118,6 +120,8 @@ function PremiumProductCard({ product }) {
           )}
         </div>
 
+        <LiveViewerBadge productId={product.id} className="mb-1" />
+        <CompareToggle product={product} className="mb-2" />
         <div className="flex items-center gap-1.5">
           <div className="flex items-center gap-0.5 text-[#FFAD33]" aria-hidden>
             {Array.from({ length: 5 }).map((_, i) => (

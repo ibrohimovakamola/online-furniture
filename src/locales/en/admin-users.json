@@ -1,0 +1,13 @@
+{
+  "title": "User management",
+  "allUsers": "All users",
+  "addNew": "Add new user",
+  "roles": "Roles & permissions",
+  "table": {
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "status": "Status",
+    "actions": "Actions"
+  }
+}

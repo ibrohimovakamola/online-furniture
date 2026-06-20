@@ -9,6 +9,15 @@ function buildUrl(path, params = {}) {
     if (params.category) search.set('category', params.category)
     if (params.search) search.set('search', params.search)
     if (params.limit) search.set('limit', String(params.limit))
+    if (params.stockStatus && params.stockStatus !== 'all') {
+      search.set('stockStatus', params.stockStatus)
+    }
+    if (params.minPrice !== '' && params.minPrice != null) {
+      search.set('minPrice', String(params.minPrice))
+    }
+    if (params.maxPrice !== '' && params.maxPrice != null) {
+      search.set('maxPrice', String(params.maxPrice))
+    }
     const qs = search.toString()
     return `${API_BASE}/store/products${qs ? `?${qs}` : ''}`
   }
@@ -35,8 +44,16 @@ const useFetch = (path, params = {}) => {
   const [error, setError] = useState(null)
 
   const paramKey = useMemo(
-    () => JSON.stringify({ category: params.category || '', search: params.search || '', limit: params.limit || '' }),
-    [params.category, params.search, params.limit]
+    () =>
+      JSON.stringify({
+        category: params.category || '',
+        search: params.search || '',
+        limit: params.limit || '',
+        stockStatus: params.stockStatus || 'all',
+        minPrice: params.minPrice ?? '',
+        maxPrice: params.maxPrice ?? '',
+      }),
+    [params.category, params.search, params.limit, params.stockStatus, params.minPrice, params.maxPrice]
   )
 
   useEffect(() => {

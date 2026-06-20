@@ -1,0 +1,21 @@
+{
+  "title": "Управление заказами",
+  "allOrders": "Все заказы",
+  "detail": "Детали заказа",
+  "table": {
+    "id": "ID заказа",
+    "customer": "Клиент",
+    "total": "Итого",
+    "status": "Статус",
+    "date": "Дата",
+    "actions": "Действия"
+  },
+  "status": {
+    "pending": "Ожидает",
+    "processing": "В обработке",
+    "shipped": "Отправлен",
+    "delivered": "Доставлен",
+    "cancelled": "Отменён"
+  },
+  "updateStatus": "Обновить статус"
+}

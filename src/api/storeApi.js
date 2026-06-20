@@ -16,7 +16,11 @@ export const storeApi = {
   settings: () => api.get('/store/settings'),
   flashSale: () => api.get('/store/flash-sale'),
   checkout: (payload) => api.post('/orders/checkout', payload),
+  guestCheckout: (payload) => api.post('/orders/guest', payload),
+  trackOrder: (token) => api.get(`/orders/track/${encodeURIComponent(token)}`),
+  installmentPlans: (total) => api.get('/orders/installment-plans', { params: { total } }),
   myOrders: () => api.get('/orders/my'),
+  myOrder: (id) => api.get(`/orders/${id}`),
 }
 
 export default storeApi

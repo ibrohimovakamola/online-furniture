@@ -1,0 +1,65 @@
+{
+  "title": "Управление блогом",
+  "subtitle": "Управление статьями, черновиками и запланированным контентом",
+  "allPosts": "Все статьи",
+  "addNew": "Новая статья",
+  "editPost": "Редактировать статью",
+  "newPost": "Новая статья",
+  "categories": "Категории",
+  "categoriesSubtitle": "Организуйте статьи с помощью меток и цветов значков",
+  "analytics": "Аналитика",
+  "analyticsSubtitle": "Просмотры и обзор публикаций",
+  "table": {
+    "title": "Заголовок",
+    "category": "Категория",
+    "author": "Автор",
+    "published": "Опубликовано",
+    "status": "Статус",
+    "views": "Просмотры"
+  },
+  "form": {
+    "title": "Заголовок",
+    "slug": "Slug / URL",
+    "category": "Категория",
+    "content": "Содержание",
+    "image": "Главное изображение",
+    "metaDescription": "Мета-описание",
+    "keywords": "Ключевые слова",
+    "author": "Автор",
+    "status": "Статус",
+    "publicationDate": "Дата публикации",
+    "readingTime": "Время чтения",
+    "seo": "SEO",
+    "seoScore": "SEO-оценка"
+  },
+  "status": {
+    "draft": "Черновик",
+    "published": "Опубликовано",
+    "scheduled": "Запланировано",
+    "all": "Все статусы"
+  },
+  "filters": {
+    "search": "Поиск по заголовку…",
+    "allCategories": "Все категории",
+    "sortNewest": "Сначала новые",
+    "sortOldest": "Сначала старые",
+    "sortTitle": "Заголовок А–Я",
+    "sortViews": "Больше просмотров"
+  },
+  "stats": {
+    "totalPosts": "Всего статей",
+    "published": "Опубликовано",
+    "drafts": "Черновики",
+    "totalViews": "Всего просмотров",
+    "scheduled": "Запланированные статьи",
+    "topPosts": "Топ статей по просмотрам"
+  },
+  "categoryForm": {
+    "name": "Название",
+    "slug": "Slug",
+    "description": "Описание",
+    "color": "Цвет значка",
+    "icon": "Иконка (emoji или название)",
+    "image": "Изображение категории"
+  }
+}

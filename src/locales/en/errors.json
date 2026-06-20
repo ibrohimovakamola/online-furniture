@@ -1,0 +1,18 @@
+{
+  "404": {
+    "title": "404 Not Found",
+    "message": "The page you are looking for does not exist.",
+    "button": "Back to home page"
+  },
+  "500": {
+    "title": "Server Error",
+    "message": "Something went wrong. Please try again later.",
+    "button": "Try again"
+  },
+  "unauthorized": "You do not have permission to access this page",
+  "forbidden": "Access denied",
+  "notFound": "Resource not found",
+  "serverError": "Server error occurred",
+  "network": "Network error. Check your connection.",
+  "database": "Database unavailable. Please try again later."
+}

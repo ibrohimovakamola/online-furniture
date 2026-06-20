@@ -1,0 +1,61 @@
+{
+  "promo": "Toshkent bo'ylab bepul yetkazib berish va o'rnatish!",
+  "promoLink": "Hozir xarid qiling",
+  "header": {
+    "searchPlaceholder": "Nima qidiryapsiz?",
+    "account": "Hisob",
+    "cart": "Savat",
+    "wishlist": "Sevimlilar",
+    "myOrders": "Buyurtmalarim",
+    "admin": "Admin",
+    "b2b": "B2B",
+    "pages": "Sahifalar",
+    "menu": {
+      "home": "Bosh sahifa",
+      "products": "Mahsulotlar",
+      "about": "Biz haqimizda",
+      "blog": "Blog",
+      "contact": "Aloqa",
+      "b2b": "B2B",
+      "admin": "Admin",
+      "showroom": "Showroom",
+      "gallery": "Galereya",
+      "faq": "FAQ",
+      "flashSale": "Flash chegirma",
+      "compare": "Taqqoslash",
+      "reviews": "Sharhlar"
+    }
+  },
+  "footer": {
+    "subscribe": "Obuna bo'lish",
+    "subscribeHint": "Birinchi buyurtmangizga 10% chegirma oling",
+    "emailPlaceholder": "Email manzilingizni kiriting",
+    "company": "Kompaniya",
+    "about": "Biz haqimizda",
+    "contact": "Aloqa",
+    "careers": "Karyera",
+    "blog": "Blog",
+    "links": "Tezkor havolalar",
+    "products": "Mahsulotlar",
+    "categories": "Kategoriyalar",
+    "support": "Yordam",
+    "faq": "FAQ",
+    "shipping": "Yetkazib berish",
+    "returns": "Qaytarish",
+    "legal": "Huquqiy ma'lumot",
+    "privacy": "Maxfiylik siyosati",
+    "terms": "Foydalanish shartlari",
+    "refund": "Qaytarish siyosati",
+    "follow": "Bizni kuzatib boring",
+    "copyright": "© {{year}} KRESLA. Barcha huquqlar himoyalangan.",
+    "account": "Hisob",
+    "myAccount": "Mening hisobim",
+    "loginRegister": "Kirish / Ro'yxatdan o'tish",
+    "cart": "Savat",
+    "wishlist": "Sevimlilar",
+    "shop": "Do'kon"
+  },
+  "breadcrumb": {
+    "home": "Bosh sahifa"
+  }
+}

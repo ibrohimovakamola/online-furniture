@@ -1,0 +1,12 @@
+{
+  "required": "Bu maydon to'ldirilishi shart",
+  "email": "To'g'ri email manzilini kiriting",
+  "minLength": "Minimal uzunlik — {{count}} belgi",
+  "maxLength": "Maksimal uzunlik — {{count}} belgi",
+  "pattern": "To'g'ri formatda kiriting",
+  "match": "Maydonlar mos kelmaydi",
+  "number": "To'g'ri raqam kiriting",
+  "phone": "To'g'ri telefon raqamini kiriting",
+  "url": "To'g'ri URL kiriting",
+  "passwordMin": "Parol kamida {{count}} belgidan iborat bo'lishi kerak"
+}

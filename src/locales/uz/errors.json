@@ -1,0 +1,18 @@
+{
+  "404": {
+    "title": "404 — Sahifa topilmadi",
+    "message": "Qidirayotgan sahifangiz mavjud emas.",
+    "button": "Bosh sahifaga qaytish"
+  },
+  "500": {
+    "title": "Server xatosi",
+    "message": "Nimadir noto'g'ri ketdi. Keyinroq qayta urinib ko'ring.",
+    "button": "Qayta urinish"
+  },
+  "unauthorized": "Bu sahifaga kirish huquqingiz yo'q",
+  "forbidden": "Kirish taqiqlangan",
+  "notFound": "Resurs topilmadi",
+  "serverError": "Server xatosi yuz berdi",
+  "network": "Tarmoq xatosi. Ulanishni tekshiring.",
+  "database": "Ma'lumotlar bazasi mavjud emas. Keyinroq qayta urinib ko'ring."
+}

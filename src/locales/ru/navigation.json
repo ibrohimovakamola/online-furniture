@@ -1,0 +1,61 @@
+{
+  "promo": "Бесплатная доставка и установка по Ташкенту!",
+  "promoLink": "Купить сейчас",
+  "header": {
+    "searchPlaceholder": "Что вы ищете?",
+    "account": "Аккаунт",
+    "cart": "Корзина",
+    "wishlist": "Избранное",
+    "myOrders": "Мои заказы",
+    "admin": "Админ",
+    "b2b": "B2B",
+    "pages": "Страницы",
+    "menu": {
+      "home": "Главная",
+      "products": "Товары",
+      "about": "О нас",
+      "blog": "Блог",
+      "contact": "Контакты",
+      "b2b": "B2B",
+      "admin": "Админ",
+      "showroom": "Шоурум",
+      "gallery": "Галерея",
+      "faq": "FAQ",
+      "flashSale": "Распродажа",
+      "compare": "Сравнение",
+      "reviews": "Отзывы"
+    }
+  },
+  "footer": {
+    "subscribe": "Подписаться",
+    "subscribeHint": "Получите скидку 10% на первый заказ",
+    "emailPlaceholder": "Введите ваш email",
+    "company": "Компания",
+    "about": "О нас",
+    "contact": "Контакты",
+    "careers": "Карьера",
+    "blog": "Блог",
+    "links": "Быстрые ссылки",
+    "products": "Товары",
+    "categories": "Категории",
+    "support": "Поддержка",
+    "faq": "FAQ",
+    "shipping": "Доставка",
+    "returns": "Возврат",
+    "legal": "Правовая информация",
+    "privacy": "Политика конфиденциальности",
+    "terms": "Условия использования",
+    "refund": "Политика возврата",
+    "follow": "Мы в соцсетях",
+    "copyright": "© {{year}} KRESLA. Все права защищены.",
+    "account": "Аккаунт",
+    "myAccount": "Мой аккаунт",
+    "loginRegister": "Вход / Регистрация",
+    "cart": "Корзина",
+    "wishlist": "Избранное",
+    "shop": "Магазин"
+  },
+  "breadcrumb": {
+    "home": "Главная"
+  }
+}

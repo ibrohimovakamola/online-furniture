@@ -1,11 +1,8 @@
 import multer from 'multer'
-import { AppError } from '../utils/asyncHandler.js'
+import { AppError } from '../utils/AppError.js'
+import { verifyCsrf } from './csrf.js'
 
-/**
- * Wraps multer middleware so upload errors reach Express error handler.
- * Do not place 4-arg error middleware between upload and controller.
- */
-export function withMulter(uploadMiddleware) {
+function runMulter(uploadMiddleware) {
   return (req, res, next) => {
     uploadMiddleware(req, res, (err) => {
       if (!err) return next()
@@ -17,6 +14,21 @@ export function withMulter(uploadMiddleware) {
       }
 
       return next(new AppError(err.message || 'Upload failed', 400))
+    })
+  }
+}
+
+/**
+ * Wraps multer middleware with optional CSRF verification for file uploads.
+ */
+export function withMulter(uploadMiddleware, { csrf = true } = {}) {
+  const uploadHandler = runMulter(uploadMiddleware)
+  if (!csrf) return uploadHandler
+
+  return (req, res, next) => {
+    verifyCsrf(req, res, (csrfErr) => {
+      if (csrfErr) return next(csrfErr)
+      uploadHandler(req, res, next)
     })
   }
 }
