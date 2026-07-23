@@ -1,8 +1,8 @@
 import { isAdminRole } from './permissions'
 
 /** Legacy keys (kept for backward compatibility) */
-export const TOKEN_KEY = 'exclusive_token'
-export const USER_KEY = 'exclusive_user'
+export const TOKEN_KEY = 'kresla_token'
+export const USER_KEY = 'kresla_user'
 
 /** Primary keys used by AuthContext */
 export const AUTH_TOKEN_KEY = 'authToken'

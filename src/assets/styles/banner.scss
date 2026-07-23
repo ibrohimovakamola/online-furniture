@@ -1,16 +1,26 @@
 .banner{
     display: flex;
+    flex-direction: column;
     width: 100%;
-    margin-bottom: 140px;
+    margin-bottom: 48px;
+
+    @include breakpoint(lg) {
+        flex-direction: row;
+        margin-bottom: 140px;
+    }
+
     &-links{
-        display: flex;
+        display: none;
         flex-direction: column;
         justify-content: space-between;
         gap: 16px;
         width: 20%;
         border-right: 1px solid rgb(185, 184, 184);
-        
         padding: 40px 16px 0 0;
+
+        @include breakpoint(lg) {
+            display: flex;
+        }
     }
     &-link{
         font-family: Poppins;
@@ -41,26 +51,35 @@
         line-height: 1.4;
     }
     &-wrapper{
-        height: 400px;
-        width: 80%;
+        width: 100%;
+        min-height: 280px;
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        
-        // background: #000000;
-        // background: #0B3C5D;
-        // background: #75503b;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
         background: #c5c4c3;
-        // background: url("..//images/Gemini_Generated_Image_51rws51rws51rws5.png");
-        // background-repeat: no-repeat;
-        // background-position: center;
-        // background-size: cover;
-        // background-attachment: fixed;
-        // background: #4e4338;
         color: #0b3c3c;
-        margin: 40px 0 0 45px;
-        padding: 0px 0 0 64px;
-        
+        margin: 16px 0 0;
+        padding: 24px 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+
+        @include breakpoint(md) {
+            min-height: 340px;
+            padding: 32px 40px;
+        }
+
+        @include breakpoint(lg) {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            height: 400px;
+            width: 80%;
+            margin: 40px 0 0 45px;
+            padding: 0 0 0 64px;
+            border-radius: 0;
+        }
     }
     &-info{
         display: flex;
@@ -88,15 +107,20 @@
     &-title{
         font-family: Inter;
         font-weight: 600;
-        font-size: 48px;
-        line-height: 60px;
-        letter-spacing: 4%;
-        max-width: 460px;
-        
+        font-size: clamp(1.5rem, 5vw, 3rem);
+        line-height: 1.2;
+        letter-spacing: 0.02em;
+        max-width: 100%;
+
+        @include breakpoint(lg) {
+            max-width: 460px;
+            line-height: 60px;
+        }
     }
     &-route{
         background: #0b3c3c;
-        padding: 12px 24px;
+        padding: 14px 24px;
+        min-height: 44px;
         font-family: Poppins;
         font-weight: 500;
         font-size: 16px;
@@ -127,14 +151,39 @@
     }
     &-img{
         position: relative;
+        width: 100%;
+        margin-top: 16px;
+        align-self: center;
+
+        @include breakpoint(lg) {
+            width: auto;
+            margin-top: 0;
+            flex: 1;
+        }
+
         img{
-            
-            position: absolute;
-            bottom: -200px;
-            right: 0;
-            width: 500px;
-            height: 500px;
+            position: relative;
+            bottom: auto;
+            right: auto;
+            width: min(100%, 320px);
+            height: auto;
+            max-height: 240px;
             object-fit: contain;
+            margin: 0 auto;
+            display: block;
+
+            @include breakpoint(md) {
+                max-height: 300px;
+            }
+
+            @include breakpoint(lg) {
+                position: absolute;
+                bottom: -200px;
+                right: 0;
+                width: 500px;
+                height: 500px;
+                margin: 0;
+            }
         }
     }
 }
@@ -146,34 +195,53 @@
     background-attachment: fixed;
 }
 .sbanner{
-    // background: #000000;
-  
     color: #fff;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 69px 0px 69px 0px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 32px 0;
+
+    @include breakpoint(lg) {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 69px 0;
+    }
+
     &-btn{
         font-family: Poppins;
         font-weight: 500;
         font-size: 16px;
         line-height: 24px;
-        background: #00FF66;
         background: #0b3c3c;
-        padding: 16px 48px;
+        padding: 14px 32px;
+        min-height: 44px;
         border: none;
         border-radius: 4px;
         color: #FAFAFA;
         text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        @include breakpoint(md) {
+            padding: 16px 48px;
+        }
     }
     &-info{
         display: flex;
         flex-direction: column;
-        gap: 32px;
+        gap: 24px;
         align-items: flex-start;
-        // background: red;
         backdrop-filter: blur(10px);
-        padding: 40px;
+        padding: 24px 16px;
+        width: 100%;
+
+        @include breakpoint(md) {
+            gap: 32px;
+            padding: 40px;
+        }
         span{
             font-family: Poppins;
             font-weight: 600;
@@ -187,15 +255,24 @@
     &-title{
         font-family: Inter;
         font-weight: 600;
-        font-size: 48px;
-        line-height: 60px;
-        letter-spacing: 4%;
-        max-width: 440px;
+        font-size: clamp(1.5rem, 5vw, 3rem);
+        line-height: 1.2;
+        letter-spacing: 0.02em;
+        max-width: 100%;
 
+        @include breakpoint(lg) {
+            max-width: 440px;
+            line-height: 60px;
+        }
     }
     &-times{
         display: flex;
-        gap: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+
+        @include breakpoint(md) {
+            gap: 24px;
+        }
     }
     &-time--box{
         display: flex;
@@ -226,21 +303,43 @@
     }
     &-img{
         position: relative;
+        width: 100%;
+        min-height: 200px;
+        order: -1;
+
+        @include breakpoint(lg) {
+            order: 0;
+            width: auto;
+            min-height: 0;
+        }
     }
     &-blur{
-        width: 400px;
-        height: 400px;
-        background: #D9D9D9;
-        filter: blur(300px);
+        display: none;
+
+        @include breakpoint(lg) {
+            display: block;
+            width: 400px;
+            height: 400px;
+            background: #D9D9D9;
+            filter: blur(300px);
+        }
     }
     img{
-        position: absolute;
-        width: 800px;
-        // height: 420px;
+        position: relative;
+        width: min(100%, 360px);
+        height: auto;
         object-fit: contain;
-        right: -80px;
-        // top: 100px;
-        // bottom: 0;
-        bottom: -180px;
+        right: auto;
+        bottom: auto;
+        margin: 0 auto;
+        display: block;
+
+        @include breakpoint(lg) {
+            position: absolute;
+            width: 800px;
+            right: -80px;
+            bottom: -180px;
+            margin: 0;
+        }
     }
 }

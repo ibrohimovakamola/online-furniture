@@ -46,15 +46,15 @@ Output: `dist/` folder.
 ```
 public_html/          ← contents of dist/ (index.html, assets/)
 public_html/.htaccess ← copy from deploy/mebelsotish.uz/.htaccess
-~/exclusive/server/   ← backend code + server/.env (NOT in public_html)
-~/exclusive/server/uploads/  ← writable (chmod 755)
+~/kresla/server/   ← backend code + server/.env (NOT in public_html)
+~/kresla/server/uploads/  ← writable (chmod 755)
 ```
 
 ### Option B — VPS (Apache or manual upload)
 
 ```bash
 /var/www/mebelsotish.uz/html/   # dist/
-/var/www/exclusive/server/      # API
+/var/www/kresla/server/      # API
 ```
 
 ### Option C — VPS (Nginx + Let's Encrypt)
@@ -83,7 +83,7 @@ Full walkthrough: [SSL-SETUP.md](./SSL-SETUP.md).
 See **[server/PRODUCTION.md](../../server/PRODUCTION.md)** for the full production checklist.
 
 ```bash
-cd ~/exclusive
+cd ~/kresla
 git pull   # or upload via SFTP
 
 cd server
@@ -115,7 +115,7 @@ After first login, set `SEED_SUPER_ADMIN=false` and change admin password in adm
 ## 4. Start API with PM2
 
 ```bash
-cd ~/exclusive
+cd ~/kresla
 npm install -g pm2
 mkdir -p logs
 pm2 start pm2.config.cjs --env production
@@ -206,7 +206,7 @@ Test flow: `docs/PAYMENT-TESTING.md`.
 ### One-command (on server)
 
 ```bash
-cd ~/exclusive
+cd ~/kresla
 chmod +x deploy.sh   # first time only
 export FRONTEND_DIR=~/public_html   # optional: sync dist/ to docroot
 ./deploy.sh
@@ -226,7 +226,7 @@ Push to `main` runs `.github/workflows/deploy.yml`: lint → build → rsync `di
 | `DEPLOY_HOST` | `mebelsotish.uz` |
 | `DEPLOY_USER` | `your_ssh_user` |
 | `DEPLOY_FRONTEND_PATH` | `public_html` (relative to home) |
-| `DEPLOY_APP_PATH` | `exclusive` (repo folder under home) |
+| `DEPLOY_APP_PATH` | `kresla` (repo folder under home) |
 
 If secrets are not set, the workflow still runs tests and build but skips the SSH deploy step.
 
@@ -241,7 +241,7 @@ rsync -avz dist/ user@mebelsotish.uz:public_html/
 
 # Backend update
 ssh user@server
-cd ~/exclusive && git pull
+cd ~/kresla && git pull
 npm ci && npm ci --prefix server --omit=dev
 pm2 restart mebel-api
 ```

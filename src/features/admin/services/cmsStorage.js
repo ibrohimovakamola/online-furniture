@@ -4,7 +4,7 @@
  */
 
 const KEYS = {
-  b2bLeads: 'exclusive_admin_b2b_leads',
+  b2bLeads: 'kresla_admin_b2b_leads',
 }
 
 function read(key, fallback) {

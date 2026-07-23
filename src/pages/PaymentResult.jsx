@@ -54,10 +54,13 @@ function PaymentResult() {
           ? await paymentApi.status(orderId)
           : await storeApi.trackOrder(guestTrackToken)
         if (cancelled) return
-        setOrder(data.order)
-        setPayment(data.payment || null)
 
-        const paymentStatus = data.order?.paymentStatus
+        const payload = data?.data ?? data
+        const orderData = payload?.order ?? payload
+        setOrder(orderData)
+        setPayment(payload?.payment || null)
+
+        const paymentStatus = orderData?.paymentStatus
         const stillPending = paymentStatus === 'pending' || paymentStatus === 'awaiting'
         if (stillPending && attempt < 5) {
           setTimeout(() => poll(attempt + 1), 3000)
@@ -123,6 +126,28 @@ function PaymentResult() {
               className="empty-btn"
             >
               Qayta tekshirish
+            </button>
+          )}
+          {statusKey === 'failed' && orderId && isAuthenticated && (
+            <button
+              type="button"
+              className="empty-btn"
+              onClick={async () => {
+                try {
+                  const retryGateway = gateway || order?.paymentMethod || 'payme'
+                  const { data } = await paymentApi.initiate({
+                    orderId,
+                    paymentMethod: retryGateway,
+                    returnUrl: `${window.location.origin}/payment/result`,
+                  })
+                  const paymentUrl = data?.data?.paymentUrl || data?.paymentUrl
+                  if (paymentUrl) window.location.href = paymentUrl
+                } catch (err) {
+                  setError(err.response?.data?.message || 'To\'lovni qayta boshlab bo\'lmadi')
+                }
+              }}
+            >
+              To&apos;lovni qayta urinish
             </button>
           )}
           {statusKey === 'failed' && (

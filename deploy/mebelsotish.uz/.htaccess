@@ -1,5 +1,5 @@
 # ── mebelsotish.uz — React SPA (dist/) + Node API reverse proxy ─────────────
-# Use when hosting the Exclusive React build on Apache/cPanel with Node on :5000
+# Use when hosting the Kresla React build on Apache/cPanel with Node on :5000
 
 <IfModule mod_rewrite.c>
     RewriteEngine On

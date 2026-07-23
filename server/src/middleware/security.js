@@ -159,6 +159,16 @@ const API_LIMITER_SKIP = new Set([
 
   '/api/payments/click/callback',
 
+  '/api/payment/payme/callback',
+
+  '/api/payment/click/callback',
+
+  '/api/payment/uzumbank/callback',
+
+  '/api/payments/uzumbank-callback',
+
+  '/api/payments/uzumbank/callback',
+
 ])
 
 
@@ -235,13 +245,43 @@ export function httpsRedirect(req, res, next) {
 
 
 
-/** General API throttle — 100 requests / hour per IP */
+/** General API throttle — per IP (higher in dev; authenticated sessions skipped). */
+
+function isAuthenticatedRequest(req) {
+
+  const authHeader = req.headers?.authorization
+
+  if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) return true
+
+  if (req.cookies?.accessToken) return true
+
+  return false
+
+}
+
+
+
+function resolveApiRateLimitMax() {
+
+  const configured = Number(process.env.API_RATE_LIMIT_MAX)
+
+  if (Number.isFinite(configured) && configured > 0) return configured
+
+  if (isTest) return 10_000
+
+  if (!isProduction) return 2000
+
+  return 300
+
+}
+
+
 
 export const apiLimiter = rateLimit({
 
   windowMs: 60 * 60 * 1000,
 
-  max: Number(process.env.API_RATE_LIMIT_MAX) || 100,
+  max: resolveApiRateLimitMax(),
 
   standardHeaders: true,
 
@@ -249,7 +289,13 @@ export const apiLimiter = rateLimit({
 
   message: { success: false, message: 'Too many requests from this IP. Try again later.' },
 
-  skip: (req) => isTest || API_LIMITER_SKIP.has(req.path),
+  skip: (req) =>
+
+    isTest ||
+
+    API_LIMITER_SKIP.has(req.path) ||
+
+    isAuthenticatedRequest(req),
 
 })
 

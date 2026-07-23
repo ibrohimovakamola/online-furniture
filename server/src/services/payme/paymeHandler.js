@@ -1,7 +1,7 @@
 import Order from '../../models/Order.js'
 import Payment from '../../models/Payment.js'
 import { PaymeGateway, PAYME_ERRORS, PAYME_STATES } from './PaymeGateway.js'
-import { fulfillOrderPayment, cancelPendingOrder } from '../../utils/fulfillOrderPayment.js'
+import { fulfillOrderPayment, fulfillInstallmentGatewayPayment, cancelPendingOrder } from '../../utils/fulfillOrderPayment.js'
 import { logPaymentEvent } from '../../utils/paymentLogger.js'
 import { tiynToUzs, uzsToTiyn } from '../../config/payments.js'
 import { getOrderPayableAmount } from '../../utils/orderAmount.js'
@@ -101,7 +101,7 @@ async function checkPerformTransaction(params, id) {
   if (!order) return gateway.buildError(PAYME_ERRORS.ORDER_NOT_FOUND, null, id)
   if (order.paymentStatus === 'paid') return gateway.buildError(PAYME_ERRORS.ORDER_ALREADY_PAID, null, id)
   if (order.status === 'cancelled') return gateway.buildError(PAYME_ERRORS.ORDER_CANCELLED, null, id)
-  if (Number(amount) !== uzsToTiyn(getOrderPayableAmount(order))) {
+  if (Number(amount) !== uzsToTiyn(getOrderPayableAmount(order, { forGateway: true }))) {
     return gateway.buildError(PAYME_ERRORS.INVALID_AMOUNT, null, id)
   }
   return gateway.buildResult({ allow: true }, id)
@@ -112,7 +112,7 @@ async function createTransaction(params, id) {
   const order = await findOrderByAccount(account)
   if (!order) return gateway.buildError(PAYME_ERRORS.ORDER_NOT_FOUND, null, id)
   if (order.paymentStatus === 'paid') return gateway.buildError(PAYME_ERRORS.ORDER_ALREADY_PAID, null, id)
-  if (Number(amount) !== uzsToTiyn(getOrderPayableAmount(order))) {
+  if (Number(amount) !== uzsToTiyn(getOrderPayableAmount(order, { forGateway: true }))) {
     return gateway.buildError(PAYME_ERRORS.INVALID_AMOUNT, null, id)
   }
 
@@ -170,7 +170,7 @@ async function performTransaction(params, id) {
 
   const order = await Order.findById(payment.order)
   if (!order) return gateway.buildError(PAYME_ERRORS.ORDER_NOT_FOUND, null, id)
-  if (Number(payment.amountTiyn) !== uzsToTiyn(getOrderPayableAmount(order))) {
+  if (Number(payment.amountTiyn) !== uzsToTiyn(getOrderPayableAmount(order, { forGateway: true }))) {
     return gateway.buildError(PAYME_ERRORS.INVALID_AMOUNT, null, id)
   }
 
@@ -181,7 +181,11 @@ async function performTransaction(params, id) {
   payment.metadata = { ...payment.metadata, performTime }
   await payment.save()
 
-  await fulfillOrderPayment(order, { note: 'Payme PerformTransaction' })
+  if (order.paymentMethod === 'installment') {
+    await fulfillInstallmentGatewayPayment(order, { note: 'Payme PerformTransaction', gateway: 'payme' })
+  } else {
+    await fulfillOrderPayment(order, { note: 'Payme PerformTransaction' })
+  }
 
   return gateway.buildResult(
     {

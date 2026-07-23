@@ -9,7 +9,7 @@ export const ORDER_STATUSES = [
   'cancelled',
 ]
 export const PAYMENT_STATUSES = ['unpaid', 'pending', 'awaiting', 'paid', 'failed', 'refunded']
-export const PAYMENT_METHODS = ['payme', 'click', 'cash', 'card', 'installment', 'bank_transfer', 'online']
+export const PAYMENT_METHODS = ['payme', 'click', 'uzumbank', 'cash', 'card', 'installment', 'bank_transfer', 'online']
 
 const installmentDetailsSchema = new mongoose.Schema(
   {

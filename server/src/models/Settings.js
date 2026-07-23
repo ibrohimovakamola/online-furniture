@@ -5,7 +5,7 @@ const settingsSchema = new mongoose.Schema(
     key: { type: String, default: 'global', unique: true },
     store: {
       supportPhone: { type: String, default: '+998 94 043 16 84' },
-      storeEmail: { type: String, default: 'exclusive@gmail.com' },
+      storeEmail: { type: String, default: 'kresla@gmail.com' },
       address: { type: String, default: 'Tashkent, Uzbekistan' },
       telegram: { type: String, default: '' },
       instagram: { type: String, default: '' },

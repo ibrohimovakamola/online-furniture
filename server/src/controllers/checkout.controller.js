@@ -8,12 +8,13 @@ import { buildOrderFromCart } from '../utils/buildOrderFromCart.js'
 import { generateOrderNumber } from '../utils/orderNumber.js'
 
 import PaymeGateway from '../services/payme/PaymeGateway.js'
-
 import ClickGateway from '../services/click/ClickGateway.js'
-
-import { isPaymeConfigured, isClickConfigured } from '../config/payments.js'
+import { generateUzumCheckout } from '../services/payment/index.js'
+import { isPaymeConfigured, isClickConfigured, isUzumBankConfigured } from '../config/payments.js'
 import { sendOrderConfirmationEmail } from '../utils/orderEmails.js'
 import { logOrderCreated } from '../utils/activityLogger.js'
+import { startGatewayPayment } from './payment.controller.js'
+import { amountsMatch } from '../utils/orderAmount.js'
 
 
 
@@ -29,69 +30,56 @@ export const checkout = asyncHandler(async (req, res) => {
   const {
     items,
     shippingAddress,
-    paymentMethod = 'card',
-    payment,
+    paymentMethod = 'payme',
     premiumServices,
     installmentPlan,
     returnUrl,
   } = body
 
   const normalizedMethod =
-
     paymentMethod === 'installment'
-
       ? 'installment'
-
       : paymentMethod === 'cash'
-
         ? 'cash'
-
         : paymentMethod === 'payme'
-
           ? 'payme'
-
           : paymentMethod === 'click'
-
             ? 'click'
+            : paymentMethod === 'uzumbank'
+              ? 'uzumbank'
+              : paymentMethod
 
-            : 'card'
+  if (normalizedMethod === 'card') {
+    throw new AppError(
+      'Direct card entry is not supported. Please use Payme, Click, or Uzum Bank.',
+      400
+    )
+  }
 
+  if (
+    !['installment', 'cash', 'payme', 'click', 'uzumbank'].includes(normalizedMethod)
+  ) {
+    throw new AppError('Unsupported payment method', 400)
+  }
 
-
-  const isGateway = normalizedMethod === 'payme' || normalizedMethod === 'click'
-
+  const installmentGateway = installmentPlan?.gateway
+  const isGateway =
+    normalizedMethod === 'payme' ||
+    normalizedMethod === 'click' ||
+    normalizedMethod === 'uzumbank' ||
+    (normalizedMethod === 'installment' && Boolean(installmentGateway))
   const isInstallment = normalizedMethod === 'installment'
+  const activeGateway =
+    normalizedMethod === 'installment' ? installmentGateway : normalizedMethod
 
-
-
-  if (!isInstallment && !isGateway) {
-
-    if (!payment?.cardNumber || !payment?.expiry || !payment?.cvv) {
-
-      throw new AppError('Payment details are required', 400)
-
-    }
-
-    if (String(payment.cardNumber).replace(/\s/g, '').length < 13) {
-
-      throw new AppError('Invalid card number', 400)
-
-    }
-
-  }
-
-
-
-  if (normalizedMethod === 'payme' && !isPaymeConfigured()) {
-
+  if (activeGateway === 'payme' && !isPaymeConfigured()) {
     throw new AppError('Payme payment is not configured', 503)
-
   }
-
-  if (normalizedMethod === 'click' && !isClickConfigured()) {
-
+  if (activeGateway === 'click' && !isClickConfigured()) {
     throw new AppError('Click payment is not configured', 503)
-
+  }
+  if (activeGateway === 'uzumbank' && !isUzumBankConfigured()) {
+    throw new AppError('Uzum Bank payment is not configured', 503)
   }
 
 
@@ -155,7 +143,9 @@ export const checkout = asyncHandler(async (req, res) => {
     total: built.orderTotal,
 
     installmentDetails: built.installmentDetails,
-
+    metadata: built.installmentGateway
+      ? { installmentGateway: built.installmentGateway }
+      : undefined,
     statusHistory: [{ status: built.orderStatus, changedBy: req.user._id, note: built.statusNote }],
 
   })
@@ -189,34 +179,34 @@ export const checkout = asyncHandler(async (req, res) => {
   }
 
   let paymentUrl = null
+  const chargeAmount = built.gatewayChargeAmount ?? order.total
   const gatewayReturnBase =
     returnUrl || `${process.env.CLIENT_URL || 'http://localhost:5173'}/payment/result`
-  const gatewayReturnUrl = `${gatewayReturnBase}${gatewayReturnBase.includes('?') ? '&' : '?'}orderId=${order._id}&gateway=${normalizedMethod}`
+  const gatewayReturnUrl = `${gatewayReturnBase}${gatewayReturnBase.includes('?') ? '&' : '?'}orderId=${order._id}&gateway=${activeGateway || normalizedMethod}`
 
-  if (normalizedMethod === 'payme') {
+  if (activeGateway === 'payme') {
     paymentUrl = payme.generatePaymentUrl({
       orderId: order._id.toString(),
-      amountUzs: order.total,
+      amountUzs: chargeAmount,
       returnUrl: gatewayReturnUrl,
     })
-  } else if (normalizedMethod === 'click') {
+  } else if (activeGateway === 'click') {
     paymentUrl = click.generatePaymentUrl({
       orderId: order._id.toString(),
-      amountUzs: order.total,
+      amountUzs: chargeAmount,
       returnUrl: gatewayReturnUrl,
+    })
+  } else if (activeGateway === 'uzumbank') {
+    paymentUrl = await generateUzumCheckout(order._id.toString(), chargeAmount, `Buyurtma ${order.orderNumber}`, {
+      returnUrl: gatewayReturnUrl,
+      orderNumber: order.orderNumber,
     })
   }
 
-
-
   const message = isGateway
-
     ? 'Order created. Redirect to payment gateway.'
-
     : isInstallment
-
       ? 'Installment order placed. First payment due on the scheduled date.'
-
       : 'Payment successful. Order placed.'
 
 
@@ -233,7 +223,7 @@ export const checkout = asyncHandler(async (req, res) => {
 
     paymentUrl,
 
-    gateway: isGateway ? normalizedMethod : null,
+    gateway: isGateway ? activeGateway || normalizedMethod : null,
 
   })
 
@@ -280,4 +270,43 @@ export const getMyOrder = asyncHandler(async (req, res) => {
 
 
 export { formatOrder }
+
+/**
+ * POST /api/orders/create-payment
+ * Start gateway checkout for an installment (or unpaid) order.
+ */
+export const createOrderPayment = asyncHandler(async (req, res) => {
+  const { orderId, paymentMethod, amount, installmentPeriod, returnUrl } = req.validated || req.body
+
+  const order = await Order.findOne({ _id: orderId, customer: req.user._id })
+  if (!order) throw new AppError('Order not found', 404)
+
+  if (order.paymentMethod === 'installment') {
+    if (!order.installmentDetails) {
+      throw new AppError('Order has no installment plan', 400)
+    }
+    const { planMonths, monthlyPayment } = order.installmentDetails
+    if (installmentPeriod && Number(installmentPeriod) !== planMonths) {
+      throw new AppError('Installment period does not match order', 400)
+    }
+    if (!amountsMatch(monthlyPayment, amount)) {
+      throw new AppError('Amount does not match installment monthly payment', 400)
+    }
+  } else if (amount != null) {
+    const expected = order.total ?? order.finalPrice
+    if (!amountsMatch(expected, amount)) {
+      throw new AppError('Amount does not match order total', 400)
+    }
+  }
+
+  const data = await startGatewayPayment(order, paymentMethod, { returnUrl, req })
+
+  res.json({
+    success: true,
+    data: {
+      ...data,
+      installmentPeriod: order.installmentDetails?.planMonths ?? installmentPeriod ?? null,
+    },
+  })
+})
 

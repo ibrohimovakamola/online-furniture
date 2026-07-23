@@ -69,8 +69,8 @@ const Contact = () => {
             <p className="contact-card--text">
               Fill out our form and we will contact you within 24 hours
             </p>
-            <p className="contact-card--text">Emails:customer@exclusive.com</p>
-            <p className="contact-card--text">Emails:support@exclusive.com</p>
+            <p className="contact-card--text">Emails:customer@kresla.uz</p>
+            <p className="contact-card--text">Emails:support@kresla.uz</p>
           </div>
           <form className="contact-card--form" onSubmit={handleSubmit} noValidate>
             <div className="contact-form--row">

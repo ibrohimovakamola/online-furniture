@@ -27,6 +27,10 @@ function getAuthErrorMessage(err, fallback) {
     return apiMessage || 'Invalid email or password'
   }
 
+  if (status === 429) {
+    return apiMessage || 'Too many requests. Please wait a minute and try again.'
+  }
+
   if (status === 500) {
     if (!apiMessage || apiMessage === 'Internal Server Error') {
       return 'Backend API is not running. Open a terminal, run npm run dev, and wait for "HTTP listening on port 5000".'
@@ -55,28 +59,56 @@ function getAuthErrorMessage(err, fallback) {
   return fallback
 }
 
+/** Map API validation `errors[]` to form field keys; used on signup/profile. */
+function mapAuthFieldErrors(errors) {
+  if (!Array.isArray(errors)) return null
+  const fieldErrors = {}
+  for (const entry of errors) {
+    const raw = entry?.field
+    const message = entry?.message
+    if (!raw || !message) continue
+    const field = raw === 'phone' ? 'phoneNumber' : raw
+    if (!fieldErrors[field]) fieldErrors[field] = message
+  }
+  return Object.keys(fieldErrors).length ? fieldErrors : null
+}
+
+function getAuthErrorPayload(err, fallback) {
+  const message = getAuthErrorMessage(err, fallback)
+  const fieldErrors = mapAuthFieldErrors(err?.response?.data?.errors)
+  if (fieldErrors) return { message, fieldErrors }
+  return message
+}
+
 const storedToken = getStoredToken()
 const storedUser = getStoredUser()
 const hasStoredSession = Boolean(storedToken && storedUser)
 
 export const registerUser = createAsyncThunk(
   'auth/register',
-  async ({ firstName, lastName, email, password }, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
-      const { data } = await authApi.register({ firstName, lastName, email, password })
+      const { data } = await authApi.register(payload)
+      if (data.requiresVerification) {
+        return {
+          requiresVerification: true,
+          message: data.message,
+          userId: data.userId,
+        }
+      }
       persistAuthSession({ token: data.token, user: data.user })
       return data
     } catch (err) {
-      return rejectWithValue(getAuthErrorMessage(err, 'Registration failed'))
+      return rejectWithValue(getAuthErrorPayload(err, 'Registration failed'))
     }
   }
 )
 
 export const loginUser = createAsyncThunk(
   'auth/login',
-  async ({ email, password }, { rejectWithValue }) => {
+  async ({ email, password, rememberMe = false }, { rejectWithValue }) => {
     try {
-      const { data } = await authApi.login({ email, password })
+      const { data } = await authApi.login({ email, password, rememberMe })
       persistAuthSession({ token: data.token, user: data.user })
       return data
     } catch (err) {
@@ -184,6 +216,9 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.status = 'succeeded'
+        if (action.payload?.requiresVerification) {
+          return
+        }
         state.user = action.payload.user
         state.token = action.payload.token
         state.initialized = true
@@ -191,7 +226,9 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.status = 'failed'
-        state.error = action.payload
+        const payload = action.payload
+        state.error =
+          payload && typeof payload === 'object' ? payload.message : payload
       })
       .addCase(rehydrateSession.pending, (state) => {
         state.bootstrapping = true

@@ -1,9 +1,17 @@
 .favourite{
     &-row{
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 80px 0 60px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 40px 0 32px;
+
+        @include breakpoint(md) {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 80px 0 60px;
+        }
     }
     &-title{
         font-family: Poppins;
@@ -25,9 +33,21 @@
     }
     &-card--wrapper{
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 30px;
-        
+        grid-template-columns: 1fr;
+        gap: 24px;
+
+        @include breakpoint(sm) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @include breakpoint(lg) {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        @include breakpoint(xl) {
+            grid-template-columns: repeat(4, 1fr);
+        }
     }
     &-img{
         overflow: hidden;
@@ -38,17 +58,21 @@
         background: #F5F5F5;
         border-radius: 4px;
         position: relative;
-        width: 270px;
-        height: 250px;
+        width: 100%;
+        aspect-ratio: 270 / 250;
+        height: auto;
         img{
-            width: 190px;
-            height: 180px;
+            width: 70%;
+            max-width: 190px;
+            height: auto;
             object-fit: contain;
             padding: 20px 0 0;
         }
     }
     &-bin{
         font-size: 16px;
+        min-width: 44px;
+        min-height: 44px;
         padding: 6px 5px;
         border-radius: 100%;
         background: #fff;

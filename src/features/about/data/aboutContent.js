@@ -8,7 +8,7 @@ import teamLead from '../../../assets/images/photo_2026-03-26_21-16-00.jpg'
 export const ABOUT_STATS = [
   { value: '18+', label: 'Months Official Warranty', icon: 'shield' },
   { value: '1000+', label: 'Delivered Orders', icon: 'package' },
-  { value: '50+', label: 'Exclusive Models', icon: 'layers' },
+  { value: '50+', label: 'Kresla Models', icon: 'layers' },
   { value: '3000 m²', label: 'Modern Production Facility', icon: 'factory' },
 ]
 

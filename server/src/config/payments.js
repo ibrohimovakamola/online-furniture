@@ -15,7 +15,7 @@ function parsePaymeTestMode() {
 
 const paymeTestMode = parsePaymeTestMode()
 
-export const PAYMENT_PROVIDERS = ['payme', 'click']
+export const PAYMENT_PROVIDERS = ['payme', 'click', 'uzumbank']
 
 export const paymeConfig = {
   merchantId: process.env.PAYME_MERCHANT_ID || '',
@@ -39,7 +39,7 @@ export const paymeConfig = {
 export const clickConfig = {
   serviceId: process.env.CLICK_SERVICE_ID || '',
   merchantUserId: process.env.CLICK_MERCHANT_ID || '',
-  secretKey: process.env.CLICK_SECRET_KEY || '',
+  secretKey: process.env.CLICK_SECRET_KEY || process.env.CLICK_MERCHANT_SECRET || '',
   testMode: process.env.CLICK_TEST_MODE !== 'false',
   prepareUrl:
     process.env.CLICK_PREPARE_URL ||
@@ -74,6 +74,31 @@ export function getPaymeStatus() {
 
 export function isClickConfigured() {
   return Boolean(clickConfig.serviceId && clickConfig.merchantUserId && clickConfig.secretKey)
+}
+
+export const uzumBankConfig = {
+  merchantId: process.env.UZUMBANK_MERCHANT_ID || '',
+  secretKey: process.env.UZUMBANK_SECRET_KEY || '',
+  testMode: process.env.UZUMBANK_TEST_MODE !== 'false',
+  apiUrl:
+    process.env.UZUMBANK_API_URL ||
+    (process.env.UZUMBANK_TEST_MODE !== 'false'
+      ? 'https://api.uzumbank.uz/api/merchant'
+      : 'https://api.uzumbank.uz/api/merchant'),
+  checkoutBase:
+    process.env.UZUMBANK_CHECKOUT_URL ||
+    'https://checkout.uzumbank.uz/pay',
+  returnUrl: process.env.UZUMBANK_RETURN_URL || `${clientUrl}/payment/result`,
+  webhookUrl: process.env.UZUMBANK_WEBHOOK_URL || `${clientUrl}/api/payment/uzumbank/callback`,
+}
+
+export function isUzumBankConfigured() {
+  return Boolean(uzumBankConfig.merchantId && uzumBankConfig.secretKey)
+}
+
+export function getUzumWebhookUrl() {
+  if (process.env.UZUMBANK_WEBHOOK_URL) return process.env.UZUMBANK_WEBHOOK_URL
+  return `${clientUrl}/api/payment/uzumbank/callback`
 }
 
 /** UZS → Payme tiyn (1 UZS = 100 tiyn) */

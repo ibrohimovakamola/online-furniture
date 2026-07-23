@@ -7,7 +7,8 @@ import { formatGuestOrder } from '../utils/formatOrder.js'
 import { sendGuestOrderConfirmation } from '../utils/guestOrderEmails.js'
 import PaymeGateway from '../services/payme/PaymeGateway.js'
 import ClickGateway from '../services/click/ClickGateway.js'
-import { isPaymeConfigured, isClickConfigured } from '../config/payments.js'
+import { generateUzumCheckout } from '../services/payment/index.js'
+import { isPaymeConfigured, isClickConfigured, isUzumBankConfigured } from '../config/payments.js'
 
 const payme = new PaymeGateway()
 const click = new ClickGateway()
@@ -36,13 +37,19 @@ function signGuestTrackingToken(orderId, email) {
 /** POST /api/orders/guest */
 export const createGuestOrder = asyncHandler(async (req, res) => {
   const value = req.validated || req.body
-  const isGateway = value.paymentMethod === 'payme' || value.paymentMethod === 'click'
+  const isGateway =
+    value.paymentMethod === 'payme' ||
+    value.paymentMethod === 'click' ||
+    value.paymentMethod === 'uzumbank'
 
   if (value.paymentMethod === 'payme' && !isPaymeConfigured()) {
     throw new AppError('Payme payment is not configured', 503)
   }
   if (value.paymentMethod === 'click' && !isClickConfigured()) {
     throw new AppError('Click payment is not configured', 503)
+  }
+  if (value.paymentMethod === 'uzumbank' && !isUzumBankConfigured()) {
+    throw new AppError('Uzum Bank payment is not configured', 503)
   }
 
   const built = await buildOrderFromCart({
@@ -111,12 +118,19 @@ export const createGuestOrder = asyncHandler(async (req, res) => {
         amountUzs: order.total,
         returnUrl: gatewayReturnUrl,
       })
-    } else {
+    } else if (value.paymentMethod === 'click') {
       paymentUrl = click.generatePaymentUrl({
         orderId: order._id.toString(),
         amountUzs: order.total,
         returnUrl: gatewayReturnUrl,
       })
+    } else if (value.paymentMethod === 'uzumbank') {
+      paymentUrl = await generateUzumCheckout(
+        order._id.toString(),
+        order.total,
+        `Buyurtma ${order.orderNumber}`,
+        { returnUrl: gatewayReturnUrl, orderNumber: order.orderNumber }
+      )
     }
   }
 

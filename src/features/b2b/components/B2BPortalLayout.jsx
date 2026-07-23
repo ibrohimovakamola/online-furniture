@@ -26,7 +26,7 @@ export default function B2BPortalLayout({ profile, outletContext }) {
       <header className="border-b border-[#0b3c3c]/10 bg-white">
         <div className="container mx-auto max-w-[1360px] px-3 py-4 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-kresla-primary">Exclusive B2B</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-kresla-primary">Kresla B2B</p>
             <h1 className="text-xl font-semibold text-kresla-dark">Designer & Business Portal</h1>
           </div>
           <div className="flex items-center gap-3">

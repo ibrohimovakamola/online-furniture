@@ -204,7 +204,7 @@ export default function B2BRegistrationForm() {
             className="mt-1 rounded border-gray-300 text-kresla-primary focus:ring-kresla-primary"
           />
           <span>
-            I agree to Exclusive B2B Terms & Conditions, credit review, and document verification process.
+            I agree to Kresla B2B Terms & Conditions, credit review, and document verification process.
           </span>
         </label>
 

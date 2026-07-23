@@ -21,3 +21,15 @@ $breakpoints: (
     @warn 'Invalid breakpoint: #{$breakpoint}.';
   }
 }
+
+@mixin breakpoint-down($breakpoint) {
+  @if map.has-key($breakpoints, $breakpoint) {
+    $breakpoint-value: map.get($breakpoints, $breakpoint);
+
+    @media (max-width: calc($breakpoint-value - 0.02px)) {
+      @content;
+    }
+  } @else {
+    @warn 'Invalid breakpoint: #{$breakpoint}.';
+  }
+}

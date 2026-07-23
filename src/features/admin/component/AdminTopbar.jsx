@@ -246,7 +246,7 @@ function AdminTopbar({ theme, onToggleTheme, onMenuClick }) {
               {user?.firstName || 'Admin'}
             </p>
             <p className="text-xs text-[var(--admin-text-muted)]">
-              {user?.email || 'admin@exclusive.uz'}
+              {user?.email || 'admin@kresla.uz'}
             </p>
           </div>
           <div className="h-10 w-10 rounded-xl bg-[#0b3c3c] flex items-center justify-center text-sm font-semibold text-[#5eead4] ring-2 ring-[var(--admin-border)]">

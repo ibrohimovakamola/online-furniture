@@ -37,7 +37,8 @@ function getRefreshExpiryDate(refreshToken) {
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000)
 }
 
-function getAccessCookieMaxAge() {
+function getAccessCookieMaxAge(rememberMe = false) {
+  if (rememberMe) return 30 * 24 * 60 * 60 * 1000
   const raw = process.env.JWT_EXPIRES_IN || '7d'
   const match = String(raw).match(/^(\d+)([dhms])?$/)
   if (!match) return 7 * 24 * 60 * 60 * 1000
@@ -47,17 +48,20 @@ function getAccessCookieMaxAge() {
   return n * (multipliers[unit] || multipliers.d)
 }
 
-export function generateTokens(user) {
+export function generateTokens(user, { rememberMe = false } = {}) {
   const userId = user._id?.toString() || String(user.id)
   const role = user.role
   const jti = crypto.randomUUID()
 
+  const accessExpires = rememberMe ? '30d' : process.env.JWT_EXPIRES_IN || '7d'
+  const refreshExpires = rememberMe ? '30d' : process.env.REFRESH_TOKEN_EXPIRES_IN || '30d'
+
   const accessToken = jwt.sign({ id: userId, role, jti }, getJwtSecret(), {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    expiresIn: accessExpires,
   })
 
   const refreshToken = jwt.sign({ id: userId, type: 'refresh' }, getRefreshSecret(), {
-    expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '30d',
+    expiresIn: refreshExpires,
   })
 
   return { accessToken, refreshToken, jti }
@@ -105,28 +109,31 @@ function cookieBaseOptions() {
   }
 }
 
-export function getRefreshCookieOptions() {
+export function getRefreshCookieOptions(rememberMe = false) {
+  const maxAge = rememberMe
+    ? 30 * 24 * 60 * 60 * 1000
+    : 7 * 24 * 60 * 60 * 1000
   return {
     ...cookieBaseOptions(),
     path: '/api/auth',
-    maxAge: 30 * 24 * 60 * 60 * 1000,
+    maxAge,
   }
 }
 
-export function getAccessCookieOptions() {
+export function getAccessCookieOptions(rememberMe = false) {
   return {
     ...cookieBaseOptions(),
     path: '/api',
-    maxAge: getAccessCookieMaxAge(),
+    maxAge: getAccessCookieMaxAge(rememberMe),
   }
 }
 
-export function setRefreshCookie(res, refreshToken) {
-  res.cookie(REFRESH_COOKIE_NAME, refreshToken, getRefreshCookieOptions())
+export function setRefreshCookie(res, refreshToken, rememberMe = false) {
+  res.cookie(REFRESH_COOKIE_NAME, refreshToken, getRefreshCookieOptions(rememberMe))
 }
 
-export function setAccessCookie(res, accessToken) {
-  res.cookie(ACCESS_COOKIE_NAME, accessToken, getAccessCookieOptions())
+export function setAccessCookie(res, accessToken, rememberMe = false) {
+  res.cookie(ACCESS_COOKIE_NAME, accessToken, getAccessCookieOptions(rememberMe))
 }
 
 export function clearAuthCookies(res) {
@@ -181,11 +188,11 @@ export async function findValidRefreshToken(userId, refreshToken) {
 }
 
 /** Login/register: issue tokens, persist refresh, set httpOnly cookies. Returns access token. */
-export async function issueAuthSession(user, res) {
-  const { accessToken, refreshToken } = generateTokens(user)
+export async function issueAuthSession(user, res, { rememberMe = false } = {}) {
+  const { accessToken, refreshToken } = generateTokens(user, { rememberMe })
   await persistRefreshToken(user._id, refreshToken)
-  setRefreshCookie(res, refreshToken)
-  setAccessCookie(res, accessToken)
+  setRefreshCookie(res, refreshToken, rememberMe)
+  setAccessCookie(res, accessToken, rememberMe)
   return accessToken
 }
 

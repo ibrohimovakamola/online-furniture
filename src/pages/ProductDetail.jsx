@@ -102,7 +102,7 @@ const ProductDetail = () => {
   }, [data])
 
   return (
-    <div className="container">
+    <div className="container pb-24 md:pb-0">
       <BreadCrumbs currentName={data?.title || data?.name} />
       {loading || !data ? (
         <ProductDetailSkeleton />
@@ -124,15 +124,23 @@ const ProductDetail = () => {
             </Swiper>
             <Swiper
               onSwiper={setThumbsSwiper}
-              spaceBetween={2}
+              spaceBetween={12}
               slidesPerView={4}
+              breakpoints={{
+                // Desktop: vertical thumbnail sidebar with fixed-size slides.
+                1024: {
+                  direction: 'vertical',
+                  slidesPerView: 'auto',
+                  spaceBetween: 16,
+                },
+              }}
               freeMode
               watchSlidesProgress
               modules={[FreeMode, Navigation, Thumbs]}
               className="mySwiper"
             >
               {imageUrls.map((img, index) => (
-                <SwiperSlide key={index} className="active">
+                <SwiperSlide key={index}>
                   <img src={img} alt={`Thumbnail ${index + 1}`} />
                 </SwiperSlide>
               ))}
@@ -163,7 +171,7 @@ const ProductDetail = () => {
             <ProductDimensionsGrid dimensions={data?.dimensions} />
 
             <div className="detail-line" />
-            <div className="detail-row">
+            <div className="detail-row detail-row--sticky-mobile">
               <div className="detail-count">
                 <button
                   type="button"

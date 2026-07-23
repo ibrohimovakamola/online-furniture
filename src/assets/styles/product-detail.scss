@@ -1,57 +1,135 @@
 .detail{
-    margin-top: 80px;
+    margin-top: 40px;
     display: flex;
-    gap: 70px;
+    flex-direction: column;
+    gap: 32px;
+
+    @include breakpoint(lg) {
+        margin-top: 80px;
+        flex-direction: row;
+        gap: 70px;
+        align-items: flex-start;
+    }
 }
   .swiper-button-prev,.swiper-button-next{
     display: none !important;
   }
 .wrapperr {
     display: flex;
-    gap: 30px;
-    // align-items: flex-start;
-    flex-direction: row-reverse;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+
+    @include breakpoint(lg) {
+        flex-direction: row-reverse;
+        gap: 30px;
+        /* Gallery column should be ~45–50% of the row on desktop */
+        flex: 0 0 48%;
+        max-width: 620px;
+    }
   }
   
   .mySwiper2 {
-    width: 500px;
-    height: 600px;
-    background: #F5F5F5;    
+    width: 100%;
+    max-width: 100%;
+    /* Main product image: keep consistent box without gray background */
+    height: auto;
+    aspect-ratio: 1 / 1;
+    max-height: 600px;
+    background: transparent;
+    border-radius: 14px;
+    overflow: hidden;
+
+    @include breakpoint(lg) {
+        width: auto;
+        flex: 1 1 auto;
+        aspect-ratio: 1 / 1;
+        max-height: 600px;
+    }
+
+    .swiper-slide {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+    }
   
     img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
-      padding: 0 26px;
+      object-fit: cover;
+      object-position: center;
+      padding: 0;
+      display: block;
+      margin: 0;
+      background: transparent;
+
+      @include breakpoint(lg) {
+        padding: 0;
+      }
     }
   }
   
   .mySwiper {
-    width: 170px;
-    height: 500px;
+    width: 100%;
+    height: auto;
+
+    @include breakpoint(lg) {
+      /* Fixed narrow thumbnails column on desktop */
+      width: 92px;
+      flex: 0 0 92px;
+      height: min(600px, 60vh);
+    }
   
     .swiper-wrapper {
       display: flex;
-      flex-direction: column;
-      gap: 16px;
-     
+      flex-direction: row;
+      gap: 12px;
+
+      @include breakpoint(lg) {
+        flex-direction: column;
+        gap: 16px;
+      }
     }
   
     .swiper-slide {
-      height: 154px; 
-      width: 170px;
+      height: 80px;
+      width: 80px;
+      flex-shrink: 0;
       cursor: pointer;
-     
+      background: transparent;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+      box-sizing: border-box;
+
+      @include breakpoint(lg) {
+        height: 80px;
+        width: 80px;
+      }
+
+      &.swiper-slide-thumb-active {
+        border-color: #111827;
+        box-shadow: 0 0 0 1px #111827 inset;
+      }
   
       img {
-        background: #F5F5F5;
-        width: 181px;
-        height: 154px;
-        object-fit: contain;
-        border: 2px solid transparent;
-       
-
+        background: transparent;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        border: 0;
+        display: block;
       }
+    }
+  }
+
+  /* Product info should take remaining width */
+  .detail-info {
+    @include breakpoint(lg) {
+      flex: 1 1 auto;
+      min-width: 0;
     }
   }
 .detail{
@@ -117,8 +195,42 @@
     }
     &-row{
         display: flex;
-        justify-content: space-between;
-        margin: 24px 0 40px;
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+        margin: 24px 0 32px;
+
+        @include breakpoint(md) {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            margin: 24px 0 40px;
+        }
+
+        &--sticky-mobile {
+            @include breakpoint-down(md) {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 200;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 8px;
+                margin: 0;
+                padding: 12px 16px;
+                padding-bottom: max(12px, env(safe-area-inset-bottom));
+                background: #fff;
+                border-top: 1px solid #e5e7eb;
+                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+
+                .detail-buying {
+                    flex: 1;
+                    min-width: 0;
+                }
+            }
+        }
     }
     &-count{
         display: flex;
@@ -163,7 +275,9 @@
         border-bottom-right-radius: 4px;
     }
     &-buying{
-        padding: 10px 48px;
+        padding: 14px 32px;
+        min-height: 44px;
+        width: 100%;
         font-family: Poppins;
         font-weight: 500;
         font-size: 16px;
@@ -172,10 +286,17 @@
         background: #DB4444;
         border: none;
         border-radius: 4px;
+        cursor: pointer;
 
+        @include breakpoint(md) {
+            width: auto;
+            padding: 10px 48px;
+        }
     }
     &-wishlist{
         font-size: 20px;
+        min-width: 44px;
+        min-height: 44px;
         padding: 8px;
         border-radius: 4px;
         background: none;
@@ -225,7 +346,11 @@
         display: flex;
         align-items: center;
         gap: 16px;
-        margin: 140px 0 60px;
+        margin: 64px 0 32px;
+
+        @include breakpoint(lg) {
+            margin: 140px 0 60px;
+        }
     }
     &-mark{
         width: 20px;
@@ -243,7 +368,22 @@
     }
     &-products{
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 30px;
+        grid-template-columns: 1fr;
+        gap: 24px;
+
+        @include breakpoint(sm) {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        @include breakpoint(lg) {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        @include breakpoint(xl) {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
     }
 }

@@ -1,19 +1,19 @@
-name: Deploy
+name: Deploy KRESLA
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
+  workflow_dispatch:
 
 concurrency:
-  group: deploy-production
+  group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -22,50 +22,88 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm ci --prefix server
 
-      - name: Test
+      - name: Lint
         run: npm test
+
+      - name: Build backend
+        working-directory: server
+        run: npm run build
 
       - name: Build frontend
         run: npm run build:prod
         env:
-          VITE_API_BASE_URL: https://mebelsotish.uz/api
-          VITE_SERVER_URL: https://mebelsotish.uz
+          VITE_API_BASE_URL: https://api.mebelsotish.uz/api
+          VITE_SERVER_URL: https://api.mebelsotish.uz
 
-      - name: Deploy to server
+      - name: Verify health endpoint
+        run: grep -q "health.routes" server/src/app.js
+
+  deploy-backend:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Trigger Render deploy
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$RENDER_DEPLOY_HOOK" ]; then
+            curl -fsS -X POST "$RENDER_DEPLOY_HOOK"
+            echo "Render deploy triggered"
+          else
+            echo "RENDER_DEPLOY_HOOK not set — configure in GitHub Secrets"
+          fi
+
+  deploy-frontend:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install and build
+        run: |
+          npm ci
+          npm run build:prod
+        env:
+          VITE_API_BASE_URL: https://api.mebelsotish.uz/api
+          VITE_SERVER_URL: https://api.mebelsotish.uz
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "Vercel secrets not set — skip (set VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID)"
+            exit 0
+          fi
+          npm install -g vercel@latest
+          vercel deploy --prod --token="$VERCEL_TOKEN" --yes
+
+      - name: Legacy VPS rsync (optional)
+        if: ${{ secrets.DEPLOY_SSH_KEY != '' && secrets.DEPLOY_HOST != '' }}
         env:
           SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_FRONTEND_PATH: ${{ secrets.DEPLOY_FRONTEND_PATH }}
-          DEPLOY_APP_PATH: ${{ secrets.DEPLOY_APP_PATH }}
         run: |
-          if [ -z "$SSH_PRIVATE_KEY" ] || [ -z "$DEPLOY_HOST" ] || [ -z "$DEPLOY_USER" ]; then
-            echo "Skipping deploy: set DEPLOY_SSH_KEY, DEPLOY_HOST, DEPLOY_USER repository secrets."
-            exit 0
-          fi
-
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
-
           FRONTEND="${DEPLOY_FRONTEND_PATH:-public_html}"
-          APP="${DEPLOY_APP_PATH:-exclusive}"
-
-          echo "Uploading dist/ → ${DEPLOY_USER}@${DEPLOY_HOST}:${FRONTEND}/"
           rsync -avz --delete -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new" \
             dist/ "${DEPLOY_USER}@${DEPLOY_HOST}:${FRONTEND}/"
-
-          echo "Updating API and restarting PM2..."
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
-            "${DEPLOY_USER}@${DEPLOY_HOST}" \
-            "set -e
-             cd ~/${APP}
-             git pull origin main
-             npm ci
-             npm ci --prefix server --omit=dev
-             npm run migrate --if-present
-             pm2 restart mebel-api || pm2 start pm2.config.cjs --env production
-             pm2 save"

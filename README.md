@@ -1,4 +1,4 @@
-# Exclusive — O'zbek mebel e-commerce
+# Kresla — O'zbek mebel e-commerce
 
 React + Vite storefront, Express API, MongoDB.
 
@@ -12,11 +12,13 @@ npm run dev          # Vite :5173 + API :5000
 
 - Storefront: http://localhost:5173
 - API health: http://localhost:5000/api/health
-- Admin: `admin@exclusive.uz` / `ChangeMe123!` (dev seed)
+- Admin: `admin@kresla.uz` / `ChangeMe123!` (dev seed)
 
 ## Production deploy
 
-See **[deploy/mebelsotish.uz/DEPLOY.md](deploy/mebelsotish.uz/DEPLOY.md)** for the full runbook.
+**Render + Vercel:** [PRODUCTION-READY.md](./PRODUCTION-READY.md)
+
+**VPS / cPanel:** [deploy/mebelsotish.uz/DEPLOY.md](deploy/mebelsotish.uz/DEPLOY.md)
 
 Quick steps:
 

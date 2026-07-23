@@ -5,7 +5,7 @@ import { B2B_BENEFITS, B2B_CASE_STUDIES, B2B_FAQ } from '../data/b2bContent'
 
 export default function B2BLandingPage() {
   usePageSEO({
-    title: 'B2B Designer Portal — Exclusive Furniture',
+    title: 'B2B Designer Portal — Kresla Furniture',
     description: 'Wholesale pricing, credit terms, and dedicated support for interior designers and businesses.',
   })
 

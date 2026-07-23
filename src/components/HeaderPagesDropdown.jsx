@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ChevronDown } from 'lucide-react'
 
 const PAGE_LINKS = [
@@ -11,8 +12,11 @@ const PAGE_LINKS = [
 ]
 
 export default function HeaderPagesDropdown() {
+  const { t } = useTranslation('navigation')
+  const location = useLocation()
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
+  const isActive = PAGE_LINKS.some((item) => location.pathname.startsWith(item.to))
 
   useEffect(() => {
     const close = (e) => {
@@ -27,9 +31,15 @@ export default function HeaderPagesDropdown() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="header-menu inline-flex items-center gap-1 bg-transparent border-0 cursor-pointer font-inherit"
+        className={[
+          'header-menu',
+          'header-menu--dropdown',
+          isActive ? 'header-menu--active' : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
       >
-        Sahifalar
+        {t('header.pages')}
         <ChevronDown className={`h-3.5 w-3.5 transition ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (

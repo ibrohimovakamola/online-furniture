@@ -104,6 +104,7 @@ describe('Auth controller — signup duplicate', () => {
         email: user.email,
         password: TEST_PASSWORD,
         name: 'Duplicate User',
+        phone: '+998901234568',
       })
       .expect(409)
 

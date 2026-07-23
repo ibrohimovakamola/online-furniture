@@ -19,7 +19,7 @@ let dbStatus = { state: 'disconnected', error: null, uri: null }
 
 const PLACEHOLDER_MARKERS = ['YOUR_DB_USER', 'YOUR_DB_PASSWORD', 'YOUR_CLUSTER']
 const DEV_MONGO_PORT = Number(process.env.DEV_MONGO_PORT) || 27017
-const LOCAL_FALLBACK_URI = `mongodb://127.0.0.1:${DEV_MONGO_PORT}/exclusive`
+const LOCAL_FALLBACK_URI = `mongodb://127.0.0.1:${DEV_MONGO_PORT}/kresla`
 const MONGOD_VERSION = process.env.MONGOD_VERSION || '7.0.14'
 const MIN_MONGOD_BYTES = 50_000_000
 const MIN_FREE_BYTES = 200 * 1024 * 1024
@@ -28,7 +28,9 @@ const MONGO_CONNECT_OPTIONS = {
   serverSelectionTimeoutMS: 8000,
   socketTimeoutMS: 10000,
   connectTimeoutMS: 8000,
-  maxPoolSize: 10,
+  maxPoolSize: Number(process.env.MONGOOSE_MAX_POOL_SIZE) || (process.env.NODE_ENV === 'development' ? 5 : 10),
+  minPoolSize: process.env.NODE_ENV === 'development' ? 0 : 1,
+  maxIdleTimeMS: 30_000,
 }
 
 function logDb(level, message, detail) {
@@ -81,12 +83,30 @@ function getDriveFreeBytes(targetPath) {
 
 /** Prefer D: (or DEV_MONGO_DATA_DIR) when C: is nearly full — MongoDB needs hundreds of MB. */
 function getDevMongoDataRoot() {
-  if (process.env.DEV_MONGO_DATA_DIR?.trim()) {
-    return path.resolve(process.env.DEV_MONGO_DATA_DIR.trim())
+  const fallback = path.join(os.tmpdir(), 'kresla-mongo-dev')
+
+  const configured = process.env.DEV_MONGO_DATA_DIR?.trim()
+  if (configured) {
+    const resolved = path.resolve(configured)
+    const driveRoot = path.parse(resolved).root
+    if (process.platform === 'win32' && driveRoot && !fs.existsSync(driveRoot)) {
+      logDb(
+        'log',
+        `DEV_MONGO_DATA_DIR points to missing drive (${driveRoot}) — using ${fallback}`
+      )
+      return fallback
+    }
+    try {
+      ensureDir(resolved)
+      return resolved
+    } catch (err) {
+      logDb('log', `DEV_MONGO_DATA_DIR unusable (${configured}): ${err.message} — using ${fallback}`)
+      return fallback
+    }
   }
 
   const cFree = getDriveFreeBytes(process.cwd())
-  const dRoot = process.platform === 'win32' ? 'D:\\.exclusive-dev-mongo' : null
+  const dRoot = process.platform === 'win32' ? 'D:\\.kresla-dev-mongo' : null
 
   if (dRoot && fs.existsSync('D:\\')) {
     const dFree = getDriveFreeBytes(dRoot)
@@ -98,7 +118,7 @@ function getDevMongoDataRoot() {
     }
   }
 
-  return path.join(os.tmpdir(), 'exclusive-mongo-dev')
+  return fallback
 }
 
 function getMongodCacheDirs() {
@@ -173,7 +193,7 @@ async function ensureMongodBinary() {
   if (freeBytes < MIN_FREE_BYTES) {
     throw new Error(
       `Not enough disk space for MongoDB download (${Math.round(freeBytes / 1024 / 1024)} MB free on ${downloadDir}). ` +
-        'Free at least 1 GB or set DEV_MONGO_DATA_DIR to a drive with space (e.g. D:\\.exclusive-dev-mongo).'
+        'Free at least 1 GB or set DEV_MONGO_DATA_DIR to a drive with space (e.g. D:\\.kresla-dev-mongo).'
     )
   }
 
@@ -304,7 +324,7 @@ async function spawnDevMongod() {
   if (freeBytes < MIN_FREE_BYTES) {
     throw new Error(
       `Not enough disk space for MongoDB data (${Math.round(freeBytes / 1024 / 1024)} MB free). ` +
-        'Free space on C: or set DEV_MONGO_DATA_DIR=D:\\.exclusive-dev-mongo in server/.env.'
+        'Free space on C: or set DEV_MONGO_DATA_DIR=D:\\.kresla-dev-mongo in server/.env.'
     )
   }
 
@@ -365,7 +385,7 @@ async function createMemoryServer(dbPath) {
       launchTimeout: 180000,
     },
   })
-  const uri = memoryServer.getUri('exclusive')
+  const uri = memoryServer.getUri('kresla')
   logDb('log', `mongodb-memory-server ready at ${uri}`)
   return uri
 }
@@ -422,6 +442,13 @@ function attachMongooseLifecycleLogs() {
     logDb('log', 'Mongoose event: reconnected')
     dbStatus = { ...dbStatus, state: 'connected', error: null }
   })
+  mongoose.connection.on('close', () => {
+    logDb('log', 'Mongoose event: connection closed')
+  })
+  mongoose.connection.on('reconnectFailed', () => {
+    logApp('error', '[db] Mongoose event: reconnectFailed')
+    dbStatus = { ...dbStatus, state: 'failed', error: 'Reconnect failed' }
+  })
 }
 
 export function getDbStatus() {
@@ -445,8 +472,10 @@ async function tryConnect(uri) {
   try {
     await mongoose.connect(uri, options)
     await mongoose.connection.db.admin().ping()
+    const dbName = mongoose.connection.name || 'kresla'
     logDb('log', `MongoDB connected: ${mongoose.connection.host} (readyState=${mongoose.connection.readyState})`)
-    dbStatus = { state: 'connected', error: null, uri }
+    logApp('info', `[db] ✅ MongoDB connected to ${dbName}`)
+    dbStatus = { state: 'connected', error: null, uri, database: dbName }
     return mongoose.connection
   } catch (err) {
     logApp('error', '[db] mongoose.connect failed', { message: err.message, stack: err.stack })

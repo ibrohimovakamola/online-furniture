@@ -13,7 +13,7 @@ const Footer = () => {
 
   const supports = [
     { title: store?.address || 'Tashkent, Uzbekistan' },
-    { title: store?.storeEmail || 'exclusive@gmail.com' },
+    { title: store?.storeEmail || 'kresla@gmail.com' },
     { title: store?.supportPhone || '+998 94 043 16 84' },
   ]
 

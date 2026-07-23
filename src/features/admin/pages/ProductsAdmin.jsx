@@ -60,6 +60,7 @@ function ProductsAdmin() {
     )
 
   const handleCreate = async ({ payload, files }) => {
+    // POST /api/admin/products — check Network tab + server logs on failure
     const result = await dispatch(createProduct({ payload, files }))
     if (createProduct.fulfilled.match(result)) {
       toast.success('Product created successfully')

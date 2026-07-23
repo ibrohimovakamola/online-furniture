@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-export const PAYMENT_GATEWAYS = ['payme', 'click', 'card', 'manual']
+export const PAYMENT_GATEWAYS = ['payme', 'click', 'uzumbank', 'card', 'manual']
 export const PAYMENT_RECORD_STATUSES = [
   'pending',
   'processing',

@@ -87,7 +87,7 @@ export default function CatalogFilters({ filters, categories, onChange, colorOpt
       <div className="space-y-2 text-sm">
         {[
           ['inStock', 'In stock only'],
-          ['b2bOnly', 'B2B exclusive'],
+          ['b2bOnly', 'Kresla B2B'],
           ['newArrivals', 'New arrivals'],
         ].map(([key, label]) => (
           <label key={key} className="flex items-center gap-2 cursor-pointer">

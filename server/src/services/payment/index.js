@@ -4,11 +4,15 @@
 import Payment from '../../models/Payment.js'
 import PaymeGateway, { PAYME_STATES } from '../payme/PaymeGateway.js'
 import ClickGateway from '../click/ClickGateway.js'
+import UzumGateway from '../uzum/UzumGateway.js'
 import { handlePaymeRpc } from '../payme/paymeHandler.js'
 import { handleClickCallback } from '../click/clickHandler.js'
+import { handleUzumWebhook } from '../uzum/uzumHandler.js'
+import { createUzumPayment, getUzumTransactionStatus } from '../uzumBankService.js'
 
 const paymeGateway = new PaymeGateway()
 const clickGateway = new ClickGateway()
+const uzumGateway = new UzumGateway()
 
 /** @alias generatePaymentUrl */
 export function generatePaymeCheckout(orderId, amountUzs, description, options = {}) {
@@ -104,4 +108,23 @@ export async function getClickTransactionStatus(clickTransactionId) {
   }
 }
 
-export { paymeGateway, clickGateway }
+export { paymeGateway, clickGateway, uzumGateway }
+
+export async function generateUzumCheckout(orderId, amountUzs, description, options = {}) {
+  return createUzumPayment({
+    orderId,
+    orderNumber: options.orderNumber || '',
+    amountUzs: Number(amountUzs),
+    returnUrl: options.returnUrl,
+    description,
+  })
+}
+
+export async function verifyUzumCallback(request, context = {}) {
+  const body = request.body ?? request
+  const headers = request.headers ?? context.headers ?? {}
+  const ip = context.ip ?? request.ip ?? ''
+  return handleUzumWebhook(body, { ip, headers })
+}
+
+export { getUzumTransactionStatus }

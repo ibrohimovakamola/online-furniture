@@ -7,6 +7,7 @@ import {
   getStoredUser,
   persistAuthSession,
 } from './authStorage'
+import * as authService from '../../services/authService'
 
 const AuthContext = createContext(null)
 
@@ -28,6 +29,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(savedToken)
   const [isLoading, setIsLoading] = useState(Boolean(savedToken))
   const [initialized, setInitialized] = useState(!savedToken)
+  const [error, setError] = useState(null)
 
   const syncSession = useCallback((userData, authToken) => {
     setUser(userData)
@@ -40,9 +42,89 @@ export function AuthProvider({ children }) {
   const clearSession = useCallback(() => {
     setUser(null)
     setToken(null)
+    setError(null)
     clearAuthSession()
     setInitialized(true)
     setIsLoading(false)
+  }, [])
+
+  const refreshUser = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const profile = await authService.getCurrentUser()
+      const currentToken = getStoredToken() || token
+      syncSession(profile, currentToken)
+      return profile
+    } catch (err) {
+      setError(err.message || 'Failed to load profile')
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }, [syncSession, token])
+
+  const login = useCallback(
+    async (email, password, rememberMe = false) => {
+      setError(null)
+      setIsLoading(true)
+      try {
+        const data = await authService.loginUser(email, password, rememberMe)
+        syncSession(data.user, data.token)
+        return data
+      } catch (err) {
+        setError(err.message || 'Login failed')
+        throw err
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [syncSession]
+  )
+
+  const register = useCallback(
+    async (userData) => {
+      setError(null)
+      setIsLoading(true)
+      try {
+        const data = await authService.registerUser(userData)
+        if (!data.requiresVerification) {
+          syncSession(data.user, data.token)
+        }
+        return data
+      } catch (err) {
+        setError(err.message || 'Registration failed')
+        throw err
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [syncSession]
+  )
+
+  const logout = useCallback(async () => {
+    setError(null)
+    try {
+      await authService.logoutUser()
+    } catch {
+      /* clear local session even if API fails */
+    }
+    clearSession()
+  }, [clearSession])
+
+  const verifyEmail = useCallback(async (verificationToken) => {
+    setError(null)
+    return authService.verifyEmailToken(verificationToken)
+  }, [])
+
+  const forgotPassword = useCallback(async (email) => {
+    setError(null)
+    return authService.forgotPassword(email)
+  }, [])
+
+  const resetPassword = useCallback(async (resetToken, password, confirmPassword) => {
+    setError(null)
+    return authService.resetPassword(resetToken, password, confirmPassword)
   }, [])
 
   useEffect(() => {
@@ -145,10 +227,35 @@ export function AuthProvider({ children }) {
       isAuthenticated,
       isAdmin,
       isAuthReady: initialized && !isLoading,
+      error,
       syncSession,
       clearSession,
+      refreshUser,
+      login,
+      register,
+      logout,
+      verifyEmail,
+      forgotPassword,
+      resetPassword,
     }),
-    [user, token, isLoading, initialized, isAuthenticated, isAdmin, syncSession, clearSession]
+    [
+      user,
+      token,
+      isLoading,
+      initialized,
+      isAuthenticated,
+      isAdmin,
+      error,
+      syncSession,
+      clearSession,
+      refreshUser,
+      login,
+      register,
+      logout,
+      verifyEmail,
+      forgotPassword,
+      resetPassword,
+    ]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

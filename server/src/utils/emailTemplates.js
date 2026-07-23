@@ -37,6 +37,11 @@ const COPY = {
       ru: 'Сброс пароля — Mebel Sotish',
       en: 'Password reset — Mebel Sotish',
     },
+    'email-verification': {
+      uz: 'Emailni tasdiqlang — Mebel Sotish',
+      ru: 'Подтвердите email — Mebel Sotish',
+      en: 'Verify your email — Mebel Sotish',
+    },
     'contact-reply': {
       uz: 'Xabaringiz qabul qilindi — Mebel Sotish',
       ru: 'Мы получили ваше сообщение — Mebel Sotish',
@@ -261,6 +266,35 @@ export function buildPasswordResetHtml({ resetLink, lang }) {
     <h2>${titles[l]}</h2>
     <p>${bodies[l]}</p>
     <p><a class="btn" href="${escapeHtml(resetLink)}">${btnLabels[l]}</a></p>
+    <p class="muted">${notes[l]}</p>
+  `
+  return wrapEmailLayout(content, l)
+}
+
+export function buildEmailVerificationHtml({ customerName, verifyLink, lang }) {
+  const l = normalizeLang(lang)
+  const titles = {
+    uz: 'Email manzilingizni tasdiqlang',
+    ru: 'Подтвердите ваш email',
+    en: 'Verify your email address',
+  }
+  const bodies = {
+    uz: 'Mebel Sotish platformasida ro\'yxatdan o\'tganingiz uchun rahmat. Hisobingizni faollashtirish uchun quyidagi tugmani bosing:',
+    ru: 'Спасибо за регистрацию на Mebel Sotish. Нажмите кнопку ниже, чтобы активировать аккаунт:',
+    en: 'Thank you for registering on Mebel Sotish. Click the button below to activate your account:',
+  }
+  const btnLabels = { uz: 'Emailni tasdiqlash', ru: 'Подтвердить email', en: 'Verify email' }
+  const notes = {
+    uz: 'Havola 24 soat ichida amal qiladi. Agar siz ro\'yxatdan o\'tmagan bo\'lsangiz, bu xatni e\'tiborsiz qoldiring.',
+    ru: 'Ссылка действительна 24 часа. Если вы не регистрировались, проигнорируйте это письмо.',
+    en: 'This link expires in 24 hours. If you did not sign up, please ignore this email.',
+  }
+
+  const content = `
+    <h2>${titles[l]}</h2>
+    ${greeting(customerName, l)}
+    <p>${bodies[l]}</p>
+    <p><a class="btn" href="${escapeHtml(verifyLink)}">${btnLabels[l]}</a></p>
     <p class="muted">${notes[l]}</p>
   `
   return wrapEmailLayout(content, l)

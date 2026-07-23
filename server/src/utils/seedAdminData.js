@@ -66,23 +66,26 @@ export async function seedAdminData() {
     {
       firstName: 'Demo',
       lastName: 'Customer',
-      email: 'customer@exclusive.uz',
+      email: 'customer@kresla.uz',
       password: 'Customer123!',
-      address: 'Tashkent, Chilonzor',
+      phone: '+998901234567',
+      address: { street: 'Chilonzor', city: 'Tashkent', region: '' },
     },
     {
       firstName: 'Sardor',
       lastName: 'Karimov',
-      email: 'sardor@exclusive.uz',
+      email: 'sardor@kresla.uz',
       password: 'Customer123!',
-      address: 'Samarkand, Registon',
+      phone: '+998902345678',
+      address: { street: 'Registon', city: 'Samarkand', region: '' },
     },
     {
       firstName: 'Nilufar',
       lastName: 'Rahimova',
-      email: 'nilufar@exclusive.uz',
+      email: 'nilufar@kresla.uz',
       password: 'Customer123!',
-      address: 'Tashkent, Yunusobod',
+      phone: '+998903456789',
+      address: { street: 'Yunusobod', city: 'Tashkent', region: '' },
     },
   ]
 

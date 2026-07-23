@@ -33,7 +33,7 @@ export function getDefaultFromAddress() {
 }
 
 export function getB2BAdminEmail() {
-  return process.env.B2B_ADMIN_EMAIL || process.env.SUPER_ADMIN_EMAIL || 'b2b@exclusive.uz'
+  return process.env.B2B_ADMIN_EMAIL || process.env.SUPER_ADMIN_EMAIL || 'b2b@kresla.uz'
 }
 
 function getTransporter() {

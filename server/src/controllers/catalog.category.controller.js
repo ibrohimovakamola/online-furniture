@@ -72,12 +72,15 @@ export const listCatalogCategories = asyncHandler(async (req, res) => {
   }
 
   const categories = await Category.find(filter).sort({ name_uz: 1, name: 1 }).lean()
+  const formatted = categories.map((c) => formatCatalogCategory(c, req, lang))
 
   res.json({
     success: true,
     data: {
-      categories: categories.map((c) => formatCatalogCategory(c, req, lang)),
+      categories: formatted,
     },
+    // Legacy top-level field for older clients
+    categories: formatted,
   })
 })
 

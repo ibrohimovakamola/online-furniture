@@ -9,7 +9,8 @@ export const storeApi = {
     const url = `${getApiBaseUrl()}/categories`
     const res = await api.get('/categories')
     if (import.meta.env.DEV) {
-      console.log('[store] GET', url, '→', res.data?.categories?.length ?? 0, 'categories', res.data)
+      const count = res.data?.data?.categories?.length ?? res.data?.categories?.length ?? 0
+      console.log('[store] GET', url, '→', count, 'categories', res.data)
     }
     return res
   },
@@ -19,6 +20,7 @@ export const storeApi = {
   guestCheckout: (payload) => api.post('/orders/guest', payload),
   trackOrder: (token) => api.get(`/orders/track/${encodeURIComponent(token)}`),
   installmentPlans: (total) => api.get('/orders/installment-plans', { params: { total } }),
+  createPayment: (payload) => api.post('/orders/create-payment', payload),
   myOrders: () => api.get('/orders/my'),
   myOrder: (id) => api.get(`/orders/${id}`),
 }

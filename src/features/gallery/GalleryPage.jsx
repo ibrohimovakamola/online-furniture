@@ -33,7 +33,7 @@ export default function GalleryPage() {
   }, [category])
 
   usePageSEO({
-    title: 'Interyer galereyasi — Exclusive',
+    title: 'Interyer galereyasi — Kresla',
     description: "Mehmonxona, yotoqxona va ofis loyihalarimizdan ilhom oling.",
   })
 

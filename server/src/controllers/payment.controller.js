@@ -4,14 +4,18 @@ import { AppError, asyncHandler } from '../utils/asyncHandler.js'
 import {
   generatePaymeCheckout,
   generateClickCheckout,
+  generateUzumCheckout,
   verifyPaymeCallback,
   verifyClickCallback,
+  verifyUzumCallback,
   getPaymeTransactionStatus,
   getClickTransactionStatus,
+  getUzumTransactionStatus,
   paymeGateway,
   clickGateway,
+  uzumGateway,
 } from '../services/payment/index.js'
-import { isPaymeConfigured, isClickConfigured, uzsToTiyn } from '../config/payments.js'
+import { isPaymeConfigured, isClickConfigured, isUzumBankConfigured, uzsToTiyn } from '../config/payments.js'
 import { logActivity } from '../utils/activityLogger.js'
 import { getOrderPayableAmount } from '../utils/orderAmount.js'
 import { PAYME_STATES } from '../services/payme/PaymeGateway.js'
@@ -35,22 +39,14 @@ function formatPaymentRecord(payment) {
 }
 
 /**
- * POST /api/payments/initiate
- * Start Payme or Click checkout for an existing unpaid order.
+ * Start gateway checkout for an existing order (shared by initiate + create-payment).
  */
-export const initiatePayment = asyncHandler(async (req, res) => {
-  const body = req.validated || req.body
-  const paymentMethod = body.paymentMethod || body.gateway
-  const { orderId, returnUrl } = body
-
+export async function startGatewayPayment(order, paymentMethod, { returnUrl, req } = {}) {
   if (!paymentMethod) throw new AppError('paymentMethod is required', 400)
-
-  const order = await Order.findOne({ _id: orderId, customer: req.user._id })
-  if (!order) throw new AppError('Order not found', 404)
   if (order.paymentStatus === 'paid') throw new AppError('Order is already paid', 400)
   if (order.status === 'cancelled') throw new AppError('Order is cancelled', 400)
 
-  const amountUzs = getOrderPayableAmount(order)
+  const amountUzs = getOrderPayableAmount(order, { forGateway: true })
   if (amountUzs <= 0) throw new AppError('Invalid order amount', 400)
 
   const description = `Buyurtma ${order.orderNumber}`
@@ -107,32 +103,66 @@ export const initiatePayment = asyncHandler(async (req, res) => {
     paymentUrl = generateClickCheckout(order._id.toString(), amountUzs, description, {
       returnUrl: gatewayReturnUrl,
     })
+  } else if (paymentMethod === 'uzumbank') {
+    if (!isUzumBankConfigured()) throw new AppError('Uzum Bank is not configured', 503)
+
+    paymentUrl = await generateUzumCheckout(order._id.toString(), amountUzs, description, {
+      returnUrl: gatewayReturnUrl,
+      orderNumber: order.orderNumber,
+    })
   } else {
     throw new AppError('Unsupported payment method', 400)
   }
 
-  order.paymentMethod = paymentMethod
+  if (order.paymentMethod === 'installment') {
+    order.metadata = {
+      ...(order.metadata || {}),
+      installmentGateway: paymentMethod,
+    }
+  } else {
+    order.paymentMethod = paymentMethod
+  }
   await order.save()
 
-  logActivity(
-    {
-      type: 'purchase',
-      action: 'payment_initiated',
-      orderId: order._id,
-      details: { paymentMethod, amount: amountUzs, orderNumber: order.orderNumber },
-    },
-    req
-  )
+  if (req) {
+    logActivity(
+      {
+        type: 'purchase',
+        action: 'payment_initiated',
+        orderId: order._id,
+        details: { paymentMethod, amount: amountUzs, orderNumber: order.orderNumber },
+      },
+      req
+    )
+  }
+
+  return {
+    paymentUrl,
+    checkoutUrl: paymentUrl,
+    orderId: String(order._id),
+    orderNumber: order.orderNumber,
+    amount: amountUzs,
+    paymentMethod,
+  }
+}
+
+/**
+ * POST /api/payments/initiate
+ * Start Payme or Click checkout for an existing unpaid order.
+ */
+export const initiatePayment = asyncHandler(async (req, res) => {
+  const body = req.validated || req.body
+  const paymentMethod = body.paymentMethod || body.gateway
+  const { orderId, returnUrl } = body
+
+  const order = await Order.findOne({ _id: orderId, customer: req.user._id })
+  if (!order) throw new AppError('Order not found', 404)
+
+  const data = await startGatewayPayment(order, paymentMethod, { returnUrl, req })
 
   res.json({
     success: true,
-    data: {
-      paymentUrl,
-      orderId: String(order._id),
-      orderNumber: order.orderNumber,
-      amount: amountUzs,
-      paymentMethod,
-    },
+    data,
   })
 })
 
@@ -184,6 +214,16 @@ export const handleClickWebhook = asyncHandler(async (req, res) => {
   res.json(clickResponse)
 })
 
+/**
+ * POST /api/payment/uzumbank/callback
+ * Uzum Bank Merchant API webhook (check/create/confirm/reverse/status).
+ */
+export const handleUzumWebhook = asyncHandler(async (req, res) => {
+  const ip = req.ip || req.socket?.remoteAddress || ''
+  const response = await verifyUzumCallback(req, { ip, headers: req.headers })
+  res.json(response)
+})
+
 /** GET /api/payments/:orderId/status */
 export const getPaymentStatus = asyncHandler(async (req, res) => {
   const order = await Order.findOne({
@@ -200,6 +240,8 @@ export const getPaymentStatus = asyncHandler(async (req, res) => {
     gatewayStatus = await getPaymeTransactionStatus(payment.transactionId)
   } else if (payment?.gateway === 'click' && payment.transactionId) {
     gatewayStatus = await getClickTransactionStatus(payment.transactionId)
+  } else if (payment?.gateway === 'uzumbank' && (payment.transactionId || payment.externalId)) {
+    gatewayStatus = await getUzumTransactionStatus(payment.transactionId || payment.externalId)
   }
 
   res.json({
@@ -273,6 +315,21 @@ export const listGateways = asyncHandler(async (_req, res) => {
   res.json({
     success: true,
     data: {
+      gateways: {
+        payme: {
+          enabled: isPaymeConfigured(),
+          testMode: paymeGateway.config.testMode,
+          checkoutBase: paymeGateway.config.checkoutBase,
+        },
+        click: {
+          enabled: isClickConfigured(),
+          testMode: clickGateway.config.testMode,
+        },
+        uzumbank: {
+          enabled: isUzumBankConfigured(),
+          testMode: uzumGateway.config.testMode,
+        },
+      },
       payme: {
         enabled: isPaymeConfigured(),
         testMode: paymeGateway.config.testMode,
@@ -282,6 +339,10 @@ export const listGateways = asyncHandler(async (_req, res) => {
         enabled: isClickConfigured(),
         testMode: clickGateway.config.testMode,
       },
+      uzumbank: {
+        enabled: isUzumBankConfigured(),
+        testMode: uzumGateway.config.testMode,
+      },
     },
   })
 })
@@ -289,8 +350,11 @@ export const listGateways = asyncHandler(async (_req, res) => {
 export {
   generatePaymeCheckout,
   generateClickCheckout,
+  generateUzumCheckout,
   verifyPaymeCallback,
   verifyClickCallback,
+  verifyUzumCallback,
   getPaymeTransactionStatus,
   getClickTransactionStatus,
+  getUzumTransactionStatus,
 }

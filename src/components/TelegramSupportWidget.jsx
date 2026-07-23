@@ -2,7 +2,7 @@ import { MessageCircle } from 'lucide-react'
 import { useSelector } from 'react-redux'
 import { selectSettings } from '../features/settings/settingsSlice'
 
-const DEFAULT_TELEGRAM = 'https://t.me/exclusive_uz_support'
+const DEFAULT_TELEGRAM = 'https://t.me/kresla_uz_support'
 
 function TelegramSupportWidget() {
   const settings = useSelector(selectSettings)

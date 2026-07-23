@@ -1,30 +1,40 @@
 import './utils/loadEnvBootstrap.js'
+import { startMemoryMonitor, stopMemoryMonitor } from './utils/devMemoryMonitor.js'
 import { validateEnv, logEnvConfig } from './utils/validateEnv.js'
+import { logCorsConfig } from './config/cors.js'
 import { logAppError } from './utils/winstonLogger.js'
 import { logApp } from './utils/appLogger.js'
 import app from './app.js'
-import { connectDB, disconnectDB, getDbStatus, isDbConnected } from './config/db.js'
+import { connectDB, disconnectDB, getDbStatus, isDbConnected, pingDatabase } from './config/db.js'
+import { productionConfig, assertProductionEnv } from './config/production.js'
 import { runBootstrapSeeds } from './utils/bootstrapSeeds.js'
 import { ensureDefaultCategories } from './utils/seedCategories.js'
 
 const PORT = Number(process.env.PORT) || 5000
-const HOST = process.env.HOST || (process.env.NODE_ENV === 'production' ? '127.0.0.1' : '0.0.0.0')
+// Render/Railway require 0.0.0.0; VPS behind Nginx can set HOST=127.0.0.1 in .env
+const HOST = process.env.HOST || '0.0.0.0'
 const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 const DB_RETRY_ATTEMPTS = Number(process.env.DB_RETRY_ATTEMPTS) || 3
 const DB_RETRY_DELAY_MS = Number(process.env.DB_RETRY_DELAY_MS) || 2000
 
 let httpServer = null
+let productionDbMonitor = null
 
 function applyDevEnvDefaults() {
   try {
     validateEnv()
     logEnvConfig()
+    logCorsConfig()
   } catch (err) {
     logApp('error', '[env] Validation failed', { message: err.message })
     process.exit(1)
   }
 
   if (IS_PRODUCTION) {
+    const missing = assertProductionEnv()
+    if (missing.length > 0) {
+      logApp('warn', '[server] Production env gaps', { missing })
+    }
     return
   }
 
@@ -49,6 +59,31 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+/** Periodic MongoDB ping in production — surfaces lag / disconnects in logs. */
+function startProductionDbMonitor() {
+  if (!IS_PRODUCTION || productionDbMonitor) return
+
+  productionDbMonitor = setInterval(async () => {
+    const started = Date.now()
+    const ok = await pingDatabase(productionConfig.mongoConnectionTimeoutMs)
+    const ms = Date.now() - started
+    if (ok) {
+      logApp('info', `[server] MongoDB health ping: ${ms}ms`)
+    } else {
+      logApp('error', '[server] MongoDB health ping failed')
+    }
+  }, productionConfig.dbHealthIntervalMs)
+
+  productionDbMonitor.unref?.()
+}
+
+function stopProductionDbMonitor() {
+  if (productionDbMonitor) {
+    clearInterval(productionDbMonitor)
+    productionDbMonitor = null
+  }
+}
+
 async function connectDatabase() {
   const uri = process.env.MONGODB_URI
   const label = uri === 'memory' ? 'in-memory (dev)' : uri.startsWith('mongodb+srv://') ? 'Atlas' : 'local/remote'
@@ -64,9 +99,13 @@ async function connectDatabase() {
       await connectDB(uri)
       await ensureDefaultCategories()
       await runBootstrapSeeds()
-      logApp('info', '[server] MongoDB connected and seeded')
+      const dbName = getDbStatus().database || 'kresla'
+      logApp('info', `[server] MongoDB connected and seeded (database: ${dbName})`)
+      if (IS_PRODUCTION) {
+        startProductionDbMonitor()
+      }
       if (!IS_PRODUCTION) {
-        logApp('info', '[server] Dev admin: admin@exclusive.uz / ChangeMe123!')
+        logApp('info', '[server] Dev admin: admin@kresla.uz / ChangeMe123!')
       } else if (process.env.SEED_SUPER_ADMIN === 'true') {
         logApp('warn', '[server] Super admin seeded — change password after first login')
       }
@@ -109,19 +148,28 @@ async function startHttpServer() {
 
 async function start() {
   applyDevEnvDefaults()
+  startMemoryMonitor()
+
+  // Listen immediately in dev so Vite proxy works while MongoDB (memory-server) boots
+  if (!IS_PRODUCTION) {
+    await startHttpServer()
+    connectDatabase().catch((err) => {
+      logApp('warn', '[server] Background DB connect failed — API returns 503 until ready', {
+        message: err.message,
+      })
+    })
+    return
+  }
 
   try {
     await connectDatabase()
   } catch (err) {
     printDbTroubleshooting()
-    if (IS_PRODUCTION) {
-      logApp('error', '[server] Refusing to start without a database in production', { message: err.message })
-      process.exit(1)
-    }
-    logApp('warn', '[server] Starting in degraded mode — API returns 503 until MongoDB connects')
+    logApp('error', '[server] Refusing to start without a database in production', { message: err.message })
+    process.exit(1)
   }
 
-  if (isDbConnected() === false && IS_PRODUCTION) {
+  if (isDbConnected() === false) {
     logApp('error', '[server] Database disconnected after connect — aborting startup')
     process.exit(1)
   }
@@ -130,6 +178,8 @@ async function start() {
 }
 
 async function shutdown() {
+  stopProductionDbMonitor()
+  stopMemoryMonitor()
   if (httpServer) await new Promise((r) => httpServer.close(() => r()))
   await disconnectDB()
   process.exit(0)

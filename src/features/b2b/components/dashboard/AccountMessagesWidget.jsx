@@ -10,7 +10,7 @@ export default function AccountMessagesWidget({ profile }) {
         <p className="text-xs font-semibold uppercase text-kresla-primary">From your account manager</p>
         <p className="mt-1 text-sm font-medium text-kresla-dark">{manager.name}</p>
         <p className="text-sm text-gray-600 mt-1">
-          Welcome to Exclusive B2B! Reach me anytime for project quotes or custom MOQ requests.
+          Welcome to Kresla B2B! Reach me anytime for project quotes or custom MOQ requests.
         </p>
         <a href={`mailto:${manager.email}`} className="inline-block mt-2 text-xs font-semibold text-kresla-primary">
           Reply via email →

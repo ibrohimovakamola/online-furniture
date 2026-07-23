@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-const STORAGE_KEY = 'exclusive_b2b_cart'
+const STORAGE_KEY = 'kresla_b2b_cart'
 
 function readCart() {
   try {

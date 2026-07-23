@@ -1,7 +1,7 @@
 import Order from '../../models/Order.js'
 import Payment from '../../models/Payment.js'
 import { ClickGateway, CLICK_ERRORS } from './ClickGateway.js'
-import { fulfillOrderPayment, cancelPendingOrder } from '../../utils/fulfillOrderPayment.js'
+import { fulfillOrderPayment, fulfillInstallmentGatewayPayment, cancelPendingOrder } from '../../utils/fulfillOrderPayment.js'
 import { logPaymentEvent } from '../../utils/paymentLogger.js'
 import { getOrderPayableAmount, amountsMatch } from '../../utils/orderAmount.js'
 
@@ -50,7 +50,7 @@ export async function handleClickCallback(query, { ip = '', headers = {} } = {})
     )
   }
 
-  const expectedAmount = getOrderPayableAmount(order)
+  const expectedAmount = getOrderPayableAmount(order, { forGateway: true })
   if (!amountsMatch(expectedAmount, params.amount)) {
     return logAndReturn(
       gateway.errorResponse(CLICK_ERRORS.INCORRECT_AMOUNT, params.merchant_trans_id),
@@ -149,7 +149,11 @@ async function handleComplete(params, order, logAndReturn) {
   payment.paidAt = new Date()
   await payment.save()
 
-  await fulfillOrderPayment(order, { note: 'Click complete callback' })
+  if (order.paymentMethod === 'installment') {
+    await fulfillInstallmentGatewayPayment(order, { note: 'Click complete callback', gateway: 'click' })
+  } else {
+    await fulfillOrderPayment(order, { note: 'Click complete callback' })
+  }
 
   return logAndReturn(
     gateway.successResponse(payment._id.toString(), params.merchant_trans_id),

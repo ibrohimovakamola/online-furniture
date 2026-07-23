@@ -8,6 +8,7 @@ import {
   buildPasswordResetHtml,
   buildPaymentReceiptHtml,
   buildWelcomeHtml,
+  buildEmailVerificationHtml,
   getEmailSubject,
   normalizeLang,
 } from '../utils/emailTemplates.js'
@@ -277,6 +278,34 @@ export async function sendPasswordResetEmail(email, resetLink, options = {}) {
     })
   } catch (err) {
     console.error('[emailController] sendPasswordResetEmail failed:', err.message)
+  }
+}
+
+/**
+ * Email verification link after customer signup.
+ * @param {import('../models/User.js').default} user
+ * @param {string} verifyLink
+ * @param {{ lang?: string }} [options]
+ */
+export async function sendEmailVerificationEmail(user, verifyLink, options = {}) {
+  try {
+    if (!user?.email || !verifyLink) return
+
+    const lang = normalizeLang(options.lang || user.preferredLanguage)
+    const customerName = [user.firstName, user.lastName].filter(Boolean).join(' ') || ''
+    const html = buildEmailVerificationHtml({
+      customerName,
+      verifyLink,
+      lang,
+    })
+
+    queueHtmlEmail({
+      to: user.email,
+      subject: getEmailSubject('email-verification', lang),
+      html,
+    })
+  } catch (err) {
+    console.error('[emailController] sendEmailVerificationEmail failed:', err.message)
   }
 }
 

@@ -7,7 +7,7 @@ let settingsCache = { doc: null, expiresAt: 0 }
 export const DEFAULT_SETTINGS = {
   store: {
     supportPhone: '+998 94 043 16 84',
-    storeEmail: 'exclusive@gmail.com',
+    storeEmail: 'kresla@gmail.com',
     address: 'Tashkent, Uzbekistan',
     telegram: '',
     instagram: '',

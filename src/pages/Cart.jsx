@@ -22,12 +22,16 @@ import { formatSom } from '../features/kresla/utils/formatPrice'
 import InstallmentPlanCards, {
   InstallmentSummary,
 } from '../components/checkout/InstallmentPlanCards'
+import InstallmentPaymentSelector from '../components/checkout/InstallmentPaymentSelector'
+import PaymentGateway, { parseGatewayResponse } from '../components/checkout/PaymentGateway'
+import { storeApi } from '../api/storeApi'
 import {
   fetchInstallmentPlans,
   selectCheckout,
   selectInstallmentPlans,
   setPaymentMethod,
   setSelectedPlanMonths,
+  setInstallmentGateway,
   submitCheckout,
   submitGuestCheckout,
 } from '../features/orders/orderSlice'
@@ -49,7 +53,7 @@ function Cart() {
   const [premiumServices, setPremiumServices] = useState(EMPTY_PREMIUM)
   const checkout = useSelector(selectCheckout)
   const installmentPlans = useSelector(selectInstallmentPlans)
-  const { paymentMethod, selectedPlanMonths: installmentMonths } = checkout
+  const { paymentMethod, selectedPlanMonths: installmentMonths, installmentGateway } = checkout
   const paymentMode = paymentMethod === 'installment' ? 'installment' : 'full'
   const [guestForm, setGuestForm] = useState({
     fullName: '',
@@ -71,13 +75,8 @@ function Cart() {
     region: '',
     postalCode: '',
   })
-  const [payment, setPayment] = useState({
-    cardNumber: '',
-    expiry: '',
-    cvv: '',
-    cardName: '',
-  })
-  const [gateways, setGateways] = useState({ payme: false, click: false })
+  const [gateways, setGateways] = useState({ payme: false, click: false, uzumbank: false })
+  const [installmentPaymentError, setInstallmentPaymentError] = useState('')
 
   const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
   const threshold = Number(settings?.shipping?.freeShippingThreshold) || 0
@@ -103,15 +102,10 @@ function Cart() {
   }, [dispatch, step, paymentMethod, totalPrice])
 
   useEffect(() => {
-    if (step !== 'shipping') return
+    if (step !== 'shipping' && step !== 'guest') return
     paymentApi
       .gateways()
-      .then(({ data }) => {
-        setGateways({
-          payme: Boolean(data.gateways?.payme?.enabled),
-          click: Boolean(data.gateways?.click?.enabled),
-        })
-      })
+      .then((res) => setGateways(parseGatewayResponse(res)))
       .catch(() => {})
   }, [step])
 
@@ -210,9 +204,13 @@ function Cart() {
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault()
+    setInstallmentPaymentError('')
     setLoading(true)
     try {
-      const isGateway = paymentMethod === 'payme' || paymentMethod === 'click'
+      const isGateway =
+        paymentMethod === 'payme' ||
+        paymentMethod === 'click' ||
+        paymentMethod === 'uzumbank'
 
       const payload = {
         items: cartItems.map((item) => ({
@@ -226,26 +224,71 @@ function Cart() {
         paymentMethod:
           paymentMethod === 'installment'
             ? 'installment'
-            : paymentMethod === 'payme'
-              ? 'payme'
-              : paymentMethod === 'click'
-                ? 'click'
-                : 'card',
+            : paymentMethod,
         premiumServices,
         returnUrl: `${window.location.origin}/payment/result`,
       }
 
+      if (paymentMethod !== 'installment' && !isGateway) {
+        toast.error('To\'lov tizimini tanlang (Payme, Click yoki Uzum Bank)')
+        return
+      }
+
       if (paymentMethod === 'installment') {
-        if (!selectedPlan) {
+        if (!selectedPlan?.planMonths) {
           toast.error('Bo\'lib to\'lash rejasini tanlang')
           return
         }
+        if (!installmentGateway) {
+          const msg = 'To\'lov tizimini tanlang (Payme, Click yoki Uzum Bank)'
+          setInstallmentPaymentError(msg)
+          toast.error(msg)
+          return
+        }
+
         payload.installmentPlan = {
           planMonths: selectedPlan.planMonths,
           totalAmountWithInterest: selectedPlan.totalAmountWithInterest,
         }
-      } else if (!isGateway) {
-        payload.payment = payment
+
+        const result = await dispatch(submitCheckout(payload))
+        if (submitCheckout.rejected.match(result)) {
+          toast.error(result.payload || 'Checkout failed')
+          return
+        }
+
+        const orderId =
+          result.payload?.order?.id ||
+          result.payload?.order?.orderId ||
+          result.payload?.orderId
+
+        if (!orderId) {
+          toast.error('Buyurtma yaratildi, lekin to\'lovni boshlab bo\'lmadi')
+          return
+        }
+
+        const { data: paymentData } = await storeApi.createPayment({
+          orderId,
+          paymentMethod: installmentGateway,
+          amount: selectedPlan.monthlyPayment,
+          installmentPeriod: selectedPlan.planMonths,
+          returnUrl: `${window.location.origin}/payment/result`,
+        })
+
+        const paymentUrl =
+          paymentData?.data?.paymentUrl ||
+          paymentData?.data?.checkoutUrl ||
+          paymentData?.paymentUrl
+
+        if (!paymentUrl) {
+          toast.error(paymentData?.message || 'To\'lov havolasi olinmadi')
+          return
+        }
+
+        dispatch(clearCart())
+        setPremiumServices(EMPTY_PREMIUM)
+        window.location.href = paymentUrl
+        return
       }
 
       const result = await dispatch(submitCheckout(payload))
@@ -266,7 +309,7 @@ function Cart() {
       toast.success(result.payload.message || 'Buyurtma qabul qilindi!')
       setStep('success')
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Checkout failed')
+      toast.error(err.response?.data?.message || err.message || 'Checkout failed')
     } finally {
       setLoading(false)
     }
@@ -416,6 +459,17 @@ function Cart() {
                 Click
               </label>
             )}
+            {gateways.uzumbank && (
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="guestPayment"
+                  checked={guestPaymentMethod === 'uzumbank'}
+                  onChange={() => setGuestPaymentMethod('uzumbank')}
+                />
+                Uzum Bank
+              </label>
+            )}
           </div>
           <p className="text-sm font-medium">Jami: {formatSom(totalPrice)}</p>
           <button type="submit" disabled={loading} className="cart-btn-primary w-full">
@@ -456,7 +510,7 @@ function Cart() {
                 <div className="flex gap-2 mb-4">
                   <button
                     type="button"
-                    onClick={() => dispatch(setPaymentMethod('card'))}
+                    onClick={() => dispatch(setPaymentMethod('payme'))}
                     className={`px-4 py-2 rounded-lg text-sm ${paymentMode === 'full' ? 'bg-kresla-primary text-white' : 'border'}`}
                   >
                     To&apos;liq to&apos;lash
@@ -478,100 +532,27 @@ function Cart() {
                       onSelect={(months) => dispatch(setSelectedPlanMonths(months))}
                     />
                     <InstallmentSummary plan={selectedPlan} baseAmount={totalPrice} />
-                    <div className="mt-3 flex gap-2 flex-wrap">
-                      {['Payme', 'Click', 'Uzum Bank'].map((b) => (
-                        <span key={b} className="px-2 py-1 text-xs rounded bg-gray-100 font-medium">
-                          {b}
-                        </span>
-                      ))}
-                    </div>
+                    <InstallmentPaymentSelector
+                      value={installmentGateway}
+                      onChange={(method) => {
+                        setInstallmentPaymentError('')
+                        dispatch(setInstallmentGateway(method))
+                      }}
+                      installmentPlan={selectedPlan}
+                      gateways={gateways}
+                      loading={loading}
+                      error={installmentPaymentError}
+                    />
                   </div>
                 ) : (
-                  <>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      <button
-                        type="button"
-                        onClick={() => dispatch(setPaymentMethod('card'))}
-                        className={`px-4 py-2 rounded-lg text-sm border ${
-                          paymentMethod === 'card' ? 'bg-kresla-primary text-white border-kresla-primary' : ''
-                        }`}
-                      >
-                        Bank kartasi
-                      </button>
-                      {gateways.payme && (
-                        <button
-                          type="button"
-                          onClick={() => dispatch(setPaymentMethod('payme'))}
-                          className={`px-4 py-2 rounded-lg text-sm border font-semibold ${
-                            paymentMethod === 'payme'
-                              ? 'bg-[#00CCCC] text-white border-[#00CCCC]'
-                              : 'border-[#00CCCC] text-[#00CCCC]'
-                          }`}
-                        >
-                          Payme
-                        </button>
-                      )}
-                      {gateways.click && (
-                        <button
-                          type="button"
-                          onClick={() => dispatch(setPaymentMethod('click'))}
-                          className={`px-4 py-2 rounded-lg text-sm border font-semibold ${
-                            paymentMethod === 'click'
-                              ? 'bg-[#2B2B7C] text-white border-[#2B2B7C]'
-                              : 'border-[#2B2B7C] text-[#2B2B7C]'
-                          }`}
-                        >
-                          Click
-                        </button>
-                      )}
-                    </div>
-
-                    {paymentMethod === 'payme' || paymentMethod === 'click' ? (
-                      <div className="rounded-lg border border-dashed border-gray-300 p-4 text-sm text-gray-600">
-                        <p>
-                          <strong>{paymentMethod === 'payme' ? 'Payme' : 'Click'}</strong> orqali
-                          xavfsiz to&apos;lov. &quot;Buyurtma berish&quot; tugmasidan so&apos;ng
-                          to&apos;lov sahifasiga yo&apos;naltirilasiz.
-                        </p>
-                        <p className="mt-2 text-xs text-gray-500">
-                          Test karta (Payme): 9860 0000 0000 0001
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="cart-form-fields">
-                        <input
-                          required
-                          placeholder="Karta egasi"
-                          value={payment.cardName}
-                          onChange={(e) => setPayment((p) => ({ ...p, cardName: e.target.value }))}
-                          className="cart-form-input"
-                        />
-                        <input
-                          required
-                          placeholder="Karta raqami"
-                          value={payment.cardNumber}
-                          onChange={(e) => setPayment((p) => ({ ...p, cardNumber: e.target.value }))}
-                          className="cart-form-input"
-                        />
-                        <div className="cart-form-row">
-                          <input
-                            required
-                            placeholder="MM/YY"
-                            value={payment.expiry}
-                            onChange={(e) => setPayment((p) => ({ ...p, expiry: e.target.value }))}
-                            className="cart-form-input"
-                          />
-                          <input
-                            required
-                            placeholder="CVV"
-                            value={payment.cvv}
-                            onChange={(e) => setPayment((p) => ({ ...p, cvv: e.target.value }))}
-                            className="cart-form-input"
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </>
+                  <PaymentGateway
+                    gateways={gateways}
+                    selectedMethod={paymentMethod}
+                    onSelect={(method) => dispatch(setPaymentMethod(method))}
+                    mode="full"
+                    orderTotal={totalPrice}
+                    loading={loading}
+                  />
                 )}
               </div>
               <aside>
@@ -613,7 +594,7 @@ function Cart() {
                 Orqaga
               </button>
               <button type="submit" className="cart-btn-primary" disabled={loading}>
-                {loading ? 'Jarayonda…' : 'Buyurtma berish'}
+                {loading ? 'To\'lovga yo\'naltirilmoqda…' : 'Buyurtma berish'}
               </button>
             </div>
           </form>

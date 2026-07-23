@@ -70,8 +70,9 @@ const orderSlice = createSlice({
     currentOrder: null,
     installmentPlans: [],
     checkout: {
-      paymentMethod: 'card',
+      paymentMethod: 'payme',
       selectedPlanMonths: 3,
+      installmentGateway: null,
     },
     loading: {
       orders: false,
@@ -88,8 +89,11 @@ const orderSlice = createSlice({
     setSelectedPlanMonths(state, action) {
       state.checkout.selectedPlanMonths = action.payload
     },
+    setInstallmentGateway(state, action) {
+      state.checkout.installmentGateway = action.payload
+    },
     resetCheckout(state) {
-      state.checkout = { paymentMethod: 'card', selectedPlanMonths: 3 }
+      state.checkout = { paymentMethod: 'payme', selectedPlanMonths: 3, installmentGateway: null }
       state.installmentPlans = []
       state.error = null
     },
@@ -140,7 +144,7 @@ const orderSlice = createSlice({
       })
       .addCase(submitCheckout.fulfilled, (state) => {
         state.loading.checkout = false
-        state.checkout = { paymentMethod: 'card', selectedPlanMonths: 3 }
+        state.checkout = { paymentMethod: 'payme', selectedPlanMonths: 3, installmentGateway: null }
       })
       .addCase(submitCheckout.rejected, (state, action) => {
         state.loading.checkout = false
@@ -160,7 +164,7 @@ const orderSlice = createSlice({
   },
 })
 
-export const { setPaymentMethod, setSelectedPlanMonths, resetCheckout, clearCurrentOrder } =
+export const { setPaymentMethod, setSelectedPlanMonths, setInstallmentGateway, resetCheckout, clearCurrentOrder } =
   orderSlice.actions
 
 export const selectOrders = (state) => state.orders

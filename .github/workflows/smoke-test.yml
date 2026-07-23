@@ -1,0 +1,109 @@
+# Post-deploy smoke tests — backend /api/health + frontend homepage.
+# Runs after "Deploy KRESLA" succeeds on main, or manually via workflow_dispatch.
+
+name: Smoke Test
+
+on:
+  workflow_run:
+    workflows: [Deploy KRESLA]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      backend_health_url:
+        description: 'Backend health URL'
+        required: false
+        default: 'https://api.mebelsotish.uz/api/health'
+      frontend_url:
+        description: 'Frontend URL'
+        required: false
+        default: 'https://mebelsotish.uz'
+
+concurrency:
+  group: smoke-test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    # Only run when deploy workflow succeeded (skip on failed deploy or develop branch runs)
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
+
+    env:
+      # Override via workflow_dispatch inputs, repo Variables, or Secrets
+      BACKEND_HEALTH_URL: ${{ github.event.inputs.backend_health_url || vars.SMOKE_BACKEND_HEALTH_URL || 'https://api.mebelsotish.uz/api/health' }}
+      FRONTEND_URL: ${{ github.event.inputs.frontend_url || vars.SMOKE_FRONTEND_URL || 'https://mebelsotish.uz' }}
+      # Render free/starter tier may need time to wake after deploy
+      WARMUP_SECONDS: '45'
+      MAX_ATTEMPTS: '3'
+      RETRY_DELAY_SECONDS: '30'
+
+    steps:
+      - name: Print targets
+        run: |
+          echo "Backend health: $BACKEND_HEALTH_URL"
+          echo "Frontend:       $FRONTEND_URL"
+          echo "Warmup:         ${WARMUP_SECONDS}s before first attempt"
+          echo "Retries:        $MAX_ATTEMPTS attempts, ${RETRY_DELAY_SECONDS}s apart"
+
+      - name: Wait for Render cold start
+        run: sleep "$WARMUP_SECONDS"
+
+      - name: Backend health check (with retries)
+        run: |
+          set -euo pipefail
+          attempt=1
+          while [ "$attempt" -le "$MAX_ATTEMPTS" ]; do
+            echo "── Backend attempt $attempt/$MAX_ATTEMPTS ──"
+            http_code=$(curl -sS -o /tmp/health.json -w "%{http_code}" \
+              --connect-timeout 15 --max-time 30 \
+              "$BACKEND_HEALTH_URL" || echo "000")
+
+            echo "HTTP $http_code"
+            cat /tmp/health.json || true
+            echo ""
+
+            if [ "$http_code" = "200" ] && grep -q '"status"[[:space:]]*:[[:space:]]*"ok"' /tmp/health.json; then
+              echo "✅ Backend health OK"
+              exit 0
+            fi
+
+            if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
+              echo "Backend not ready — retrying in ${RETRY_DELAY_SECONDS}s..."
+              sleep "$RETRY_DELAY_SECONDS"
+            fi
+            attempt=$((attempt + 1))
+          done
+
+          echo "::error::Backend smoke test FAILED — $BACKEND_HEALTH_URL did not return 200 with status ok"
+          exit 1
+
+      - name: Frontend availability check (with retries)
+        run: |
+          set -euo pipefail
+          attempt=1
+          while [ "$attempt" -le "$MAX_ATTEMPTS" ]; do
+            echo "── Frontend attempt $attempt/$MAX_ATTEMPTS ──"
+            http_code=$(curl -sS -o /dev/null -w "%{http_code}" \
+              --connect-timeout 15 --max-time 30 \
+              -L "$FRONTEND_URL" || echo "000")
+
+            echo "HTTP $http_code for $FRONTEND_URL"
+
+            if [ "$http_code" = "200" ]; then
+              echo "✅ Frontend OK"
+              exit 0
+            fi
+
+            if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
+              echo "Frontend not ready — retrying in ${RETRY_DELAY_SECONDS}s..."
+              sleep "$RETRY_DELAY_SECONDS"
+            fi
+            attempt=$((attempt + 1))
+          done
+
+          echo "::error::Frontend smoke test FAILED — $FRONTEND_URL did not return HTTP 200"
+          exit 1

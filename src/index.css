@@ -10,6 +10,21 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: clip;
+}
+
+body {
+  overflow-x: clip;
+  -webkit-tap-highlight-color: transparent;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
 .container {
   max-width: 1360px;
   margin: 0 auto;
@@ -18,8 +33,29 @@
 
 .product-page--cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 30px;
+  grid-template-columns: 1fr;
+  gap: 24px 16px;
+}
+
+@media (min-width: 640px) {
+  .product-page--cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-page--cards {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px 24px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .product-page--cards {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 60px 30px;
+  }
 }
 
 .skeleton-card {
@@ -62,4 +98,19 @@
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+/* Virtual showroom — react-rnd resize handles */
+.showroom-resize-handle {
+  width: 10px !important;
+  height: 10px !important;
+  background: #0b3c3c !important;
+  border: 2px solid #fff !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.showroom-resize-corner {
+  width: 12px !important;
+  height: 12px !important;
 }

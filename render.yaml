@@ -1,0 +1,32 @@
+# Render Blueprint (repo root) — deploys server/ as kresla-backend
+services:
+  - type: web
+    name: kresla-backend
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: REFRESH_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        value: https://mebelsotish.uz
+      - key: CORS_ORIGIN
+        value: https://mebelsotish.uz,https://www.mebelsotish.uz
+      - key: SEED_SUPER_ADMIN
+        value: "false"
+      - key: SEED_ADMIN_DATA
+        value: "false"
+      - key: SWAGGER_ENABLED
+        value: "false"

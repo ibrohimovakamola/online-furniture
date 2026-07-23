@@ -1,17 +1,27 @@
 import Gallery from '../models/Gallery.js'
 import { AppError, asyncHandler } from '../utils/asyncHandler.js'
 import { parseCreateGallery, parseUpdateGallery } from '../validators/gallery.schema.js'
-import { uploadImageBuffer, destroyCloudinaryImage } from '../utils/cloudinaryUpload.js'
-import { isCloudinaryConfigured } from '../config/cloudinary.js'
+import { storeGalleryImage, removeGalleryImage } from '../utils/galleryImageStorage.js'
+import { buildImageUrl } from '../utils/helpers.js'
 
-export function formatGalleryItem(doc) {
+export function formatGalleryItem(doc, req) {
   const item = doc.toObject ? doc.toObject() : doc
+  let imageUrl = item.image?.url
+  if (imageUrl && imageUrl.startsWith('/uploads/') && req) {
+    imageUrl = buildImageUrl(imageUrl.replace(/^\/uploads\//, ''), req)
+  }
+
   return {
     id: item._id,
     title: item.title,
     description: item.description,
     category: item.category,
-    image: item.image,
+    image: item.image
+      ? {
+          ...item.image,
+          url: imageUrl || item.image.url,
+        }
+      : item.image,
     order: item.order,
     active: item.active,
     likes: item.likes,
@@ -30,24 +40,21 @@ export const listPublicGallery = asyncHandler(async (req, res) => {
   const items = await Gallery.find(query).sort({ order: 1, createdAt: -1 })
   res.json({
     success: true,
-    items: items.map(formatGalleryItem),
+    items: items.map((doc) => formatGalleryItem(doc, req)),
   })
 })
 
 /** GET /api/admin/gallery */
-export const listAdminGallery = asyncHandler(async (_req, res) => {
+export const listAdminGallery = asyncHandler(async (req, res) => {
   const items = await Gallery.find().sort({ order: 1, createdAt: -1 })
   res.json({
     success: true,
-    items: items.map(formatGalleryItem),
+    items: items.map((doc) => formatGalleryItem(doc, req)),
   })
 })
 
-/** POST /api/admin/gallery/upload — create with Cloudinary image */
+/** POST /api/admin/gallery/upload */
 export const uploadGalleryItem = asyncHandler(async (req, res) => {
-  if (!isCloudinaryConfigured()) {
-    throw new AppError('Cloudinary is not configured', 503)
-  }
   if (!req.file?.buffer) {
     throw new AppError('Image file is required', 400)
   }
@@ -59,7 +66,7 @@ export const uploadGalleryItem = asyncHandler(async (req, res) => {
   }
 
   const data = parsed.data
-  const result = await uploadImageBuffer(req.file.buffer)
+  const stored = await storeGalleryImage(req.file.buffer, req.file.originalname, req)
 
   let order = data.order
   if (order == null) {
@@ -74,15 +81,15 @@ export const uploadGalleryItem = asyncHandler(async (req, res) => {
     order,
     active: data.active ?? true,
     image: {
-      url: result.secure_url,
-      publicId: result.public_id,
+      url: stored.url,
+      publicId: stored.publicId,
       alt: data.alt || data.title,
     },
   })
 
   res.status(201).json({
     success: true,
-    item: formatGalleryItem(item),
+    item: formatGalleryItem(item, req),
   })
 })
 
@@ -109,15 +116,12 @@ export const updateGalleryItem = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    item: formatGalleryItem(existing),
+    item: formatGalleryItem(existing, req),
   })
 })
 
-/** PUT /api/admin/gallery/:id/image — replace image on Cloudinary */
+/** PUT /api/admin/gallery/:id/image */
 export const replaceGalleryImage = asyncHandler(async (req, res) => {
-  if (!isCloudinaryConfigured()) {
-    throw new AppError('Cloudinary is not configured', 503)
-  }
   if (!req.file?.buffer) {
     throw new AppError('Image file is required', 400)
   }
@@ -125,19 +129,19 @@ export const replaceGalleryImage = asyncHandler(async (req, res) => {
   const existing = await Gallery.findById(req.params.id)
   if (!existing) throw new AppError('Gallery item not found', 404)
 
-  const result = await uploadImageBuffer(req.file.buffer)
-  await destroyCloudinaryImage(existing.image.publicId)
+  const stored = await storeGalleryImage(req.file.buffer, req.file.originalname, req)
+  await removeGalleryImage(existing.image.publicId)
 
   existing.image = {
-    url: result.secure_url,
-    publicId: result.public_id,
+    url: stored.url,
+    publicId: stored.publicId,
     alt: req.body.alt?.trim() || existing.image.alt || existing.title,
   }
   await existing.save()
 
   res.json({
     success: true,
-    item: formatGalleryItem(existing),
+    item: formatGalleryItem(existing, req),
   })
 })
 
@@ -146,7 +150,7 @@ export const deleteGalleryItem = asyncHandler(async (req, res) => {
   const item = await Gallery.findById(req.params.id)
   if (!item) throw new AppError('Gallery item not found', 404)
 
-  await destroyCloudinaryImage(item.image.publicId)
+  await removeGalleryImage(item.image.publicId)
   await item.deleteOne()
 
   res.json({ success: true, message: 'Gallery item deleted' })

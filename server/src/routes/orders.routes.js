@@ -9,8 +9,9 @@ import {
   orderListQuerySchema,
   updateOrderStatusSchema,
   updatePaymentStatusSchema,
+  createOrderPaymentSchema,
 } from '../validators/order.schemas.js'
-import { checkout, myOrders } from '../controllers/checkout.controller.js'
+import { checkout, myOrders, createOrderPayment } from '../controllers/checkout.controller.js'
 import { createGuestOrder, trackGuestOrder } from '../controllers/guestOrder.controller.js'
 import {
   createOrderFromCart,
@@ -36,6 +37,7 @@ router.get('/track/:token', trackGuestOrder)
 
 /** Legacy checkout with client-side cart payload */
 router.post('/checkout', protect, validateRequest(checkoutOrderSchema), checkout)
+router.post('/create-payment', protect, validateRequest(createOrderPaymentSchema), createOrderPayment)
 router.get('/my', protect, myOrders)
 
 /** Admin — status updates on public orders path */

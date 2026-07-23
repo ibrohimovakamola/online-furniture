@@ -5,16 +5,33 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(mode),
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', '@reduxjs/toolkit', 'react-redux'],
+    esbuildOptions: {
+      define: {
+        global: 'globalThis',
+      },
+    },
+  },
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    sourcemap: false,
+    minify: 'esbuild',
   },
   server: {
     port: 5173,
+    hmr: {
+      overlay: true,
+    },
     watch: {
-      ignored: ['**/server/**', '**/server/uploads/**', '**/.mongo-memory/**'],
+      usePolling: false,
+      ignored: ['**/server/**', '**/server/uploads/**', '**/.mongo-memory/**', '**/logs/**'],
     },
     proxy: {
       '/api': {
@@ -39,4 +56,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))

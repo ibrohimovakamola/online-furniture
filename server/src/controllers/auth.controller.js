@@ -1,7 +1,11 @@
 import crypto from 'crypto'
 import User from '../models/User.js'
 import { ROLES } from '../config/roles.js'
-import { sendPasswordResetEmail, sendWelcomeEmail } from './emailController.js'
+import {
+  sendPasswordResetEmail,
+  sendWelcomeEmail,
+  sendEmailVerificationEmail,
+} from './emailController.js'
 import {
   issueAuthSession,
   rotateAuthSession,
@@ -9,15 +13,24 @@ import {
   findValidRefreshToken,
   revokeRefreshToken,
   clearAuthCookies,
+  clearRefreshCookie,
   blacklistAccessToken,
   REFRESH_COOKIE_NAME,
 } from '../utils/jwt.js'
-import { AppError, Errors } from '../utils/AppError.js'
+import { AppError } from '../utils/AppError.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { parseDisplayName, sendAuthSuccess, sendUserSuccess } from '../utils/authResponse.js'
 import { logUserSignup, logUserLogin } from '../utils/activityLogger.js'
 import { extractBearerToken } from '../middleware/auth.js'
 import { logApp } from '../utils/appLogger.js'
+import {
+  normalizeUzPhone,
+  isValidUzPhone,
+  requireEmailVerification,
+  hashAuthToken,
+  generateRawAuthToken,
+  formatAddressField,
+} from '../utils/authHelpers.js'
 
 function resolveSignupNames(body) {
   if (body.firstName) {
@@ -29,31 +42,94 @@ function resolveSignupNames(body) {
   return parseDisplayName(body.name)
 }
 
+function buildResetLink(rawToken) {
+  const base = (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '')
+  return `${base}/reset-password?token=${encodeURIComponent(rawToken)}`
+}
+
+function buildVerifyLink(rawToken) {
+  const base = (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '')
+  return `${base}/verify-email?token=${encodeURIComponent(rawToken)}`
+}
+
+function hashResetToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex')
+}
+
 /** POST /api/auth/signup | /register — customer registration */
 export const signup = asyncHandler(async (req, res) => {
-  const { email, password, phone } = req.body
+  const {
+    email,
+    password,
+    confirmPassword,
+    phone,
+    phoneNumber,
+    preferredLanguage,
+    preferences,
+  } = req.body
   const { firstName, lastName } = resolveSignupNames(req.body)
   const normalizedEmail = email.toLowerCase().trim()
+  const normalizedPhone = normalizeUzPhone(phoneNumber || phone)
 
-  const exists = await User.findOne({ email: normalizedEmail })
-  if (exists) {
-    throw Errors.emailRegistered()
+  if (!isValidUzPhone(normalizedPhone)) {
+    throw new AppError('Phone must be in +998XXXXXXXXX format', 400)
   }
+
+  if (confirmPassword !== undefined && password !== confirmPassword) {
+    throw new AppError('Passwords do not match', 400)
+  }
+
+  const emailExists = await User.findOne({ email: normalizedEmail })
+  if (emailExists) {
+    throw new AppError('Email already registered', 409)
+  }
+
+  const phoneExists = await User.findOne({ phone: normalizedPhone })
+  if (phoneExists) {
+    throw new AppError('Phone number already registered', 409)
+  }
+
+  const needsVerification = requireEmailVerification()
+  const rawVerifyToken = needsVerification ? generateRawAuthToken() : null
 
   const user = await User.create({
     firstName,
     lastName,
     email: normalizedEmail,
     password,
-    phone: phone || '',
+    phone: normalizedPhone,
     role: ROLES.CUSTOMER,
+    preferredLanguage: preferredLanguage || 'uz',
+    preferences: {
+      newsletter: Boolean(preferences?.newsletter),
+      notifications: preferences?.notifications !== false,
+    },
+    isEmailVerified: !needsVerification,
+    ...(needsVerification
+      ? {
+          emailVerificationToken: hashAuthToken(rawVerifyToken),
+          emailVerificationExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        }
+      : {}),
   })
 
-  const token = await issueAuthSession(user, res)
-
-  sendWelcomeEmail(user)
-
   logUserSignup(user, req)
+
+  if (needsVerification) {
+    sendEmailVerificationEmail(user, buildVerifyLink(rawVerifyToken), {
+      lang: user.preferredLanguage,
+    })
+
+    return res.status(201).json({
+      success: true,
+      message: 'Check your email to verify your account',
+      userId: user._id,
+      requiresVerification: true,
+    })
+  }
+
+  const token = await issueAuthSession(user, res, { rememberMe: true })
+  sendWelcomeEmail(user, { lang: user.preferredLanguage })
 
   sendAuthSuccess(res, {
     user,
@@ -66,10 +142,69 @@ export const signup = asyncHandler(async (req, res) => {
 /** @deprecated alias — use signup */
 export const registerCustomer = signup
 
+/** POST /api/auth/verify-email */
+export const verifyEmail = asyncHandler(async (req, res) => {
+  const token = String(req.body?.verificationToken || req.body?.token || '').trim()
+  if (!token) {
+    throw new AppError('Verification token is required', 400)
+  }
+
+  const hashed = hashAuthToken(token)
+  const user = await User.findOne({
+    emailVerificationToken: hashed,
+    emailVerificationExpiry: { $gt: new Date() },
+  }).select('+emailVerificationToken +emailVerificationExpiry')
+
+  if (!user) {
+    throw new AppError('Verification link expired or invalid', 400)
+  }
+
+  user.isEmailVerified = true
+  user.emailVerificationToken = null
+  user.emailVerificationExpiry = null
+  await user.save({ validateBeforeSave: false })
+
+  sendWelcomeEmail(user, { lang: user.preferredLanguage })
+
+  res.json({
+    success: true,
+    message: 'Email verified successfully',
+    redirectUrl: '/login',
+  })
+})
+
+/** POST /api/auth/resend-verification */
+export const resendVerification = asyncHandler(async (req, res) => {
+  const email = String(req.body?.email || '').toLowerCase().trim()
+  if (!email) {
+    throw new AppError('Email is required', 400)
+  }
+
+  const user = await User.findOne({ email }).select(
+    '+emailVerificationToken +emailVerificationExpiry'
+  )
+
+  if (user?.isActive && !user.isEmailVerified) {
+    const rawToken = generateRawAuthToken()
+    user.emailVerificationToken = hashAuthToken(rawToken)
+    user.emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000)
+    await user.save({ validateBeforeSave: false })
+    sendEmailVerificationEmail(user, buildVerifyLink(rawToken), {
+      lang: user.preferredLanguage,
+    })
+  }
+
+  res.json({
+    success: true,
+    message: 'If that email is registered and unverified, a verification link has been sent.',
+  })
+})
+
 /** POST /api/auth/login */
 export const login = asyncHandler(async (req, res) => {
   const email = String(req.body?.email || '').toLowerCase().trim()
   const password = req.body?.password
+  const rememberMe = Boolean(req.body?.rememberMe)
 
   try {
     const user = await User.findOne({ email }).select('+password')
@@ -92,10 +227,18 @@ export const login = asyncHandler(async (req, res) => {
       throw new AppError('Account has been deactivated', 403)
     }
 
+    if (
+      requireEmailVerification() &&
+      !user.isEmailVerified &&
+      user.role === ROLES.CUSTOMER
+    ) {
+      throw new AppError('Please verify your email before logging in', 403)
+    }
+
     user.lastLoginAt = new Date()
     await user.save({ validateBeforeSave: false })
 
-    const token = await issueAuthSession(user, res)
+    const token = await issueAuthSession(user, res, { rememberMe })
 
     logUserLogin(user, req)
 
@@ -188,7 +331,17 @@ export const updateProfile = asyncHandler(async (req, res) => {
     throw new AppError('User not found', 404)
   }
 
-  const { name, firstName, lastName, phone, address } = req.body
+  const {
+    name,
+    firstName,
+    lastName,
+    phone,
+    phoneNumber,
+    address,
+    preferredLanguage,
+    preferences,
+    profileImage,
+  } = req.body
 
   if (name) {
     const parsed = parseDisplayName(name)
@@ -197,8 +350,50 @@ export const updateProfile = asyncHandler(async (req, res) => {
   }
   if (firstName) user.firstName = firstName.trim()
   if (lastName) user.lastName = lastName.trim()
-  if (phone !== undefined) user.phone = phone
-  if (address !== undefined) user.address = address
+
+  const nextPhone = phoneNumber ?? phone
+  if (nextPhone !== undefined) {
+    const normalized = normalizeUzPhone(nextPhone)
+    if (normalized && !isValidUzPhone(normalized)) {
+      throw new AppError('Phone must be in +998XXXXXXXXX format', 400)
+    }
+    if (normalized) {
+      const phoneTaken = await User.findOne({
+        phone: normalized,
+        _id: { $ne: user._id },
+      })
+      if (phoneTaken) {
+        throw new AppError('Phone number already registered', 409)
+      }
+      user.phone = normalized
+    }
+  }
+
+  if (address !== undefined) {
+    if (typeof address === 'string') {
+      user.address = { ...formatAddressField(user.address), street: address.trim() }
+    } else {
+      user.address = {
+        ...formatAddressField(user.address),
+        ...address,
+      }
+    }
+  }
+
+  if (preferredLanguage && ['uz', 'ru', 'en'].includes(preferredLanguage)) {
+    user.preferredLanguage = preferredLanguage
+  }
+
+  if (preferences) {
+    user.preferences = {
+      newsletter: preferences.newsletter ?? user.preferences?.newsletter ?? false,
+      notifications: preferences.notifications ?? user.preferences?.notifications ?? true,
+    }
+  }
+
+  if (profileImage !== undefined) {
+    user.profileImage = String(profileImage || '').trim()
+  }
 
   await user.save()
 
@@ -235,15 +430,6 @@ export const deleteAccount = asyncHandler(async (req, res) => {
   })
 })
 
-function hashResetToken(token) {
-  return crypto.createHash('sha256').update(token).digest('hex')
-}
-
-function buildResetLink(rawToken) {
-  const base = (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '')
-  return `${base}/reset-password?token=${encodeURIComponent(rawToken)}`
-}
-
 /** POST /api/auth/forgot-password */
 export const forgotPassword = asyncHandler(async (req, res) => {
   const email = String(req.body?.email || '').toLowerCase().trim()
@@ -257,7 +443,9 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     user.passwordResetToken = hashResetToken(rawToken)
     user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000)
     await user.save({ validateBeforeSave: false })
-    sendPasswordResetEmail(user.email, buildResetLink(rawToken))
+    sendPasswordResetEmail(user.email, buildResetLink(rawToken), {
+      lang: user.preferredLanguage,
+    })
   }
 
   res.json({
@@ -268,11 +456,11 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
 /** POST /api/auth/reset-password */
 export const resetPassword = asyncHandler(async (req, res) => {
-  const token = String(req.body?.token || '').trim()
-  const newPassword = req.body?.newPassword
-  const confirmPassword = req.body?.confirmPassword
+  const token = String(req.body?.token || req.body?.resetToken || '').trim()
+  const newPassword = req.body?.newPassword || req.body?.password
+  const confirmPassword = req.body?.confirmPassword ?? newPassword
 
-  if (!token || !newPassword || !confirmPassword) {
+  if (!token || !newPassword) {
     throw new AppError('Token and new password are required', 400)
   }
 
@@ -299,7 +487,11 @@ export const resetPassword = asyncHandler(async (req, res) => {
   user.passwordResetExpires = null
   await user.save()
 
-  res.json({ success: true, message: 'Password reset successfully. You can log in now.' })
+  res.json({
+    success: true,
+    message: 'Password reset successfully. You can log in now.',
+    redirectUrl: '/login',
+  })
 })
 
 /** POST /api/auth/change-password — authenticated user */
@@ -354,6 +546,7 @@ export const createStaffUser = asyncHandler(async (req, res) => {
     password,
     role,
     createdBy: req.user._id,
+    isEmailVerified: true,
   })
 
   res.status(201).json({

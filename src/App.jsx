@@ -74,6 +74,10 @@ import Product from './pages/Product'
 import ProductDetail from './pages/ProductDetail'
 import NotFound from './pages/NotFound'
 import Login from './pages/Login'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
+import VerifyEmail from './pages/VerifyEmail'
+import Profile from './pages/Profile'
 import ErrorPage from './pages/ErrorPage'
 import Showroom from './pages/Showroom'
 import Blog from './pages/Blog'
@@ -154,7 +158,11 @@ function App() {
           <Route element={<GuestRoute />}>
             <Route path="login" element={<Login />} />
             <Route path="sign-up" element={<SignUp />} />
+            <Route path="forgot-password" element={<ForgotPassword />} />
+            <Route path="reset-password" element={<ResetPassword />} />
           </Route>
+
+          <Route path="verify-email" element={<VerifyEmail />} />
 
           <Route path="products" element={<ProductLayout />}>
             <Route index element={<Product />} />
@@ -187,6 +195,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="orders" element={<MyOrders />} />
             <Route path="orders/:id" element={<OrderDetail />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

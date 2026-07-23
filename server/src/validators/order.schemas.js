@@ -38,7 +38,7 @@ export const createGuestOrderSchema = Joi.object({
     zipCode: Joi.string().trim().max(20).allow(''),
     postalCode: Joi.string().trim().max(20).allow(''),
   }).required(),
-  paymentMethod: Joi.string().valid('cash', 'payme', 'click').required(),
+  paymentMethod: Joi.string().valid('cash', 'payme', 'click', 'uzumbank').required(),
   totalPrice: Joi.number().positive().max(1_000_000_000).required(),
   premiumServices: premiumServicesSchema,
   returnUrl: Joi.string().uri({ allowRelative: false }).max(500),
@@ -58,17 +58,13 @@ export const checkoutOrderSchema = Joi.object({
     email: Joi.string().trim().email().max(120),
   }).required(),
   paymentMethod: Joi.string()
-    .valid('card', 'cash', 'payme', 'click', 'installment')
-    .default('card'),
-  payment: Joi.object({
-    cardNumber: Joi.string().trim().max(24),
-    expiry: Joi.string().trim().max(10),
-    cvv: Joi.string().trim().max(4),
-  }),
+    .valid('cash', 'payme', 'click', 'uzumbank', 'installment')
+    .default('payme'),
   premiumServices: premiumServicesSchema,
   installmentPlan: Joi.object({
     months: Joi.number().integer().min(2).max(24),
     downPaymentPercent: Joi.number().min(0).max(100),
+    gateway: Joi.string().valid('payme', 'click', 'uzumbank'),
   }).unknown(true),
   returnUrl: Joi.string().uri({ allowRelative: false }).max(500),
 })
@@ -84,7 +80,7 @@ export const createOrderFromCartSchema = Joi.object({
     street: Joi.string().trim().min(1).max(300).required(),
     postalCode: Joi.string().trim().max(20).allow(''),
   }).required(),
-  paymentMethod: Joi.string().valid('payme', 'click', 'cash').required(),
+  paymentMethod: Joi.string().valid('payme', 'click', 'uzumbank', 'cash').required(),
   notes: Joi.string().trim().max(2000).allow(''),
   discount_amount: Joi.number().min(0).max(1_000_000_000).default(0),
   returnUrl: Joi.string().uri({ allowRelative: false }).max(500),
@@ -106,6 +102,15 @@ export const updateOrderStatusSchema = Joi.object({
 export const updatePaymentStatusSchema = Joi.object({
   paymentStatus: Joi.string().valid('unpaid', 'paid', 'refunded').required(),
   note: Joi.string().trim().max(500).allow(''),
+})
+
+/** POST /api/orders/create-payment */
+export const createOrderPaymentSchema = Joi.object({
+  orderId: Joi.string().hex().length(24).required(),
+  paymentMethod: Joi.string().valid('payme', 'click', 'uzumbank').required(),
+  amount: Joi.number().positive().max(1_000_000_000).required(),
+  installmentPeriod: Joi.number().integer().valid(3, 6, 12),
+  returnUrl: Joi.string().uri({ allowRelative: false }).max(500),
 })
 
 export { uzPhoneSchema }

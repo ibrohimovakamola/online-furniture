@@ -25,7 +25,14 @@ function buildUnavailableMessage() {
   if (error?.includes('fassert') || error?.includes('In-memory MongoDB')) {
     return (
       'Local database failed to start. Restart the backend (npm run dev). ' +
-      'If this persists, set MEMORY_DB_PERSIST=false or MONGODB_URI=mongodb://127.0.0.1:27017/exclusive in server/.env.'
+      'If this persists, set MEMORY_DB_PERSIST=false or MONGODB_URI=mongodb://127.0.0.1:27017/kresla in server/.env.'
+    )
+  }
+
+  if (error?.includes('ENOENT') && error?.includes('mkdir')) {
+    return (
+      'Local database could not create its data folder. Remove or fix DEV_MONGO_DATA_DIR in server/.env ' +
+      '(e.g. D: drive missing), then restart npm run dev.'
     )
   }
 

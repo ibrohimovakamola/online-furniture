@@ -1,14 +1,23 @@
 .cart{
-    margin-top: 80px;
+    margin-top: 40px;
+
+    @include breakpoint(lg) {
+        margin-top: 80px;
+    }
+
     &-route{
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-radius: 4px;
-        box-shadow: 0 0 12px rgb(236, 235, 235);
-        padding: 24px 40px;
-        margin-bottom: 40px;
+        display: none;
+
+        @include breakpoint(md) {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 4px;
+            box-shadow: 0 0 12px rgb(236, 235, 235);
+            padding: 24px 40px;
+            margin-bottom: 40px;
+        }
     }
     &-route--title{
         width: 25%;
@@ -34,12 +43,19 @@
     &-box{
         width: 100%;
         display: flex;
-        // justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
         border-radius: 4px;
         box-shadow: 0 0 12px rgb(236, 235, 235);
-        padding: 24px 40px;
+        padding: 16px;
         transition: .3s linear;
+
+        @include breakpoint(md) {
+            flex-direction: row;
+            align-items: center;
+            padding: 24px 40px;
+        }
         
         &:hover{
             .cart-delete{
@@ -47,8 +63,8 @@
             }
         }
         img{
-            width: 54px;
-            height: 54px;
+            width: 64px;
+            height: 64px;
             object-fit: contain;
         }
         
@@ -56,9 +72,14 @@
     &-info{
         display: flex;
         align-items: center;
-        gap: 20px;
-        width: 25%;
+        gap: 16px;
+        width: 100%;
         position: relative;
+
+        @include breakpoint(md) {
+            gap: 20px;
+            width: 25%;
+        }
        
         h4{
             font-family: Poppins;
@@ -75,28 +96,63 @@
         position: absolute;
         color: #DB4444;
         top: 0;
-        left: -4px;
+        right: 0;
+        min-width: 44px;
+        min-height: 44px;
         font-size: 18px;
-        display: none;
+        display: block;
         cursor: pointer;
+
+        @include breakpoint(md) {
+            left: -4px;
+            right: auto;
+            display: none;
+        }
     }
     &-price, &-price--end{
         font-family: Poppins;
         font-weight: 400;
         font-size: 16px;
         line-height: 24px;
-        width: 25%;
+        width: 100%;
         display: flex;
+        justify-content: space-between;
 
+        &::before {
+            font-weight: 500;
+            color: #666;
+        }
+
+        @include breakpoint(md) {
+            width: 25%;
+            justify-content: center;
+
+            &::before {
+                display: none;
+            }
+        }
+    }
+    &-price::before {
+        content: 'Narx:';
+    }
+    &-price--end::before {
+        content: 'Jami:';
     }
     &-price{
-        justify-content: center;
+        @include breakpoint(md) {
+            justify-content: center;
+        }
     }
     &-count{
         display: flex;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
-        width: 25%;
+        width: 100%;
+
+        @include breakpoint(md) {
+            justify-content: center;
+            width: 25%;
+        }
        
     }
     &-couter-wrapper{
@@ -145,8 +201,14 @@
     }
     &-payment{
         display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
+        flex-direction: column;
+        gap: 24px;
+
+        @include breakpoint(lg) {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
     }
     &-payment--form{
         display: flex;
@@ -191,7 +253,8 @@
         }
     }
     &-payment--line{
-        width: 422px;
+        width: 100%;
+        max-width: 422px;
         height: 1px;
         background: #abaaaa;
     }
@@ -209,6 +272,7 @@
     &-payment--btn{
         display: flex;
         justify-content: center;
+
         button{
             font-family: Poppins;
             font-weight: 500;
@@ -218,7 +282,14 @@
             border-radius: 4px;
             border: none;
             color: #FAFAFA;
-            padding: 16px 48px;
+            padding: 14px 32px;
+            min-height: 44px;
+            width: 100%;
+
+            @include breakpoint(md) {
+                width: auto;
+                padding: 16px 48px;
+            }
         }
            
     }

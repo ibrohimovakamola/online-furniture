@@ -143,6 +143,36 @@ function ProductFormModal({
   const handleSubmit = (e) => {
     e.preventDefault()
 
+    // ── Admin product add checklist (manual QA) ─────────────────────────────
+    // 1. Required fields: name, category, basePrice, stock, main image (create)
+    // 2. basePrice / stock must be valid numbers
+    // 3. Main image: File upload (URL optional via existing image on edit)
+    // 4. API: POST /api/admin/products (multipart via adminApi.products.create)
+    // 5. Success: toast + close modal + refetch list (ProductsAdmin.handleCreate)
+    // 6. Error: toast with backend message (adminSlice rejectWithValue)
+    //
+    // TEST CASE 1 — Valid: name + price + category + stock + image → ✅ created
+    // TEST CASE 2 — Missing name → ❌ "Ism majburiy"
+    // TEST CASE 3 — Invalid price (abc) → ❌ "Narx raqam bo'lishi kerak"
+    // TEST CASE 4 — Duplicate name/SKU → ✅ allowed (no unique name constraint)
+
+    if (!form.name.trim()) {
+      toast.error('Ism majburiy')
+      return
+    }
+
+    const price = Number(form.basePrice)
+    if (!form.basePrice.toString().trim() || Number.isNaN(price) || price < 0) {
+      toast.error("Narx raqam bo'lishi kerak")
+      return
+    }
+
+    const stock = Number(form.stock)
+    if (form.stock !== '' && (Number.isNaN(stock) || stock < 0)) {
+      toast.error("Zaxira miqdori raqam bo'lishi kerak")
+      return
+    }
+
     if (!form.category) {
       toast.error('Please select a category')
       return

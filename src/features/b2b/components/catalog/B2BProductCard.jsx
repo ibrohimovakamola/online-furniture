@@ -41,7 +41,7 @@ export default function B2BProductCard({
         )}
         {product.b2bOnly && (
           <span className="absolute top-2 right-2 rounded bg-kresla-primary text-white text-[10px] font-bold px-2 py-0.5">
-            B2B Exclusive
+            Kresla B2B
           </span>
         )}
       </Link>

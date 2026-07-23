@@ -2,7 +2,7 @@
 
 Reference PHP structure for **cPanel / Apache** hosting (mebelsotish.uz).
 
-> **Note:** The main Exclusive project is **React + Vite + Express + MongoDB** (`/` and `/server`).  
+> **Note:** The main Kresla project is **React + Vite + Express + MongoDB** (`/` and `/server`).  
 > Use this `php-app/` folder only if you deploy a PHP storefront or need a classic MVC layer on shared hosting.
 
 ## Structure

@@ -103,7 +103,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@exclusive.uz\",\n  \"password\": \"ChangeMe123!\"\n}"
+              "raw": "{\n  \"email\": \"admin@kresla.uz\",\n  \"password\": \"ChangeMe123!\"\n}"
             },
             "url": "{{baseUrl}}/api/auth/login"
           },

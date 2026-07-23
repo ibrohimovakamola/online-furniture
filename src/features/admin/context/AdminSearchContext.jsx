@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom'
 
 const AdminSearchContext = createContext(null)
 
-const THEME_KEY = 'exclusive-admin-theme'
+const THEME_KEY = 'kresla-admin-theme'
 
 export const EMPTY_PRODUCT_FILTERS = {
   category: '',

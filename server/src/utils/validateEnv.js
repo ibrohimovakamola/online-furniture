@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { getPaymeStatus, isClickConfigured } from '../config/payments.js'
+import { getPaymeStatus, isClickConfigured, isUzumBankConfigured } from '../config/payments.js'
 import { logApp } from './appLogger.js'
 
 const mongoUriSchema = z
@@ -111,6 +111,7 @@ export function logEnvConfig() {
     PAYME_TEST_MODE: payme.testMode,
     PAYME_WEBHOOK: payme.configured ? payme.webhookUrl : undefined,
     CLICK: isClickConfigured() ? 'configured' : 'not configured',
+    UZUMBANK: isUzumBankConfigured() ? 'configured' : 'not configured',
   })
 
   if (!payme.configured && isProd) {

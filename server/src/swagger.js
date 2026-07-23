@@ -178,6 +178,10 @@ const swaggerOptions = {
 
 export const swaggerSpec = swaggerJsdoc(swaggerOptions)
 
+export function getSwaggerSpec() {
+  return swaggerSpec
+}
+
 export const swaggerUiServe = swaggerUi.serve
 
 export const swaggerUiSetup = swaggerUi.setup(swaggerSpec, {

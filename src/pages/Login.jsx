@@ -15,10 +15,12 @@ const Login = () => {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   useEffect(() => {
     if (location.state?.from === '/admin' || location.state?.adminDenied) {
-      setEmail('admin@exclusive.uz')
+      setEmail('admin@kresla.uz')
     }
   }, [location.state?.from, location.state?.adminDenied])
 
@@ -30,6 +32,7 @@ const Login = () => {
       loginUser({
         email: email.trim().toLowerCase(),
         password,
+        rememberMe,
       })
     )
 
@@ -42,7 +45,7 @@ const Login = () => {
       if (isAdminRole(userData.role)) {
         navigate(location.state?.from || '/admin', { replace: true })
       } else {
-        navigate('/', { replace: true })
+        navigate(location.state?.from || '/', { replace: true })
       }
     }
   }
@@ -59,7 +62,7 @@ const Login = () => {
 
         {location.state?.from === '/admin' && !adminDeniedMessage && (
           <p className="login-text" style={{ marginBottom: '1rem' }}>
-            Admin panel: <strong>admin@exclusive.uz</strong> / <strong>ChangeMe123!</strong>
+            Admin panel: <strong>admin@kresla.uz</strong> / <strong>ChangeMe123!</strong>
           </p>
         )}
 
@@ -72,16 +75,9 @@ const Login = () => {
         {error && (
           <div className="login-error" role="alert">
             <p>{error}</p>
-            {error.toLowerCase().includes('database') && (
+            {error.toLowerCase().includes('verify') && (
               <p className="login-error-hint">
-                {error.toLowerCase().includes('disk') || error.toLowerCase().includes('space') ? (
-                  <>Free disk space on C: or switch to MongoDB Atlas in <code>server/.env</code>.</>
-                ) : (
-                  <>
-                    Backend fix: open <code>server/.env</code>, set <code>MONGODB_URI=memory</code> or Atlas URI, then run{' '}
-                    <code>npm run dev</code>.
-                  </>
-                )}
+                <Link to="/verify-email">Emailni tasdiqlash sahifasi</Link>
               </p>
             )}
           </div>
@@ -100,20 +96,44 @@ const Login = () => {
           </label>
           <label className="login-label">
             Parol
-            <input
-              placeholder="Parol kiriting"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                placeholder="Parol kiriting"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                style={{
+                  position: 'absolute',
+                  right: 8,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#0b3c3c',
+                }}
+              >
+                {showPassword ? 'Yashirish' : 'Ko\'rish'}
+              </button>
+            </div>
           </label>
           <div className="login-remember">
             <label className="login-last--label">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
               Remember me
             </label>
-            <p>Forgot password</p>
+            <p>
+              <Link to="/forgot-password">Forgot password?</Link>
+            </p>
           </div>
           <button className="login-btn" type="submit" disabled={status === 'loading'}>
             {status === 'loading' ? 'Signing in…' : 'Login'}

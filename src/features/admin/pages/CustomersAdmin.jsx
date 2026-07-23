@@ -22,6 +22,18 @@ function formatDate(value) {
   })
 }
 
+function formatAddressLine(address) {
+  if (!address) return '—'
+  if (typeof address === 'string') {
+    const trimmed = address.trim()
+    return trimmed || '—'
+  }
+  const parts = [address.street, address.city, address.region, address.postalCode]
+    .map((part) => String(part || '').trim())
+    .filter(Boolean)
+  return parts.length ? parts.join(', ') : '—'
+}
+
 function CustomersAdmin() {
   const dispatch = useDispatch()
   const { searchQuery, dateRange } = useAdminSearch()
@@ -108,7 +120,7 @@ function CustomersAdmin() {
                     </td>
                     <td className="py-4 px-4 text-[var(--admin-text-muted)]">{c.email}</td>
                     <td className="py-4 px-4 text-[var(--admin-text-muted)] max-w-[180px] truncate">
-                      {c.address || '—'}
+                      {formatAddressLine(c.address)}
                     </td>
                     <td className="py-4 px-4">
                       <select

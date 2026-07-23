@@ -5,15 +5,30 @@ import { AppError, asyncHandler } from '../utils/asyncHandler.js'
 
 const LISTABLE_ROLES = [ROLES.CUSTOMER, ROLES.MANAGER]
 
+function formatAddressForDisplay(address) {
+  if (!address) return ''
+  if (typeof address === 'string') return address.trim()
+  return [address.street, address.city, address.region, address.postalCode]
+    .map((part) => String(part || '').trim())
+    .filter(Boolean)
+    .join(', ')
+}
+
 function formatCustomer(u, statsMap) {
   const stats = statsMap[String(u._id)] || { totalOrders: 0, totalSpent: 0 }
+  const rawAddress = u.address
+  const addressDetails =
+    rawAddress && typeof rawAddress === 'object' && !Array.isArray(rawAddress)
+      ? rawAddress
+      : null
   return {
     id: u._id,
     firstName: u.firstName,
     lastName: u.lastName,
     name: `${u.firstName} ${u.lastName}`.trim(),
     email: u.email,
-    address: u.address || '',
+    address: formatAddressForDisplay(rawAddress),
+    addressDetails,
     role: u.role,
     isActive: u.isActive,
     isBlocked: !u.isActive,

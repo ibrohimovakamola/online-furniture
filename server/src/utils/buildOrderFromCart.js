@@ -113,13 +113,22 @@ export async function buildOrderFromUserCart(userId, { discount_amount = 0, prem
 export async function buildOrderFromCart({
   items,
   premiumServices,
-  paymentMethod = 'card',
+  paymentMethod = 'payme',
   installmentPlan,
 }) {
   if (!items?.length) throw new AppError('Cart is empty', 400)
 
+  if (paymentMethod === 'card') {
+    throw new AppError('Direct card payment is not supported. Use Payme, Click, or Uzum Bank.', 400)
+  }
+
+  const installmentGateway = installmentPlan?.gateway
   const isInstallment = paymentMethod === 'installment'
-  const isGateway = paymentMethod === 'payme' || paymentMethod === 'click'
+  const isGateway =
+    paymentMethod === 'payme' ||
+    paymentMethod === 'click' ||
+    paymentMethod === 'uzumbank' ||
+    (isInstallment && Boolean(installmentGateway))
 
   if (isInstallment) {
     const planMonths = Number(installmentPlan?.planMonths)
@@ -163,13 +172,16 @@ export async function buildOrderFromCart({
 
   let installmentDetails = null
   let orderTotal = baseTotal
-  let paymentStatus = isGateway ? 'pending' : 'paid'
-  let orderStatus = isGateway ? 'pending' : 'processing'
+  const isCash = paymentMethod === 'cash'
+  let paymentStatus = isGateway || isInstallment || isCash ? 'pending' : 'pending'
+  let orderStatus = isGateway || (isInstallment && installmentGateway) ? 'pending' : 'processing'
   let statusNote = isGateway
-    ? `Awaiting ${paymentMethod} payment`
+    ? `Awaiting ${isInstallment ? installmentGateway : paymentMethod} payment`
     : isInstallment
       ? `Installment order — ${installmentPlan.planMonths} months`
-      : 'Order placed via checkout'
+      : isCash
+        ? 'Cash on delivery — payment pending'
+        : 'Order placed via checkout'
 
   if (isInstallment) {
     const planMonths = Number(installmentPlan.planMonths)
@@ -197,7 +209,16 @@ export async function buildOrderFromCart({
       markupPercent: plan.markupPercent,
       markupAmount: plan.markupAmount,
     }
+
+    if (installmentGateway) {
+      paymentStatus = 'pending'
+      orderStatus = 'pending'
+      statusNote = `Installment — first payment via ${installmentGateway}`
+    }
   }
+
+  const gatewayChargeAmount =
+    isInstallment && installmentGateway ? installmentDetails?.monthlyPayment : orderTotal
 
   return {
     orderItems,
@@ -210,7 +231,9 @@ export async function buildOrderFromCart({
     orderStatus,
     statusNote,
     installmentDetails,
-    isGateway,
+    isGateway: isGateway || Boolean(isInstallment && installmentGateway),
     isInstallment,
+    installmentGateway: installmentGateway || null,
+    gatewayChargeAmount,
   }
 }

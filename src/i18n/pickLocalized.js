@@ -1,6 +1,6 @@
 export const SUPPORTED_LANGUAGES = ['en', 'ru', 'uz']
 export const DEFAULT_LANGUAGE = 'uz'
-export const LANGUAGE_STORAGE_KEY = 'exclusive_lang'
+export const LANGUAGE_STORAGE_KEY = 'kresla_lang'
 
 export function getStoredLanguage() {
   try {

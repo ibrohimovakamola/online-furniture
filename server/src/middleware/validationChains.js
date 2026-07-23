@@ -14,14 +14,24 @@ export const signupValidators = [
   body('password')
     .matches(PASSWORD_REGEX)
     .withMessage(PASSWORD_POLICY_MESSAGE),
+  body('confirmPassword')
+    .optional()
+    .custom((value, { req }) => value === req.body.password)
+    .withMessage('Passwords do not match'),
   body('phone')
     .optional({ values: 'falsy' })
     .trim()
     .matches(uzPhonePattern)
     .withMessage('Invalid phone number format'),
+  body('phoneNumber')
+    .optional({ values: 'falsy' })
+    .trim()
+    .matches(uzPhonePattern)
+    .withMessage('Invalid phone number format'),
+  body('preferredLanguage').optional().isIn(['uz', 'ru', 'en']),
   body('name').optional().trim().isLength({ min: 2, max: 120 }).escape(),
-  body('firstName').optional().trim().isLength({ min: 1, max: 60 }).escape(),
-  body('lastName').optional().trim().isLength({ min: 1, max: 60 }).escape(),
+  body('firstName').optional().trim().isLength({ min: 2, max: 60 }).escape(),
+  body('lastName').optional().trim().isLength({ min: 2, max: 60 }).escape(),
   handleValidationErrors,
 ]
 
@@ -31,8 +41,43 @@ export const forgotPasswordValidators = [
 ]
 
 export const resetPasswordValidators = [
-  body('token').trim().notEmpty().isLength({ max: 256 }),
-  body('password').matches(PASSWORD_REGEX).withMessage(PASSWORD_POLICY_MESSAGE),
+  body('token').optional().trim().isLength({ max: 256 }),
+  body('resetToken').optional().trim().isLength({ max: 256 }),
+  body('password').optional().matches(PASSWORD_REGEX).withMessage(PASSWORD_POLICY_MESSAGE),
+  body('newPassword').optional().matches(PASSWORD_REGEX).withMessage(PASSWORD_POLICY_MESSAGE),
+  body('confirmPassword')
+    .optional()
+    .custom((value, { req }) => {
+      const pwd = req.body.newPassword || req.body.password
+      return !value || value === pwd
+    })
+    .withMessage('Passwords do not match'),
+  body().custom((_, { req }) => {
+    if (!req.body.token && !req.body.resetToken) {
+      throw new Error('Reset token is required')
+    }
+    if (!req.body.newPassword && !req.body.password) {
+      throw new Error('New password is required')
+    }
+    return true
+  }),
+  handleValidationErrors,
+]
+
+export const verifyEmailValidators = [
+  body('verificationToken').optional().trim().isLength({ min: 16, max: 256 }),
+  body('token').optional().trim().isLength({ min: 16, max: 256 }),
+  body().custom((_, { req }) => {
+    if (!req.body.verificationToken && !req.body.token) {
+      throw new Error('Verification token is required')
+    }
+    return true
+  }),
+  handleValidationErrors,
+]
+
+export const resendVerificationValidators = [
+  body('email').trim().isEmail().normalizeEmail(),
   handleValidationErrors,
 ]
 

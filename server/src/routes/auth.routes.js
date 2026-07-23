@@ -26,6 +26,10 @@ import {
 
   resetPassword,
 
+  verifyEmail,
+
+  resendVerification,
+
   createStaffUser,
 
   listStaffUsers,
@@ -64,6 +68,10 @@ import {
 
   loginSchema,
 
+  verifyEmailSchema,
+
+  resendVerificationSchema,
+
   updateProfileSchema,
 
   deleteAccountSchema,
@@ -79,6 +87,10 @@ import {
   forgotPasswordValidators,
 
   resetPasswordValidators,
+
+  verifyEmailValidators,
+
+  resendVerificationValidators,
 
   changePasswordValidators,
 
@@ -145,6 +157,10 @@ router.post('/login', authLimiter, sanitizeBodyStrings(), loginValidators, valid
 router.post('/forgot-password', passwordResetLimiter, forgotPasswordValidators, forgotPassword)
 
 router.post('/reset-password', passwordResetLimiter, resetPasswordValidators, resetPassword)
+
+router.post('/verify-email', passwordResetLimiter, verifyEmailValidators, validateRequest(verifyEmailSchema), verifyEmail)
+
+router.post('/resend-verification', passwordResetLimiter, resendVerificationValidators, validateRequest(resendVerificationSchema), resendVerification)
 
 router.post('/refresh', refreshAccessToken)
 

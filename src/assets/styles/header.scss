@@ -5,6 +5,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 8px;
     }
     &-phone{
         display: flex;
@@ -12,13 +13,18 @@
         gap: 4px;
         font-family: 'Poppins';
         font-weight: 400;
-        font-size: 14px;
+        font-size: 12px;
         line-height: 21px;
-        letter-spacing: 0%;
         color: #FAFAFA;
+        white-space: nowrap;
+        flex-shrink: 0;
+
+        @include breakpoint(sm) {
+            font-size: 14px;
+        }
     }
     &-text{
-        display: flex;
+        display: none;
         gap: 8px;
         align-items: center;
         flex-wrap: wrap;
@@ -29,7 +35,11 @@
         line-height: 21px;
         color: #f0f4f4;
         text-align: center;
-        max-width: 52%;
+
+        @include breakpoint(md) {
+            display: flex;
+            max-width: 52%;
+        }
     }
     &-link{
         font-family: 'Poppins', sans-serif;
@@ -59,63 +69,263 @@
     }
 }
 
+.header-shell {
+    position: sticky;
+    top: 0;
+    z-index: 300;
+    background: #fff;
+}
+
 .header{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 0 16px;
-    gap: 50px;
-    @include breakpoint(lg){
-        // background: red;
+    padding: 10px 0;
+    gap: 12px;
+
+    @include breakpoint(xl) {
+        padding: 14px 0 12px;
+        gap: 20px;
     }
+
     &-logo{
         display: inline-flex;
         align-items: center;
         text-decoration: none;
         line-height: 0;
+        flex-shrink: 0;
 
         img {
             display: block;
         }
     }
-    &-menus{
-        display: flex;
+
+    &-menus--desktop {
+        display: none;
         align-items: center;
-        gap: 38px;
-    }
-    &-menu{
-        font-family: Poppins;
-        font-weight: 400;
-        font-size: 16px;
-        line-height: 24px;
-        letter-spacing: 0%;
-        text-align: center;
-        color: #000000;
-        text-decoration: none;
-        border-bottom: 1px solid #fff;
-        transition: .3s linear;
-        &:hover{
-            // border-bottom: 1px solid #000;
-            color: #145a5a;
+        gap: 20px;
+        flex: 1;
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        @include breakpoint(xl) {
+            display: flex;
+            gap: 28px;
         }
-       
     }
-    &-info{
+
+    &-menu{
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-family: Poppins, sans-serif;
+        font-weight: 400;
+        font-size: 15px;
+        line-height: 24px;
+        color: #1a1a1a;
+        text-decoration: none;
+        border-bottom: 2px solid transparent;
+        padding: 4px 0;
+        white-space: nowrap;
+        transition: color 0.2s, border-color 0.2s;
+
+        &:hover {
+            color: #0b3c3c;
+        }
+
+        &--active {
+            color: #0b3c3c;
+            font-weight: 500;
+            border-bottom-color: #0b3c3c;
+        }
+
+        &--dropdown {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font: inherit;
+
+            &.header-menu--active {
+                border-bottom-color: #0b3c3c;
+            }
+        }
+    }
+
+    &-actions {
         display: flex;
         align-items: center;
-        gap: 24px;
+        gap: 8px;
         min-width: 0;
+        margin-left: auto;
+
+        @include breakpoint(sm) {
+            gap: 12px;
+        }
+
+        @include breakpoint(xl) {
+            gap: 16px;
+            flex: 0 1 auto;
+        }
     }
+
+    &-icons {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        @include breakpoint(sm) {
+            gap: 8px;
+        }
+    }
+
+    &-search {
+        @include breakpoint(xl) {
+            max-width: 280px;
+            flex: 1;
+        }
+    }
+
+    &-auth {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        &--desktop {
+            display: none;
+
+            @include breakpoint(xl) {
+                display: flex;
+            }
+        }
+
+        &--mobile {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+    }
+
+    &-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 40px;
+        padding: 8px 14px;
+        font-family: Poppins, sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.2;
+        text-decoration: none;
+        border-radius: 6px;
+        white-space: nowrap;
+        transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        cursor: pointer;
+
+        &--ghost {
+            color: #0b3c3c;
+            background: transparent;
+            border: 1px solid #0b3c3c;
+
+            &:hover {
+                background: #f4f7f7;
+            }
+        }
+
+        &--primary {
+            color: #fff;
+            background: #0b3c3c;
+            border: 1px solid #0b3c3c;
+
+            &:hover {
+                background: #145a5a;
+                border-color: #145a5a;
+            }
+        }
+
+        &--user {
+            color: #0b3c3c;
+            background: #f4f7f7;
+            border: 1px solid #d1e0e0;
+            padding: 6px 10px 6px 6px;
+            max-width: none;
+
+            &:hover {
+                background: #e8f0f0;
+            }
+        }
+
+        &--block {
+            width: 100%;
+        }
+    }
+
+    &-icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+        border: none;
+        background: none;
+        color: #000;
+        text-decoration: none;
+        position: relative;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+
+        &:active {
+            background: rgba(11, 60, 60, 0.08);
+        }
+    }
+
+    &-wishlist, &-cart {
+        font-size: 20px;
+
+        @include breakpoint(sm) {
+            font-size: 22px;
+        }
+    }
+
+    &-menu-toggle {
+        color: #0b3c3c;
+
+        @include breakpoint(xl) {
+            display: none;
+        }
+    }
+
+    &-mark{
+        background: #DB4444;
+        font-size: 11px;
+        color: #fff;
+        padding: 2px 6px;
+        border-radius: 100%;
+        position: absolute;
+        left: 22px;
+        top: 4px;
+        min-width: 18px;
+        text-align: center;
+        line-height: 1.2;
+    }
+
     &-form{
-        // background: #F5F5F5; 
         border-radius: 4px;
-        padding: 0px 0px 0px 20px;
+        padding: 0;
         display: flex;
         align-items: center;
         border: 2px solid #0b3c3c;
         &--input{
-            width: 415px;
-            padding: 8px 8px;
+            width: 100%;
+            max-width: 415px;
+            padding: 8px;
             border: none;
             background: none;
             outline: none;
@@ -123,37 +333,116 @@
             font-weight: 400;
             font-size: 14px;
             line-height: 18px;
-            letter-spacing: 0%;
         }
         &--btn{
             background: #0b3c3c;
-            padding: 8px 8px;
+            padding: 8px;
             border: none;
             font-size: 20px;
             color: #fff;
-
         }
     }
-    &-wishlist, &-cart{
+
+    &-drawer-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 400;
         border: none;
-        background: none;
-        font-size: 24px;
-        color: #000;
-        text-decoration: none;
-        position: relative;
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(2px);
+        cursor: pointer;
+
+        @include breakpoint(xl) {
+            display: none;
+        }
     }
-    &-mark{
-        background: #DB4444;
+
+    &-drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        z-index: 410;
+        width: min(320px, 88vw);
+        height: 100dvh;
+        background: #fff;
+        box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
+        overflow-y: auto;
+        animation: headerDrawerIn 0.22s ease-out;
+
+        @include breakpoint(xl) {
+            display: none;
+        }
+    }
+
+    &-drawer-inner {
+        display: flex;
+        flex-direction: column;
+        padding: 5.5rem 1.25rem 2rem;
+        gap: 4px;
+    }
+
+    &-drawer-label {
+        margin: 12px 0 4px;
+        font-family: Poppins, sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #6b7280;
+    }
+
+    &-mobile-link {
+        display: flex;
+        align-items: center;
+        min-height: 44px;
+        padding: 10px 12px;
+        font-family: Poppins, sans-serif;
         font-size: 16px;
-        color: #fff;
-        padding: 2px 7px;
-        border-radius: 100%;
+        line-height: 24px;
+        color: #0b3c3c;
         text-decoration: none;
-        position: absolute;
-        left: 16px;
-        bottom: 12px;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+
+        &:active,
+        &--active {
+            background: #f4f7f7;
+            font-weight: 500;
+        }
     }
 }
+
+.header-user-menu {
+    position: relative;
+
+    .header-user-initials {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 32px;
+        padding: 0 6px;
+        border-radius: 999px;
+        background: #0b3c3c;
+        color: #fff;
+        font-family: Poppins, sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        line-height: 1;
+        text-transform: uppercase;
+    }
+}
+
+@keyframes headerDrawerIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
 .header-line{
     height: .5px;
     opacity: 0.3;
@@ -164,11 +453,7 @@
 select{
     background: none;
     border: none;
-    background: #000;
     outline: none;
     text-decoration: none !important;
     width: 100px;
 }
-// .header-menus .active{
-//     border-bottom: 1px solid #000;
-// }

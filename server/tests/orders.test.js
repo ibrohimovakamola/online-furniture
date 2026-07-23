@@ -109,7 +109,8 @@ describe('Orders API', () => {
 
   it('GET /api/health — returns API status', async () => {
     const res = await (await api()).get('/api/health').expect(200)
-    expect(res.body.success).toBe(true)
+    expect(res.body.status).toBe('ok')
+    expect(res.body.database).toBe('connected')
   })
 })
 

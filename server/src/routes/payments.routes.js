@@ -7,6 +7,7 @@ import {
   initiatePayment,
   handlePaymeWebhook,
   handleClickWebhook,
+  handleUzumWebhook,
   getPaymentStatus,
   paymeWebhook,
   clickCallback,
@@ -26,6 +27,9 @@ router.get('/gateways', listGateways)
 router.post('/initiate', protect, validateRequest(initiatePaymentSchema), initiatePayment)
 router.post('/payme-callback', webhookLimit, handlePaymeWebhook)
 router.post('/click-callback', webhookLimit, handleClickWebhook)
+router.post('/uzumbank-callback', webhookLimit, handleUzumWebhook)
+
+router.get('/logs', protect, authorizePermission(PERMISSIONS.VIEW_ORDERS), listPaymentLogs)
 router.get('/:orderId/status', protect, getPaymentStatus)
 
 /** Legacy aliases */
@@ -35,7 +39,6 @@ router.get('/click/callback', webhookLimit, clickCallback)
 router.post('/click/callback', webhookLimit, clickCallback)
 router.get('/status/:orderId', protect, getPaymentStatus)
 
-router.get('/logs', protect, authorizePermission(PERMISSIONS.VIEW_ORDERS), listPaymentLogs)
 router.post('/:paymentId/refund', protect, authorizePermission(PERMISSIONS.UPDATE_ORDER_STATUS), refundPayment)
 
 export default router

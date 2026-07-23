@@ -29,13 +29,13 @@ export function emailB2BApplicationSubmitted({ user, profile }) {
 export function emailB2BApplicationReceived({ user, profile }) {
   queueEmail({
     to: user.email,
-    subject: 'B2B application received — Exclusive Furniture',
+    subject: 'B2B application received — Kresla Furniture',
     html: `
       <p>Dear ${applicantName(user)},</p>
-      <p>Thank you for registering <strong>${profile.companyName}</strong> for Exclusive B2B wholesale access.</p>
+      <p>Thank you for registering <strong>${profile.companyName}</strong> for Kresla B2B wholesale access.</p>
       <p>Our team is reviewing your STIR/INN documents and business certificates. You will receive another email once your account is approved (typically 1–2 business days).</p>
       <p>Application reference: ${profile.id || profile._id}</p>
-      <p>— Exclusive B2B Team</p>
+      <p>— Kresla B2B Team</p>
     `,
   })
 }
@@ -49,14 +49,14 @@ export function emailB2BApproved({ user, profile }) {
 
   queueEmail({
     to: user.email,
-    subject: 'Your B2B account is approved — Exclusive Furniture',
+    subject: 'Your B2B account is approved — Kresla Furniture',
     html: `
       <p>Dear ${applicantName(user)},</p>
-      <p>Great news! <strong>${profile.companyName}</strong> has been verified for Exclusive B2B wholesale access.</p>
+      <p>Great news! <strong>${profile.companyName}</strong> has been verified for Kresla B2B wholesale access.</p>
       <p><strong>Credit terms:</strong> ${profile.creditTerms || 'prepay'}</p>
       <p><strong>Your account manager:</strong> ${manager.name} — ${manager.email} · ${manager.phone}</p>
       <p><a href="${portalUrl}">Log in to the B2B portal</a> to browse wholesale pricing and place orders.</p>
-      <p>— Exclusive B2B Team</p>
+      <p>— Kresla B2B Team</p>
     `,
   })
 }
@@ -65,13 +65,13 @@ export function emailB2BApproved({ user, profile }) {
 export function emailB2BRejected({ user, profile }) {
   queueEmail({
     to: user.email,
-    subject: 'B2B application update — Exclusive Furniture',
+    subject: 'B2B application update — Kresla Furniture',
     html: `
       <p>Dear ${applicantName(user)},</p>
       <p>We were unable to approve the B2B application for <strong>${profile.companyName}</strong> at this time.</p>
       ${profile.rejectedReason ? `<p><strong>Reason:</strong> ${profile.rejectedReason}</p>` : ''}
-      <p>You may re-submit updated documents from the B2B registration page or contact us at b2b@exclusive.uz.</p>
-      <p>— Exclusive B2B Team</p>
+      <p>You may re-submit updated documents from the B2B registration page or contact us at b2b@kresla.uz.</p>
+      <p>— Kresla B2B Team</p>
     `,
   })
 }

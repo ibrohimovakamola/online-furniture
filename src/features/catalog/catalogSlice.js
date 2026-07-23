@@ -6,7 +6,8 @@ export const fetchStoreCategories = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const { data } = await storeApi.categories()
-      return Array.isArray(data.categories) ? data.categories : []
+      const categories = data?.data?.categories ?? data?.categories ?? []
+      return Array.isArray(categories) ? categories : []
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || err.message || 'Failed to load categories'

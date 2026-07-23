@@ -1,6 +1,12 @@
 import axios from 'axios'
 import { getApiBaseUrl } from '@/config/apiBase'
 import { getStoredToken, persistAuthSession, clearAuthSession } from './authStorage'
+import {
+  ensureCsrfToken,
+  isCsrfError,
+  needsCsrfForConfig,
+  setCsrfHeader,
+} from './csrfToken'
 
 const api = axios.create({
   baseURL: getApiBaseUrl(),
@@ -74,10 +80,16 @@ async function refreshAccessToken() {
   return refreshPromise
 }
 
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(async (config) => {
   const token = resolveToken()
   setAuthHeader(config, token)
   stripJsonContentTypeForMultipart(config)
+
+  if (needsCsrfForConfig(config)) {
+    const csrf = await ensureCsrfToken()
+    setCsrfHeader(config, csrf)
+  }
+
   return config
 })
 
@@ -85,6 +97,13 @@ api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const { config, response } = error
+
+    if (isCsrfError(error) && config && !config._csrfRetry && needsCsrfForConfig(config)) {
+      config._csrfRetry = true
+      const csrf = await ensureCsrfToken({ force: true })
+      setCsrfHeader(config, csrf)
+      return api(config)
+    }
 
     if (response?.status === 401 && config && !config._retry && !shouldSkipRefreshRetry(config.url)) {
       config._retry = true
@@ -129,6 +148,13 @@ export const authApi = {
   refresh: () => api.post('/auth/refresh'),
   logout: () => api.post('/auth/logout'),
   getMe: () => api.get('/auth/me'),
+  verifyEmail: (payload) => api.post('/auth/verify-email', payload),
+  resendVerification: (payload) => api.post('/auth/resend-verification', payload),
+  forgotPassword: (payload) => api.post('/auth/forgot-password', payload),
+  resetPassword: (payload) => api.post('/auth/reset-password', payload),
+  updateProfile: (payload) => api.put('/auth/profile', payload),
+  changePassword: (payload) => api.post('/auth/change-password', payload),
+  deleteAccount: (payload) => api.delete('/auth/account', { data: payload }),
 }
 
 export default api
