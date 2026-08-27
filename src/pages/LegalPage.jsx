@@ -28,7 +28,9 @@ export default function LegalPage({ slug }) {
   }, [slug])
 
   usePageSEO({
-    title: page ? `${page.title} — Mebel Sotish` : 'Mebel Sotish',
+    title: page
+      ? `${page.seoTitle || page.title} — Kresla`
+      : 'Kresla',
     description: page?.description || '',
   })
 
@@ -64,6 +66,13 @@ export default function LegalPage({ slug }) {
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:py-12">
         <BreadCrumbs />
         <article className="legal-page mt-8">
+          {page.featuredImage ? (
+            <img
+              src={page.featuredImage}
+              alt=""
+              className="mb-8 max-h-72 w-full rounded-xl object-cover"
+            />
+          ) : null}
           <header className="mb-8 border-b border-[#0b3c3c]/10 pb-6">
             <h1 className="font-[Poppins] text-3xl font-bold tracking-tight text-[#1a1a1a] sm:text-4xl">
               {page.title}

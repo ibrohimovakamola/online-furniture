@@ -6,6 +6,9 @@ const SEED_PAGES = [
     title: 'Maxfiylik siyosati',
     description: 'Mebel Sotish maxfiylik siyosati — shaxsiy maʼlumotlaringiz qanday toplanishi va himoyalanishi.',
     keywords: ['maxfiylik', 'privacy', 'mebel', 'mebelsotish'],
+    published: true,
+    status: 'published',
+    template: 'legal',
     content: `
       <h2>Maʼlumot toplash</h2>
       <p>Buyurtma berishda ism, telefon, email va yetkazib berish manzilini to'playmiz. To'lov ma'lumotlari to'g'ridan-to'g'ri Payme yoki Click orqali qayta ishlanadi — biz karta raqamlarini saqlamaymiz.</p>
@@ -91,6 +94,13 @@ export async function seedPagesIfEmpty() {
     return
   }
 
-  await Page.insertMany(SEED_PAGES)
+  await Page.insertMany(
+    SEED_PAGES.map((page) => ({
+      ...page,
+      published: true,
+      status: 'published',
+      template: page.template || 'legal',
+    }))
+  )
   console.log(`[seed] Pages: inserted ${SEED_PAGES.length} default CMS pages`)
 }

@@ -433,3 +433,40 @@
   color: var(--admin-text-subtle);
   pointer-events: none;
 }
+
+.cms-page-editor {
+  padding-bottom: 2rem;
+}
+
+.cms-page-editor__toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin: -0.5rem -0.25rem 0;
+  padding: 0.5rem 0.25rem 0.75rem;
+  background: var(--admin-bg);
+  border-bottom: 1px solid transparent;
+}
+
+.cms-page-editor .admin-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+}
+
+.cms-page-editor .admin-rich-editor {
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--admin-bg-elevated, var(--admin-surface));
+}
+
+@media (max-width: 1024px) {
+  .cms-page-editor .cms-editor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cms-page-editor__sidebar {
+    position: static;
+  }
+}

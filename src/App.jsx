@@ -111,6 +111,8 @@ import SettingsAdmin from './features/admin/pages/SettingsAdmin'
 import GalleryManagement from './features/admin/pages/GalleryManagement'
 import B2BLeads from './features/admin/pages/B2BLeads'
 import FAQManagement from './features/admin/pages/FAQManagement'
+import CMSPageEditor from './features/admin/pages/CMSPageEditor'
+import CMSPagePreview from './features/admin/pages/CMSPagePreview'
 import PagesManagement from './features/admin/pages/PagesManagement'
 import BlogsAdmin from './features/admin/pages/BlogsAdmin'
 import BlogEditorAdmin from './features/admin/pages/BlogEditorAdmin'
@@ -134,6 +136,9 @@ function App() {
             <Route path="b2b-leads" element={<B2BLeads />} />
             <Route path="faq" element={<FAQManagement />} />
             <Route path="pages" element={<PagesManagement />} />
+            <Route path="pages/new" element={<CMSPageEditor />} />
+            <Route path="pages/edit/:slug" element={<CMSPageEditor />} />
+            <Route path="pages/:slug/preview" element={<CMSPagePreview />} />
             <Route path="blog/new" element={<BlogEditorAdmin />} />
             <Route path="blog/edit/:id" element={<BlogEditorAdmin />} />
             <Route path="blog/categories" element={<BlogCategoriesAdmin />} />

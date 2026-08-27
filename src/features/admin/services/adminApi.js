@@ -196,11 +196,16 @@ export const adminApi = {
     remove: (id) => api.delete(`/admin/faq/${id}`),
   },
   pages: {
-    list: () => api.get('/admin/pages'),
+    list: (params) => api.get('/admin/pages', { params }),
     get: (pageName) => api.get(`/admin/pages/${pageName}`),
     create: (payload) => api.post('/admin/pages', payload),
     update: (slug, payload) => api.put(`/admin/pages/${slug}`, payload),
     remove: (slug) => api.delete(`/admin/pages/${slug}`),
+    checkSlug: (slug, exclude) =>
+      api.get(`/admin/pages/check-slug/${encodeURIComponent(slug)}`, {
+        params: exclude ? { exclude } : undefined,
+      }),
+    duplicate: (slug) => api.post(`/admin/pages/${encodeURIComponent(slug)}/duplicate`),
   },
   gallery: {
     list: () => api.get('/admin/gallery'),

@@ -99,6 +99,8 @@ import {
   createPage,
   updatePage,
   deletePage,
+  checkPageSlug,
+  duplicatePage,
 } from '../controllers/page.controller.js'
 import {
   listAdminReviews,
@@ -270,6 +272,8 @@ router.delete('/faq/:id', deleteFaq)
 
 /** CMS pages — /api/admin/pages/:pageName */
 router.get('/pages', listQuery, listAdminPages)
+router.get('/pages/check-slug/:slug', checkPageSlug)
+router.post('/pages/:pageName/duplicate', duplicatePage)
 router.get('/pages/:pageName', getAdminPageByName)
 router.post('/pages', createPage)
 router.put('/pages/:pageName', updatePage)
